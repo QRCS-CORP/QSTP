@@ -1,0 +1,91 @@
+\doxysection{qstp\+\_\+connection\+\_\+state Struct Reference}
+\hypertarget{structqstp__connection__state}{}\label{structqstp__connection__state}\index{qstp\_connection\_state@{qstp\_connection\_state}}
+
+
+The QSTP socket connection state structure.  
+
+
+
+
+{\ttfamily \#include $<$qstp.\+h$>$}
+
+\doxysubsubsection*{Data Fields}
+\begin{DoxyCompactItemize}
+\item 
+qsc\+\_\+socket \mbox{\hyperlink{structqstp__connection__state_ae6865db404fdc42e72fdb48510d5a558}{target}}
+\item 
+qsc\+\_\+rcs\+\_\+state \mbox{\hyperlink{structqstp__connection__state_aec1bc59ca91d898f673d2ca825c02853}{rxcpr}}
+\item 
+qsc\+\_\+rcs\+\_\+state \mbox{\hyperlink{structqstp__connection__state_a9016aef42a7046d75b7d0d01f1f5cddb}{txcpr}}
+\item 
+uint64\+\_\+t \mbox{\hyperlink{structqstp__connection__state_a9bc7a133c2f47895567d675d3679e15a}{rxseq}}
+\item 
+uint64\+\_\+t \mbox{\hyperlink{structqstp__connection__state_a1b9dac0a156c3747fc39192a04f01aa0}{txseq}}
+\item 
+uint32\+\_\+t \mbox{\hyperlink{structqstp__connection__state_acb6c79f809882b2d62ccaab26ab8d945}{cid}}
+\item 
+\mbox{\hyperlink{qstp_8h_a99f0faf1be64cda2dcca3fc05a38f69b}{qstp\+\_\+flags}} \mbox{\hyperlink{structqstp__connection__state_a24cbcc58c2497e2f2534345fbaba1393}{exflag}}
+\item 
+bool \mbox{\hyperlink{structqstp__connection__state_a5bcb0abef75bec8baadc9cf3c1eaf19d}{receiver}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+The QSTP socket connection state structure. 
+
+This structure maintains the state of an active QSTP connection, including socket information, cipher states for receive and transmit channels, sequence numbers, and connection flags. 
+
+\doxysubsection{Field Documentation}
+\Hypertarget{structqstp__connection__state_acb6c79f809882b2d62ccaab26ab8d945}\index{qstp\_connection\_state@{qstp\_connection\_state}!cid@{cid}}
+\index{cid@{cid}!qstp\_connection\_state@{qstp\_connection\_state}}
+\doxysubsubsection{\texorpdfstring{cid}{cid}}
+{\footnotesize\ttfamily \label{structqstp__connection__state_acb6c79f809882b2d62ccaab26ab8d945} 
+uint32\+\_\+t cid}
+
+The connection instance count \Hypertarget{structqstp__connection__state_a24cbcc58c2497e2f2534345fbaba1393}\index{qstp\_connection\_state@{qstp\_connection\_state}!exflag@{exflag}}
+\index{exflag@{exflag}!qstp\_connection\_state@{qstp\_connection\_state}}
+\doxysubsubsection{\texorpdfstring{exflag}{exflag}}
+{\footnotesize\ttfamily \label{structqstp__connection__state_a24cbcc58c2497e2f2534345fbaba1393} 
+\mbox{\hyperlink{qstp_8h_a99f0faf1be64cda2dcca3fc05a38f69b}{qstp\+\_\+flags}} exflag}
+
+The key exchange (KEX) position flag \Hypertarget{structqstp__connection__state_a5bcb0abef75bec8baadc9cf3c1eaf19d}\index{qstp\_connection\_state@{qstp\_connection\_state}!receiver@{receiver}}
+\index{receiver@{receiver}!qstp\_connection\_state@{qstp\_connection\_state}}
+\doxysubsubsection{\texorpdfstring{receiver}{receiver}}
+{\footnotesize\ttfamily \label{structqstp__connection__state_a5bcb0abef75bec8baadc9cf3c1eaf19d} 
+bool receiver}
+
+Flag indicating if the connection was initialized in listener mode \Hypertarget{structqstp__connection__state_aec1bc59ca91d898f673d2ca825c02853}\index{qstp\_connection\_state@{qstp\_connection\_state}!rxcpr@{rxcpr}}
+\index{rxcpr@{rxcpr}!qstp\_connection\_state@{qstp\_connection\_state}}
+\doxysubsubsection{\texorpdfstring{rxcpr}{rxcpr}}
+{\footnotesize\ttfamily \label{structqstp__connection__state_aec1bc59ca91d898f673d2ca825c02853} 
+qsc\+\_\+rcs\+\_\+state rxcpr}
+
+The receive channel cipher state \Hypertarget{structqstp__connection__state_a9bc7a133c2f47895567d675d3679e15a}\index{qstp\_connection\_state@{qstp\_connection\_state}!rxseq@{rxseq}}
+\index{rxseq@{rxseq}!qstp\_connection\_state@{qstp\_connection\_state}}
+\doxysubsubsection{\texorpdfstring{rxseq}{rxseq}}
+{\footnotesize\ttfamily \label{structqstp__connection__state_a9bc7a133c2f47895567d675d3679e15a} 
+uint64\+\_\+t rxseq}
+
+The receive channel packet sequence number \Hypertarget{structqstp__connection__state_ae6865db404fdc42e72fdb48510d5a558}\index{qstp\_connection\_state@{qstp\_connection\_state}!target@{target}}
+\index{target@{target}!qstp\_connection\_state@{qstp\_connection\_state}}
+\doxysubsubsection{\texorpdfstring{target}{target}}
+{\footnotesize\ttfamily \label{structqstp__connection__state_ae6865db404fdc42e72fdb48510d5a558} 
+qsc\+\_\+socket target}
+
+The target socket structure \Hypertarget{structqstp__connection__state_a9016aef42a7046d75b7d0d01f1f5cddb}\index{qstp\_connection\_state@{qstp\_connection\_state}!txcpr@{txcpr}}
+\index{txcpr@{txcpr}!qstp\_connection\_state@{qstp\_connection\_state}}
+\doxysubsubsection{\texorpdfstring{txcpr}{txcpr}}
+{\footnotesize\ttfamily \label{structqstp__connection__state_a9016aef42a7046d75b7d0d01f1f5cddb} 
+qsc\+\_\+rcs\+\_\+state txcpr}
+
+The transmit channel cipher state \Hypertarget{structqstp__connection__state_a1b9dac0a156c3747fc39192a04f01aa0}\index{qstp\_connection\_state@{qstp\_connection\_state}!txseq@{txseq}}
+\index{txseq@{txseq}!qstp\_connection\_state@{qstp\_connection\_state}}
+\doxysubsubsection{\texorpdfstring{txseq}{txseq}}
+{\footnotesize\ttfamily \label{structqstp__connection__state_a1b9dac0a156c3747fc39192a04f01aa0} 
+uint64\+\_\+t txseq}
+
+The transmit channel packet sequence number 
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Users/stepp/\+Documents/\+Visual Studio 2022/\+Projects/\+C/\+QSTP/\+QSTP/\mbox{\hyperlink{qstp_8h}{qstp.\+h}}\end{DoxyCompactItemize}

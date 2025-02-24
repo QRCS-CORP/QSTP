@@ -1,0 +1,122 @@
+\doxysection{certificate.\+h}
+\hypertarget{certificate_8h_source}{}\label{certificate_8h_source}\index{C:/Users/stepp/Documents/Visual Studio 2022/Projects/C/QSTP/QSTP/certificate.h@{C:/Users/stepp/Documents/Visual Studio 2022/Projects/C/QSTP/QSTP/certificate.h}}
+\mbox{\hyperlink{certificate_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*\ 2025\ Quantum\ Resistant\ Cryptographic\ Solutions\ Corporation}}
+\DoxyCodeLine{00002\ \textcolor{comment}{\ *\ All\ Rights\ Reserved.}}
+\DoxyCodeLine{00003\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\ *\ NOTICE:\ This\ software\ and\ all\ accompanying\ materials\ are\ the\ exclusive\ }}
+\DoxyCodeLine{00005\ \textcolor{comment}{\ *\ property\ of\ Quantum\ Resistant\ Cryptographic\ Solutions\ Corporation\ (QRCS).}}
+\DoxyCodeLine{00006\ \textcolor{comment}{\ *\ The\ intellectual\ and\ technical\ concepts\ contained\ within\ this\ implementation\ }}
+\DoxyCodeLine{00007\ \textcolor{comment}{\ *\ are\ proprietary\ to\ QRCS\ and\ its\ authorized\ licensors\ and\ are\ protected\ under\ }}
+\DoxyCodeLine{00008\ \textcolor{comment}{\ *\ applicable\ U.S.\ and\ international\ copyright,\ patent,\ and\ trade\ secret\ laws.}}
+\DoxyCodeLine{00009\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00010\ \textcolor{comment}{\ *\ CRYPTOGRAPHIC\ STANDARDS:}}
+\DoxyCodeLine{00011\ \textcolor{comment}{\ *\ -\/\ This\ software\ includes\ implementations\ of\ cryptographic\ algorithms\ such\ as\ }}
+\DoxyCodeLine{00012\ \textcolor{comment}{\ *\ \ \ SHA3,\ AES,\ and\ others.\ These\ algorithms\ are\ public\ domain\ or\ standardized\ }}
+\DoxyCodeLine{00013\ \textcolor{comment}{\ *\ \ \ by\ organizations\ such\ as\ NIST\ and\ are\ NOT\ the\ property\ of\ QRCS.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{\ *\ -\/\ However,\ all\ source\ code,\ optimizations,\ and\ implementations\ in\ this\ library\ }}
+\DoxyCodeLine{00015\ \textcolor{comment}{\ *\ \ \ are\ original\ works\ of\ QRCS\ and\ are\ protected\ under\ this\ license.}}
+\DoxyCodeLine{00016\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00017\ \textcolor{comment}{\ *\ RESTRICTIONS:}}
+\DoxyCodeLine{00018\ \textcolor{comment}{\ *\ -\/\ Redistribution,\ modification,\ or\ unauthorized\ distribution\ of\ this\ software,\ }}
+\DoxyCodeLine{00019\ \textcolor{comment}{\ *\ \ \ in\ whole\ or\ in\ part,\ is\ strictly\ prohibited.}}
+\DoxyCodeLine{00020\ \textcolor{comment}{\ *\ -\/\ This\ software\ is\ provided\ for\ non-\/commercial,\ educational,\ and\ research\ }}
+\DoxyCodeLine{00021\ \textcolor{comment}{\ *\ \ \ purposes\ only.\ Commercial\ use\ in\ any\ form\ is\ expressly\ forbidden.}}
+\DoxyCodeLine{00022\ \textcolor{comment}{\ *\ -\/\ Licensing\ and\ authorized\ distribution\ are\ solely\ at\ the\ discretion\ of\ QRCS.}}
+\DoxyCodeLine{00023\ \textcolor{comment}{\ *\ -\/\ Any\ use\ of\ this\ software\ implies\ acceptance\ of\ these\ restrictions.}}
+\DoxyCodeLine{00024\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00025\ \textcolor{comment}{\ *\ DISCLAIMER:}}
+\DoxyCodeLine{00026\ \textcolor{comment}{\ *\ This\ software\ is\ provided\ "{}as\ is,"{}\ without\ warranty\ of\ any\ kind,\ express\ or\ }}
+\DoxyCodeLine{00027\ \textcolor{comment}{\ *\ implied,\ including\ but\ not\ limited\ to\ warranties\ of\ merchantability\ or\ fitness\ }}
+\DoxyCodeLine{00028\ \textcolor{comment}{\ *\ for\ a\ particular\ purpose.\ QRCS\ disclaims\ all\ liability\ for\ any\ direct,\ indirect,\ }}
+\DoxyCodeLine{00029\ \textcolor{comment}{\ *\ incidental,\ or\ consequential\ damages\ resulting\ from\ the\ use\ or\ misuse\ of\ this\ software.}}
+\DoxyCodeLine{00030\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00031\ \textcolor{comment}{\ *\ FULL\ LICENSE:}}
+\DoxyCodeLine{00032\ \textcolor{comment}{\ *\ This\ software\ is\ subject\ to\ the\ **Quantum\ Resistant\ Cryptographic\ Solutions\ }}
+\DoxyCodeLine{00033\ \textcolor{comment}{\ *\ Proprietary\ License\ (QRCS-\/PL)**.\ The\ complete\ license\ terms\ are\ included\ }}
+\DoxyCodeLine{00034\ \textcolor{comment}{\ *\ in\ the\ LICENSE.txt\ file\ distributed\ with\ this\ software.}}
+\DoxyCodeLine{00035\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00036\ \textcolor{comment}{\ *\ Written\ by:\ John\ G.\ Underhill}}
+\DoxyCodeLine{00037\ \textcolor{comment}{\ *\ Contact:\ john.underhill@protonmail.com}}
+\DoxyCodeLine{00038\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00040\ \textcolor{preprocessor}{\#ifndef\ QSTP\_CERTIFICATE\_H}}
+\DoxyCodeLine{00041\ \textcolor{preprocessor}{\#define\ QSTP\_CERTIFICATE\_H}}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00043\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{qstp_8h}{qstp.h}}"{}}}
+\DoxyCodeLine{00044\ }
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00057\ \mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\_EXPORT\_API}}\ \mbox{\hyperlink{qstp_8h_a991a36604b9ed63a500c4a19be40f70e}{qstp\_configuration\_sets}}\ \mbox{\hyperlink{certificate_8h_a3fa5fd1a439e2f8650db65958e743685}{qstp\_certificate\_algorithm\_decode}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ name);}
+\DoxyCodeLine{00058\ }
+\DoxyCodeLine{00066\ \mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\_EXPORT\_API}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{certificate_8h_aca26ce034b114e02fddad941f9b46e5b}{qstp\_certificate\_algorithm\_enabled}}(\mbox{\hyperlink{qstp_8h_a991a36604b9ed63a500c4a19be40f70e}{qstp\_configuration\_sets}}\ conf);}
+\DoxyCodeLine{00067\ }
+\DoxyCodeLine{00074\ \mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\_EXPORT\_API}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{certificate_8h_a5e25ac310678bb1a6301566561a3eb3a}{qstp\_certificate\_algorithm\_encode}}(\textcolor{keywordtype}{char}*\ name,\ \mbox{\hyperlink{qstp_8h_a991a36604b9ed63a500c4a19be40f70e}{qstp\_configuration\_sets}}\ conf);}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00084\ \mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\_EXPORT\_API}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{certificate_8h_ab87eb1aca3c035db5ff2772ebbc3fe2e}{qstp\_certificate\_child\_are\_equal}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structqstp__server__certificate}{qstp\_server\_certificate}}*\ a,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structqstp__server__certificate}{qstp\_server\_certificate}}*\ b);}
+\DoxyCodeLine{00085\ }
+\DoxyCodeLine{00096\ \mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\_EXPORT\_API}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{certificate_8h_ac93aede36dbaa242abf7bbac7ea208a1}{qstp\_certificate\_child\_create}}(\mbox{\hyperlink{structqstp__server__certificate}{qstp\_server\_certificate}}*\ child,\ \textcolor{keyword}{const}\ uint8\_t*\ pubkey,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structqstp__certificate__expiration}{qstp\_certificate\_expiration}}*\ expiration,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ issuer);}
+\DoxyCodeLine{00097\ }
+\DoxyCodeLine{00106\ \mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\_EXPORT\_API}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{certificate_8h_a4616a3181052bdf9ee8875a85803d9cf}{qstp\_certificate\_child\_decode}}(\mbox{\hyperlink{structqstp__server__certificate}{qstp\_server\_certificate}}*\ child,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ enck[QSTP\_SERVER\_CERTIFICATE\_STRING\_SIZE]);}
+\DoxyCodeLine{00107\ }
+\DoxyCodeLine{00114\ \mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\_EXPORT\_API}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{certificate_8h_a12c393e5a02cf45b20a843ffa060c3e7}{qstp\_certificate\_child\_deserialize}}(\mbox{\hyperlink{structqstp__server__certificate}{qstp\_server\_certificate}}*\ child,\ \textcolor{keyword}{const}\ uint8\_t*\ input);}
+\DoxyCodeLine{00115\ }
+\DoxyCodeLine{00124\ \mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\_EXPORT\_API}}\ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{certificate_8h_a117acf7d488ac41f0446eff567160937}{qstp\_certificate\_child\_encode}}(\textcolor{keywordtype}{char}\ enck[QSTP\_SERVER\_CERTIFICATE\_STRING\_SIZE],\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structqstp__server__certificate}{qstp\_server\_certificate}}*\ child);}
+\DoxyCodeLine{00125\ }
+\DoxyCodeLine{00131\ \mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\_EXPORT\_API}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{certificate_8h_a881d473b672df5f1f28630b966c8c035}{qstp\_certificate\_child\_erase}}(\mbox{\hyperlink{structqstp__server__certificate}{qstp\_server\_certificate}}*\ child);}
+\DoxyCodeLine{00132\ }
+\DoxyCodeLine{00141\ \mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\_EXPORT\_API}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{certificate_8h_a62c3e3597deb63b2630d341b10a75fb8}{qstp\_certificate\_child\_file\_to\_struct}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ fpath,\ \mbox{\hyperlink{structqstp__server__certificate}{qstp\_server\_certificate}}*\ child);}
+\DoxyCodeLine{00142\ }
+\DoxyCodeLine{00149\ \mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\_EXPORT\_API}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{certificate_8h_a7f711e0910e64eff70ab66f3c8fcbeea}{qstp\_certificate\_child\_hash}}(uint8\_t*\ output,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structqstp__server__certificate}{qstp\_server\_certificate}}*\ child);}
+\DoxyCodeLine{00150\ }
+\DoxyCodeLine{00156\ \mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\_EXPORT\_API}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{certificate_8h_a91f33a3b9abaf8cf5c56c5e113973e9b}{qstp\_certificate\_child\_is\_valid}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structqstp__server__certificate}{qstp\_server\_certificate}}*\ child);}
+\DoxyCodeLine{00157\ }
+\DoxyCodeLine{00169\ \mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\_EXPORT\_API}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{certificate_8h_a78f22c20d113ea136b5ed4af93bdc328}{qstp\_certificate\_child\_message\_verify}}(uint8\_t*\ message,\ \textcolor{keywordtype}{size\_t}*\ msglen,\ \textcolor{keyword}{const}\ uint8\_t*\ signature,\ \textcolor{keywordtype}{size\_t}\ siglen,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structqstp__server__certificate}{qstp\_server\_certificate}}*\ child);}
+\DoxyCodeLine{00170\ }
+\DoxyCodeLine{00177\ \mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\_EXPORT\_API}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{certificate_8h_ad067b616e9958cd98b3d275b76f181eb}{qstp\_certificate\_child\_serialize}}(uint8\_t*\ output,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structqstp__server__certificate}{qstp\_server\_certificate}}*\ child);}
+\DoxyCodeLine{00178\ }
+\DoxyCodeLine{00190\ \mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\_EXPORT\_API}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{certificate_8h_ad38919d5f1e011b9c4b30c9c13b00b3e}{qstp\_certificate\_signature\_hash\_verify}}(\textcolor{keyword}{const}\ uint8\_t*\ signature,\ \textcolor{keywordtype}{size\_t}\ siglen,\ \textcolor{keyword}{const}\ uint8\_t*\ message,\ \textcolor{keywordtype}{size\_t}\ msglen,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structqstp__server__certificate}{qstp\_server\_certificate}}*\ lcert);}
+\DoxyCodeLine{00191\ }
+\DoxyCodeLine{00200\ \mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\_EXPORT\_API}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{certificate_8h_aa219ba4c5a8ac30fec4c10ca31d86de4}{qstp\_certificate\_child\_struct\_to\_file}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ fpath,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structqstp__server__certificate}{qstp\_server\_certificate}}*\ child);}
+\DoxyCodeLine{00201\ }
+\DoxyCodeLine{00209\ \mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\_EXPORT\_API}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{certificate_8h_abbfd86079d4f904d6c0dcecacbeb2f6c}{qstp\_certificate\_expiration\_set\_days}}(\mbox{\hyperlink{structqstp__certificate__expiration}{qstp\_certificate\_expiration}}*\ expiration,\ uint16\_t\ start,\ uint16\_t\ duration);}
+\DoxyCodeLine{00210\ }
+\DoxyCodeLine{00218\ \mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\_EXPORT\_API}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{certificate_8h_a20933c92ba3cda556cf7ae86628615ce}{qstp\_certificate\_expiration\_set\_seconds}}(\mbox{\hyperlink{structqstp__certificate__expiration}{qstp\_certificate\_expiration}}*\ expiration,\ uint64\_t\ start,\ uint64\_t\ period);}
+\DoxyCodeLine{00219\ }
+\DoxyCodeLine{00230\ \mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\_EXPORT\_API}}\ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{certificate_8h_a5ea0960e48568b3169494d6d83553e18}{qstp\_certificate\_message\_hash\_sign}}(uint8\_t*\ signature,\ \textcolor{keyword}{const}\ uint8\_t*\ sigkey,\ \textcolor{keyword}{const}\ uint8\_t*\ message,\ \textcolor{keywordtype}{size\_t}\ msglen);}
+\DoxyCodeLine{00231\ }
+\DoxyCodeLine{00240\ \mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\_EXPORT\_API}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{certificate_8h_a568944de74d5bbd6f058e6a1f83abb75}{qstp\_certificate\_root\_compare}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structqstp__root__certificate}{qstp\_root\_certificate}}*\ a,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structqstp__root__certificate}{qstp\_root\_certificate}}*\ b);}
+\DoxyCodeLine{00241\ }
+\DoxyCodeLine{00250\ \mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\_EXPORT\_API}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{certificate_8h_a3e80ce7ef3bfcc8647bc0afd864c74f9}{qstp\_certificate\_root\_create}}(\mbox{\hyperlink{structqstp__root__certificate}{qstp\_root\_certificate}}*\ root,\ \textcolor{keyword}{const}\ uint8\_t*\ pubkey,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structqstp__certificate__expiration}{qstp\_certificate\_expiration}}*\ expiration,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ issuer);}
+\DoxyCodeLine{00251\ }
+\DoxyCodeLine{00260\ \mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\_EXPORT\_API}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{certificate_8h_ae74b52210c43aa6a78a6b8fc23d8b020}{qstp\_certificate\_root\_decode}}(\mbox{\hyperlink{structqstp__root__certificate}{qstp\_root\_certificate}}*\ root,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ enck);}
+\DoxyCodeLine{00261\ }
+\DoxyCodeLine{00270\ \mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\_EXPORT\_API}}\ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{certificate_8h_a12031cd9dce4bb221dfaca8cec8fa812}{qstp\_certificate\_root\_deserialize}}(\mbox{\hyperlink{structqstp__root__certificate}{qstp\_root\_certificate}}*\ root,\ \textcolor{keyword}{const}\ uint8\_t*\ input);}
+\DoxyCodeLine{00271\ }
+\DoxyCodeLine{00280\ \mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\_EXPORT\_API}}\ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{certificate_8h_a8b6bf47f183e7ac8355dadf6564a44cf}{qstp\_certificate\_root\_encode}}(\textcolor{keywordtype}{char}*\ enck,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structqstp__root__certificate}{qstp\_root\_certificate}}*\ root);}
+\DoxyCodeLine{00281\ }
+\DoxyCodeLine{00287\ \mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\_EXPORT\_API}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{certificate_8h_af960d08209a9bdaef2ee08a74ca44913}{qstp\_certificate\_root\_erase}}(\mbox{\hyperlink{structqstp__root__certificate}{qstp\_root\_certificate}}*\ root);}
+\DoxyCodeLine{00288\ }
+\DoxyCodeLine{00295\ \mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\_EXPORT\_API}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{certificate_8h_a7a580279806ab8e03290315bde8116e5}{qstp\_certificate\_root\_hash}}(uint8\_t*\ output,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structqstp__root__certificate}{qstp\_root\_certificate}}*\ root);}
+\DoxyCodeLine{00296\ }
+\DoxyCodeLine{00303\ \mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\_EXPORT\_API}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{certificate_8h_a300db6cdb0c89a71eb60afb531a18121}{qstp\_certificate\_root\_serialize}}(uint8\_t*\ output,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structqstp__root__certificate}{qstp\_root\_certificate}}*\ root);}
+\DoxyCodeLine{00304\ }
+\DoxyCodeLine{00314\ \mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\_EXPORT\_API}}\ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{certificate_8h_a5b4fcccde45146dea6d724a535e7fb06}{qstp\_certificate\_root\_sign}}(\mbox{\hyperlink{structqstp__server__certificate}{qstp\_server\_certificate}}*\ child,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structqstp__root__certificate}{qstp\_root\_certificate}}*\ root,\ \textcolor{keyword}{const}\ uint8\_t*\ rsigkey);}
+\DoxyCodeLine{00315\ }
+\DoxyCodeLine{00324\ \mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\_EXPORT\_API}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{certificate_8h_aeaf254668ddbd5391b6fbdb09743372d}{qstp\_certificate\_root\_signature\_verify}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structqstp__server__certificate}{qstp\_server\_certificate}}*\ child,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structqstp__root__certificate}{qstp\_root\_certificate}}*\ root);}
+\DoxyCodeLine{00325\ }
+\DoxyCodeLine{00333\ \mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\_EXPORT\_API}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{certificate_8h_a43dfd5f6064f922a7ca868f6d2e915d6}{qstp\_certificate\_root\_is\_valid}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structqstp__root__certificate}{qstp\_root\_certificate}}*\ root);}
+\DoxyCodeLine{00334\ }
+\DoxyCodeLine{00340\ \mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\_EXPORT\_API}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{certificate_8h_ae993c84ade1c20fe2aab2b9981b498a6}{qstp\_certificate\_signature\_generate\_keypair}}(qstp\_asymmetric\_signature\_keypair*\ keypair);}
+\DoxyCodeLine{00341\ }
+\DoxyCodeLine{00351\ \mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\_EXPORT\_API}}\ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{certificate_8h_a28b8c62a11c9e19e6d3f78d69d428e41}{qstp\_certificate\_signature\_sign\_message}}(uint8\_t*\ signature,\ \textcolor{keyword}{const}\ uint8\_t*\ message,\ \textcolor{keywordtype}{size\_t}\ msglen,\ \textcolor{keyword}{const}\ uint8\_t*\ prikey);}
+\DoxyCodeLine{00352\ }
+\DoxyCodeLine{00361\ \mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\_EXPORT\_API}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{certificate_8h_a72eaaa7dc4c6d24e16ce5106df69279f}{qstp\_certificate\_signature\_verify\_message}}(\textcolor{keyword}{const}\ uint8\_t*\ message,\ \textcolor{keywordtype}{size\_t}\ msglen,\ \textcolor{keyword}{const}\ uint8\_t*\ signature,\ \textcolor{keywordtype}{size\_t}\ siglen,\ \textcolor{keyword}{const}\ uint8\_t*\ pubkey);}
+\DoxyCodeLine{00362\ }
+\DoxyCodeLine{00363\ \textcolor{preprocessor}{\#if\ defined(QSTP\_COMPILE\_DEBUG\_MODE)}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00369\ \mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\_EXPORT\_API}}\ \textcolor{keywordtype}{bool}\ qstp\_certificate\_functions\_test();}
+\DoxyCodeLine{00370\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00371\ }
+\DoxyCodeLine{00372\ \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

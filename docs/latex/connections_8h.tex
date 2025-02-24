@@ -1,0 +1,263 @@
+\doxysection{C\+:/\+Users/stepp/\+Documents/\+Visual Studio 2022/\+Projects/\+C/\+QSTP/\+QSTP/connections.h File Reference}
+\hypertarget{connections_8h}{}\label{connections_8h}\index{C:/Users/stepp/Documents/Visual Studio 2022/Projects/C/QSTP/QSTP/connections.h@{C:/Users/stepp/Documents/Visual Studio 2022/Projects/C/QSTP/QSTP/connections.h}}
+
+
+The server connection collection.  
+
+
+{\ttfamily \#include "{}common.\+h"{}}\newline
+{\ttfamily \#include "{}qstp.\+h"{}}\newline
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+bool \mbox{\hyperlink{connections_8h_ac7c7b720e79108905b1eab6bc4dd79c7}{qstp\+\_\+connections\+\_\+active}} (size\+\_\+t index)
+\begin{DoxyCompactList}\small\item\em Check if a connection in the collection is active. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structqstp__connection__state}{qstp\+\_\+connection\+\_\+state}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{connections_8h_ab1ed1e568b21f0f288ce753cd2ac99fb}{qstp\+\_\+connections\+\_\+add}} (void)
+\begin{DoxyCompactList}\small\item\em Add a new connection state to the collection and mark it as active. \end{DoxyCompactList}\item 
+size\+\_\+t \mbox{\hyperlink{connections_8h_a3a4ebe4dc07c9732ba54ac4806e1709e}{qstp\+\_\+connections\+\_\+available}} (void)
+\begin{DoxyCompactList}\small\item\em Get the number of available (inactive) connection states in the collection. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structqstp__connection__state}{qstp\+\_\+connection\+\_\+state}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{connections_8h_aff541f4cbb3b07faec75d88fc798b02e}{qstp\+\_\+connections\+\_\+get}} (uint32\+\_\+t instance)
+\begin{DoxyCompactList}\small\item\em Retrieve a connection state pointer using its instance number. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{connections_8h_ac17e9d5e47d483fbd600591ba0fdbcad}{qstp\+\_\+connections\+\_\+initialize}} (size\+\_\+t count, size\+\_\+t maximum)
+\begin{DoxyCompactList}\small\item\em Initialize the connections collection. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{connections_8h_a2686a5519602a550500c9178eb57f3b6}{qstp\+\_\+connections\+\_\+clear}} (void)
+\begin{DoxyCompactList}\small\item\em Erase all connection states in the collection. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{connections_8h_a046b514f8cb08354cc8bc9b9a3d6b431}{qstp\+\_\+connections\+\_\+dispose}} (void)
+\begin{DoxyCompactList}\small\item\em Dispose of the connections collection. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structqstp__connection__state}{qstp\+\_\+connection\+\_\+state}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{connections_8h_a7cefc671106c7538346010b6fa2ef8e3}{qstp\+\_\+connections\+\_\+index}} (size\+\_\+t index)
+\begin{DoxyCompactList}\small\item\em Retrieve a connection state pointer by its collection index. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{connections_8h_afcdbe4669061be9bd50568a62bcebf78}{qstp\+\_\+connections\+\_\+full}} (void)
+\begin{DoxyCompactList}\small\item\em Check if the connection collection is full. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structqstp__connection__state}{qstp\+\_\+connection\+\_\+state}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{connections_8h_a96b12c49e7d6882356d15cf8b42b2001}{qstp\+\_\+connections\+\_\+next}} (void)
+\begin{DoxyCompactList}\small\item\em Get the next available connection state. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{connections_8h_a15a0550f1f2397d634b8aeff56ea8bb0}{qstp\+\_\+connections\+\_\+reset}} (uint32\+\_\+t instance)
+\begin{DoxyCompactList}\small\item\em Reset a connection state in the collection. \end{DoxyCompactList}\item 
+size\+\_\+t \mbox{\hyperlink{connections_8h_aef7bdb649172b0f72618e3a8f663ba3c}{qstp\+\_\+connections\+\_\+size}} (void)
+\begin{DoxyCompactList}\small\item\em Get the total number of connection state objects in the collection. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{connections_8h_a5faf3f92a79b5f0753412dde4b402bbd}{qstp\+\_\+connections\+\_\+self\+\_\+test}} (void)
+\begin{DoxyCompactList}\small\item\em Run the self-\/test for the connection collection. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+The server connection collection. 
+
+This header defines a set of internal functions for managing the QSTP connection collection. The connection collection is an array or list of QSTP connection state objects that represent active or available network connections. These functions provide mechanisms to\+:
+
+
+\begin{DoxyItemize}
+\item Check the active status of a connection at a given index.
+\item Add a new connection state to the collection.
+\item Retrieve connection states by instance number or by index.
+\item Initialize, clear, reset, and dispose of the entire connection collection.
+\item Determine the number of available connection states and the total size of the collection.
+\end{DoxyItemize}
+
+Additionally, a self-\/test function is provided to verify the correct operation of the connection collection management routines. The self-\/test exercises various operations including addition, retrieval, reset, and disposal of connection state items.
+
+\begin{DoxyNote}{Note}
+These functions are internal and non-\/exportable. 
+\end{DoxyNote}
+
+
+\doxysubsection{Function Documentation}
+\Hypertarget{connections_8h_ac7c7b720e79108905b1eab6bc4dd79c7}\index{connections.h@{connections.h}!qstp\_connections\_active@{qstp\_connections\_active}}
+\index{qstp\_connections\_active@{qstp\_connections\_active}!connections.h@{connections.h}}
+\doxysubsubsection{\texorpdfstring{qstp\_connections\_active()}{qstp\_connections\_active()}}
+{\footnotesize\ttfamily \label{connections_8h_ac7c7b720e79108905b1eab6bc4dd79c7} 
+bool qstp\+\_\+connections\+\_\+active (\begin{DoxyParamCaption}\item[{size\+\_\+t}]{index}{}\end{DoxyParamCaption})}
+
+
+
+Check if a connection in the collection is active. 
+
+This function checks whether the connection state at the specified index in the connection collection is currently marked as active.
+
+
+\begin{DoxyParams}{Parameters}
+{\em index} & The index (zero-\/based) in the connections collection.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Returns true if the connection at the given index is active; otherwise, returns false. 
+\end{DoxyReturn}
+\Hypertarget{connections_8h_ab1ed1e568b21f0f288ce753cd2ac99fb}\index{connections.h@{connections.h}!qstp\_connections\_add@{qstp\_connections\_add}}
+\index{qstp\_connections\_add@{qstp\_connections\_add}!connections.h@{connections.h}}
+\doxysubsubsection{\texorpdfstring{qstp\_connections\_add()}{qstp\_connections\_add()}}
+{\footnotesize\ttfamily \label{connections_8h_ab1ed1e568b21f0f288ce753cd2ac99fb} 
+\mbox{\hyperlink{structqstp__connection__state}{qstp\+\_\+connection\+\_\+state}} \texorpdfstring{$\ast$}{*} qstp\+\_\+connections\+\_\+add (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Add a new connection state to the collection and mark it as active. 
+
+This function creates a new connection state object, adds it to the connections collection, and sets its status to active. If the collection is full or memory allocation fails, the function returns NULL.
+
+\begin{DoxyReturn}{Returns}
+Returns a pointer to the newly added QSTP connection state, or NULL on failure. 
+\end{DoxyReturn}
+\Hypertarget{connections_8h_a3a4ebe4dc07c9732ba54ac4806e1709e}\index{connections.h@{connections.h}!qstp\_connections\_available@{qstp\_connections\_available}}
+\index{qstp\_connections\_available@{qstp\_connections\_available}!connections.h@{connections.h}}
+\doxysubsubsection{\texorpdfstring{qstp\_connections\_available()}{qstp\_connections\_available()}}
+{\footnotesize\ttfamily \label{connections_8h_a3a4ebe4dc07c9732ba54ac4806e1709e} 
+size\+\_\+t qstp\+\_\+connections\+\_\+available (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Get the number of available (inactive) connection states in the collection. 
+
+This function returns the count of connection state slots in the collection that are currently available for new connections.
+
+\begin{DoxyReturn}{Returns}
+The number of available connection state items. 
+\end{DoxyReturn}
+\Hypertarget{connections_8h_a2686a5519602a550500c9178eb57f3b6}\index{connections.h@{connections.h}!qstp\_connections\_clear@{qstp\_connections\_clear}}
+\index{qstp\_connections\_clear@{qstp\_connections\_clear}!connections.h@{connections.h}}
+\doxysubsubsection{\texorpdfstring{qstp\_connections\_clear()}{qstp\_connections\_clear()}}
+{\footnotesize\ttfamily \label{connections_8h_a2686a5519602a550500c9178eb57f3b6} 
+void qstp\+\_\+connections\+\_\+clear (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Erase all connection states in the collection. 
+
+This function clears all entries in the connection collection, marking each state as inactive. It does not dispose of the collection itself, but resets its contents so that they may be reused. \Hypertarget{connections_8h_a046b514f8cb08354cc8bc9b9a3d6b431}\index{connections.h@{connections.h}!qstp\_connections\_dispose@{qstp\_connections\_dispose}}
+\index{qstp\_connections\_dispose@{qstp\_connections\_dispose}!connections.h@{connections.h}}
+\doxysubsubsection{\texorpdfstring{qstp\_connections\_dispose()}{qstp\_connections\_dispose()}}
+{\footnotesize\ttfamily \label{connections_8h_a046b514f8cb08354cc8bc9b9a3d6b431} 
+void qstp\+\_\+connections\+\_\+dispose (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Dispose of the connections collection. 
+
+This function releases all resources allocated for the connections collection and resets its state. It should be called when the collection is no longer needed. \Hypertarget{connections_8h_afcdbe4669061be9bd50568a62bcebf78}\index{connections.h@{connections.h}!qstp\_connections\_full@{qstp\_connections\_full}}
+\index{qstp\_connections\_full@{qstp\_connections\_full}!connections.h@{connections.h}}
+\doxysubsubsection{\texorpdfstring{qstp\_connections\_full()}{qstp\_connections\_full()}}
+{\footnotesize\ttfamily \label{connections_8h_afcdbe4669061be9bd50568a62bcebf78} 
+bool qstp\+\_\+connections\+\_\+full (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Check if the connection collection is full. 
+
+This function checks whether the connection collection has reached its maximum capacity. When the collection is full, no additional connection state objects can be added.
+
+\begin{DoxyReturn}{Returns}
+Returns true if the collection is full; otherwise, false. 
+\end{DoxyReturn}
+\Hypertarget{connections_8h_aff541f4cbb3b07faec75d88fc798b02e}\index{connections.h@{connections.h}!qstp\_connections\_get@{qstp\_connections\_get}}
+\index{qstp\_connections\_get@{qstp\_connections\_get}!connections.h@{connections.h}}
+\doxysubsubsection{\texorpdfstring{qstp\_connections\_get()}{qstp\_connections\_get()}}
+{\footnotesize\ttfamily \label{connections_8h_aff541f4cbb3b07faec75d88fc798b02e} 
+\mbox{\hyperlink{structqstp__connection__state}{qstp\+\_\+connection\+\_\+state}} \texorpdfstring{$\ast$}{*} qstp\+\_\+connections\+\_\+get (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{instance}{}\end{DoxyParamCaption})}
+
+
+
+Retrieve a connection state pointer using its instance number. 
+
+This function locates and returns the connection state object corresponding to the provided instance number. The instance number uniquely identifies a connection within the collection.
+
+
+\begin{DoxyParams}{Parameters}
+{\em instance} & The unique instance number associated with a connection.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Returns a pointer to the QSTP connection state if found; otherwise, returns NULL. 
+\end{DoxyReturn}
+\Hypertarget{connections_8h_a7cefc671106c7538346010b6fa2ef8e3}\index{connections.h@{connections.h}!qstp\_connections\_index@{qstp\_connections\_index}}
+\index{qstp\_connections\_index@{qstp\_connections\_index}!connections.h@{connections.h}}
+\doxysubsubsection{\texorpdfstring{qstp\_connections\_index()}{qstp\_connections\_index()}}
+{\footnotesize\ttfamily \label{connections_8h_a7cefc671106c7538346010b6fa2ef8e3} 
+\mbox{\hyperlink{structqstp__connection__state}{qstp\+\_\+connection\+\_\+state}} \texorpdfstring{$\ast$}{*} qstp\+\_\+connections\+\_\+index (\begin{DoxyParamCaption}\item[{size\+\_\+t}]{index}{}\end{DoxyParamCaption})}
+
+
+
+Retrieve a connection state pointer by its collection index. 
+
+This function returns the connection state object located at the specified index in the collection. If the index is out of bounds or invalid, the function returns NULL.
+
+
+\begin{DoxyParams}{Parameters}
+{\em index} & The index of the connection state within the collection.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Returns a pointer to the QSTP connection state, or NULL if the index is invalid. 
+\end{DoxyReturn}
+\Hypertarget{connections_8h_ac17e9d5e47d483fbd600591ba0fdbcad}\index{connections.h@{connections.h}!qstp\_connections\_initialize@{qstp\_connections\_initialize}}
+\index{qstp\_connections\_initialize@{qstp\_connections\_initialize}!connections.h@{connections.h}}
+\doxysubsubsection{\texorpdfstring{qstp\_connections\_initialize()}{qstp\_connections\_initialize()}}
+{\footnotesize\ttfamily \label{connections_8h_ac17e9d5e47d483fbd600591ba0fdbcad} 
+void qstp\+\_\+connections\+\_\+initialize (\begin{DoxyParamCaption}\item[{size\+\_\+t}]{count}{, }\item[{size\+\_\+t}]{maximum}{}\end{DoxyParamCaption})}
+
+
+
+Initialize the connections collection. 
+
+This function initializes the connection collection by creating an initial set of connection state objects. The {\itshape count} parameter specifies the number of connection states to create initially (must be at least one), and the {\itshape maximum} parameter defines the maximum capacity of the collection. The maximum must be greater than or equal to the count.
+
+
+\begin{DoxyParams}{Parameters}
+{\em count} & The initial number of connection state objects to allocate. \\
+\hline
+{\em maximum} & The maximum number of connection states the collection can hold. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{connections_8h_a96b12c49e7d6882356d15cf8b42b2001}\index{connections.h@{connections.h}!qstp\_connections\_next@{qstp\_connections\_next}}
+\index{qstp\_connections\_next@{qstp\_connections\_next}!connections.h@{connections.h}}
+\doxysubsubsection{\texorpdfstring{qstp\_connections\_next()}{qstp\_connections\_next()}}
+{\footnotesize\ttfamily \label{connections_8h_a96b12c49e7d6882356d15cf8b42b2001} 
+\mbox{\hyperlink{structqstp__connection__state}{qstp\+\_\+connection\+\_\+state}} \texorpdfstring{$\ast$}{*} qstp\+\_\+connections\+\_\+next (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Get the next available connection state. 
+
+This function searches the connection collection for the next available (inactive) connection state and returns a pointer to it. If all connection states are active, the function returns NULL.
+
+\begin{DoxyReturn}{Returns}
+Returns a pointer to the next available QSTP connection state, or NULL if none are available. 
+\end{DoxyReturn}
+\Hypertarget{connections_8h_a15a0550f1f2397d634b8aeff56ea8bb0}\index{connections.h@{connections.h}!qstp\_connections\_reset@{qstp\_connections\_reset}}
+\index{qstp\_connections\_reset@{qstp\_connections\_reset}!connections.h@{connections.h}}
+\doxysubsubsection{\texorpdfstring{qstp\_connections\_reset()}{qstp\_connections\_reset()}}
+{\footnotesize\ttfamily \label{connections_8h_a15a0550f1f2397d634b8aeff56ea8bb0} 
+void qstp\+\_\+connections\+\_\+reset (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{instance}{}\end{DoxyParamCaption})}
+
+
+
+Reset a connection state in the collection. 
+
+This function resets the connection state identified by the given instance number. Resetting a connection typically clears its data and marks it as inactive so that the slot can be reused.
+
+
+\begin{DoxyParams}{Parameters}
+{\em instance} & The unique instance number of the connection to reset. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{connections_8h_a5faf3f92a79b5f0753412dde4b402bbd}\index{connections.h@{connections.h}!qstp\_connections\_self\_test@{qstp\_connections\_self\_test}}
+\index{qstp\_connections\_self\_test@{qstp\_connections\_self\_test}!connections.h@{connections.h}}
+\doxysubsubsection{\texorpdfstring{qstp\_connections\_self\_test()}{qstp\_connections\_self\_test()}}
+{\footnotesize\ttfamily \label{connections_8h_a5faf3f92a79b5f0753412dde4b402bbd} 
+void qstp\+\_\+connections\+\_\+self\+\_\+test (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Run the self-\/test for the connection collection. 
+
+This function performs a series of tests on the connection collection to verify its proper functioning. The self-\/test exercises various operations, such as adding new connection states, checking active status, retrieving connection states by index and instance, resetting connections, and ensuring that the reported sizes (available and total) are correct. This helps confirm the robustness and correctness of the connection management routines. \Hypertarget{connections_8h_aef7bdb649172b0f72618e3a8f663ba3c}\index{connections.h@{connections.h}!qstp\_connections\_size@{qstp\_connections\_size}}
+\index{qstp\_connections\_size@{qstp\_connections\_size}!connections.h@{connections.h}}
+\doxysubsubsection{\texorpdfstring{qstp\_connections\_size()}{qstp\_connections\_size()}}
+{\footnotesize\ttfamily \label{connections_8h_aef7bdb649172b0f72618e3a8f663ba3c} 
+size\+\_\+t qstp\+\_\+connections\+\_\+size (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Get the total number of connection state objects in the collection. 
+
+This function returns the total size of the connection collection, including both active and inactive states.
+
+\begin{DoxyReturn}{Returns}
+Returns the total number of connection state items in the collection. 
+\end{DoxyReturn}

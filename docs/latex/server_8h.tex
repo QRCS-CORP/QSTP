@@ -1,0 +1,169 @@
+\doxysection{C\+:/\+Users/stepp/\+Documents/\+Visual Studio 2022/\+Projects/\+C/\+QSTP/\+QSTP/server.h File Reference}
+\hypertarget{server_8h}{}\label{server_8h}\index{C:/Users/stepp/Documents/Visual Studio 2022/Projects/C/QSTP/QSTP/server.h@{C:/Users/stepp/Documents/Visual Studio 2022/Projects/C/QSTP/QSTP/server.h}}
+
+
+QSTP Server functions.  
+
+
+{\ttfamily \#include "{}qstp.\+h"{}}\newline
+{\ttfamily \#include "{}../../\+QSC/\+QSC/rcs.\+h"{}}\newline
+{\ttfamily \#include "{}../../\+QSC/\+QSC/socketserver.\+h"{}}\newline
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{server_8h_a395b1661a729601e5085848a96e33dc7}\label{server_8h_a395b1661a729601e5085848a96e33dc7} 
+\#define {\bfseries QSTP\+\_\+\+SERVER\+\_\+\+PAUSE\+\_\+\+INTERVAL}~100
+\begin{DoxyCompactList}\small\item\em The pause interval (in milliseconds) used by the server pause function. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\+\_\+\+EXPORT\+\_\+\+API}} bool \mbox{\hyperlink{server_8h_abb0569cabe8281dc82260783e9575381}{qstp\+\_\+server\+\_\+expiration\+\_\+check}} (const \mbox{\hyperlink{structqstp__server__signature__key}{qstp\+\_\+server\+\_\+signature\+\_\+key}} \texorpdfstring{$\ast$}{*}kset)
+\begin{DoxyCompactList}\small\item\em Check the expiration status of a server key. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\+\_\+\+EXPORT\+\_\+\+API}} void \mbox{\hyperlink{server_8h_ab4d8290ad9eda75c13cd76ed7773ae0e}{qstp\+\_\+server\+\_\+key\+\_\+generate}} (\mbox{\hyperlink{structqstp__server__signature__key}{qstp\+\_\+server\+\_\+signature\+\_\+key}} \texorpdfstring{$\ast$}{*}kset, const char issuer\mbox{[}\mbox{\hyperlink{qstp_8h_a3d0871de23850d6d73eacbf9494efd76}{QSTP\+\_\+\+CERTIFICATE\+\_\+\+ISSUER\+\_\+\+SIZE}}\mbox{]}, uint32\+\_\+t exp)
+\begin{DoxyCompactList}\small\item\em Generate a new signature key for the server. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\+\_\+\+EXPORT\+\_\+\+API}} void \mbox{\hyperlink{server_8h_ab55131db70fee533d1f96f3bb49ecd1e}{qstp\+\_\+server\+\_\+pause}} (void)
+\begin{DoxyCompactList}\small\item\em Pause the server, suspending new connection joins. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\+\_\+\+EXPORT\+\_\+\+API}} void \mbox{\hyperlink{server_8h_ad27c9ab96f7a61aceff0c16d7fbc65bc}{qstp\+\_\+server\+\_\+quit}} (void)
+\begin{DoxyCompactList}\small\item\em Quit the server, closing all active connections. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\+\_\+\+EXPORT\+\_\+\+API}} void \mbox{\hyperlink{server_8h_af8b16a24ad65a2e660e5964a331ed415}{qstp\+\_\+server\+\_\+resume}} (void)
+\begin{DoxyCompactList}\small\item\em Resume the server listener function from a paused state. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\+\_\+\+EXPORT\+\_\+\+API}} \mbox{\hyperlink{qstp_8h_a79f518d89bcc513585dd80cce892d853}{qstp\+\_\+errors}} \mbox{\hyperlink{server_8h_a5183c898f28ddfa0023469ec5b08d92e}{qstp\+\_\+server\+\_\+start\+\_\+ipv4}} (qsc\+\_\+socket \texorpdfstring{$\ast$}{*}source, const \mbox{\hyperlink{structqstp__server__signature__key}{qstp\+\_\+server\+\_\+signature\+\_\+key}} \texorpdfstring{$\ast$}{*}kset, void(\texorpdfstring{$\ast$}{*}receive\+\_\+callback)(\mbox{\hyperlink{structqstp__connection__state}{qstp\+\_\+connection\+\_\+state}} \texorpdfstring{$\ast$}{*}, const char \texorpdfstring{$\ast$}{*}, size\+\_\+t), void(\texorpdfstring{$\ast$}{*}disconnect\+\_\+callback)(\mbox{\hyperlink{structqstp__connection__state}{qstp\+\_\+connection\+\_\+state}} \texorpdfstring{$\ast$}{*}))
+\begin{DoxyCompactList}\small\item\em Start the IPv4 multi-\/threaded server. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\+\_\+\+EXPORT\+\_\+\+API}} \mbox{\hyperlink{qstp_8h_a79f518d89bcc513585dd80cce892d853}{qstp\+\_\+errors}} \mbox{\hyperlink{server_8h_a7832a089de16c9737dd9f4e65c04e266}{qstp\+\_\+server\+\_\+start\+\_\+ipv6}} (qsc\+\_\+socket \texorpdfstring{$\ast$}{*}source, const \mbox{\hyperlink{structqstp__server__signature__key}{qstp\+\_\+server\+\_\+signature\+\_\+key}} \texorpdfstring{$\ast$}{*}kset, void(\texorpdfstring{$\ast$}{*}receive\+\_\+callback)(\mbox{\hyperlink{structqstp__connection__state}{qstp\+\_\+connection\+\_\+state}} \texorpdfstring{$\ast$}{*}, const char \texorpdfstring{$\ast$}{*}, size\+\_\+t), void(\texorpdfstring{$\ast$}{*}disconnect\+\_\+callback)(\mbox{\hyperlink{structqstp__connection__state}{qstp\+\_\+connection\+\_\+state}} \texorpdfstring{$\ast$}{*}))
+\begin{DoxyCompactList}\small\item\em Start the IPv6 multi-\/threaded server. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+QSTP Server functions. 
+
+This header declares functions that implement the server-\/side operations in the Quantum Secure Messaging Protocol (QSTP). The functions defined here manage the server\textquotesingle{}s lifecycle and connection handling, including key expiration checks, key generation, pausing/resuming the server, and starting the multi-\/threaded server for both IPv4 and IPv6 networks. These operations ensure that the server can properly authenticate itself, manage its connections, and handle client communications according to the protocol requirements.
+
+\begin{DoxyNote}{Note}
+These functions are internal and non-\/exportable. 
+\end{DoxyNote}
+
+
+\doxysubsection{Function Documentation}
+\Hypertarget{server_8h_abb0569cabe8281dc82260783e9575381}\index{server.h@{server.h}!qstp\_server\_expiration\_check@{qstp\_server\_expiration\_check}}
+\index{qstp\_server\_expiration\_check@{qstp\_server\_expiration\_check}!server.h@{server.h}}
+\doxysubsubsection{\texorpdfstring{qstp\_server\_expiration\_check()}{qstp\_server\_expiration\_check()}}
+{\footnotesize\ttfamily \label{server_8h_abb0569cabe8281dc82260783e9575381} 
+\mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\+\_\+\+EXPORT\+\_\+\+API}} bool qstp\+\_\+server\+\_\+expiration\+\_\+check (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{structqstp__server__signature__key}{qstp\+\_\+server\+\_\+signature\+\_\+key}} \texorpdfstring{$\ast$}{*}}]{kset}{}\end{DoxyParamCaption})}
+
+
+
+Check the expiration status of a server key. 
+
+This function examines the expiration time of a given QSTP server signature key to determine if the key is still valid.
+
+
+\begin{DoxyParams}{Parameters}
+{\em kset} & A pointer to the QSTP server signature key to be checked.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Returns true if the key is valid (i.\+e., not expired); otherwise, returns false. 
+\end{DoxyReturn}
+\Hypertarget{server_8h_ab4d8290ad9eda75c13cd76ed7773ae0e}\index{server.h@{server.h}!qstp\_server\_key\_generate@{qstp\_server\_key\_generate}}
+\index{qstp\_server\_key\_generate@{qstp\_server\_key\_generate}!server.h@{server.h}}
+\doxysubsubsection{\texorpdfstring{qstp\_server\_key\_generate()}{qstp\_server\_key\_generate()}}
+{\footnotesize\ttfamily \label{server_8h_ab4d8290ad9eda75c13cd76ed7773ae0e} 
+\mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\+\_\+\+EXPORT\+\_\+\+API}} void qstp\+\_\+server\+\_\+key\+\_\+generate (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structqstp__server__signature__key}{qstp\+\_\+server\+\_\+signature\+\_\+key}} \texorpdfstring{$\ast$}{*}}]{kset}{, }\item[{const char}]{issuer}{\mbox{[}\+QSTP\+\_\+\+CERTIFICATE\+\_\+\+ISSUER\+\_\+\+SIZE\mbox{]}, }\item[{uint32\+\_\+t}]{exp}{}\end{DoxyParamCaption})}
+
+
+
+Generate a new signature key for the server. 
+
+This function generates a new QSTP signature key for the server. It fills in the provided server signature key structure using the specified issuer name and expiration period (in days). The generated key will be used for signing operations in the key exchange and authentication processes.
+
+
+\begin{DoxyParams}{Parameters}
+{\em kset} & A pointer to the QSTP server signature key structure to be generated. \\
+\hline
+{\em issuer} & \mbox{[}const\mbox{]} A pointer to the issuer string; its length must match QSTP\+\_\+\+CERTIFICATE\+\_\+\+ISSUER\+\_\+\+SIZE. \\
+\hline
+{\em exp} & The expiration period (in days) for which the key will be valid. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{server_8h_ab55131db70fee533d1f96f3bb49ecd1e}\index{server.h@{server.h}!qstp\_server\_pause@{qstp\_server\_pause}}
+\index{qstp\_server\_pause@{qstp\_server\_pause}!server.h@{server.h}}
+\doxysubsubsection{\texorpdfstring{qstp\_server\_pause()}{qstp\_server\_pause()}}
+{\footnotesize\ttfamily \label{server_8h_ab55131db70fee533d1f96f3bb49ecd1e} 
+\mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\+\_\+\+EXPORT\+\_\+\+API}} void qstp\+\_\+server\+\_\+pause (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Pause the server, suspending new connection joins. 
+
+This function temporarily suspends the server\textquotesingle{}s listener, preventing new clients from joining. Existing connections are maintained while the server is paused. \Hypertarget{server_8h_ad27c9ab96f7a61aceff0c16d7fbc65bc}\index{server.h@{server.h}!qstp\_server\_quit@{qstp\_server\_quit}}
+\index{qstp\_server\_quit@{qstp\_server\_quit}!server.h@{server.h}}
+\doxysubsubsection{\texorpdfstring{qstp\_server\_quit()}{qstp\_server\_quit()}}
+{\footnotesize\ttfamily \label{server_8h_ad27c9ab96f7a61aceff0c16d7fbc65bc} 
+\mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\+\_\+\+EXPORT\+\_\+\+API}} void qstp\+\_\+server\+\_\+quit (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Quit the server, closing all active connections. 
+
+This function shuts down the server by closing all active connections and terminating the listener. It is used to gracefully exit the server operation. \Hypertarget{server_8h_af8b16a24ad65a2e660e5964a331ed415}\index{server.h@{server.h}!qstp\_server\_resume@{qstp\_server\_resume}}
+\index{qstp\_server\_resume@{qstp\_server\_resume}!server.h@{server.h}}
+\doxysubsubsection{\texorpdfstring{qstp\_server\_resume()}{qstp\_server\_resume()}}
+{\footnotesize\ttfamily \label{server_8h_af8b16a24ad65a2e660e5964a331ed415} 
+\mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\+\_\+\+EXPORT\+\_\+\+API}} void qstp\+\_\+server\+\_\+resume (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Resume the server listener function from a paused state. 
+
+This function resumes the server\textquotesingle{}s listener after it has been paused, allowing new client connections to be accepted. \Hypertarget{server_8h_a5183c898f28ddfa0023469ec5b08d92e}\index{server.h@{server.h}!qstp\_server\_start\_ipv4@{qstp\_server\_start\_ipv4}}
+\index{qstp\_server\_start\_ipv4@{qstp\_server\_start\_ipv4}!server.h@{server.h}}
+\doxysubsubsection{\texorpdfstring{qstp\_server\_start\_ipv4()}{qstp\_server\_start\_ipv4()}}
+{\footnotesize\ttfamily \label{server_8h_a5183c898f28ddfa0023469ec5b08d92e} 
+\mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\+\_\+\+EXPORT\+\_\+\+API}} \mbox{\hyperlink{qstp_8h_a79f518d89bcc513585dd80cce892d853}{qstp\+\_\+errors}} qstp\+\_\+server\+\_\+start\+\_\+ipv4 (\begin{DoxyParamCaption}\item[{qsc\+\_\+socket \texorpdfstring{$\ast$}{*}}]{source}{, }\item[{const \mbox{\hyperlink{structqstp__server__signature__key}{qstp\+\_\+server\+\_\+signature\+\_\+key}} \texorpdfstring{$\ast$}{*}}]{kset}{, }\item[{void(\texorpdfstring{$\ast$}{*}}]{receive\+\_\+callback~}{)(\mbox{\hyperlink{structqstp__connection__state}{qstp\+\_\+connection\+\_\+state}} \texorpdfstring{$\ast$}{*}, const char \texorpdfstring{$\ast$}{*}, size\+\_\+t), }\item[{void(\texorpdfstring{$\ast$}{*}}]{disconnect\+\_\+callback~}{)(\mbox{\hyperlink{structqstp__connection__state}{qstp\+\_\+connection\+\_\+state}} \texorpdfstring{$\ast$}{*})}\end{DoxyParamCaption})}
+
+
+
+Start the IPv4 multi-\/threaded server. 
+
+This function starts the QSTP server on an IPv4 network interface using a multi-\/threaded model. It listens for incoming client connections on the specified listener socket and uses the provided QSTP private key for authentication and key exchange. The function also accepts callback functions to process incoming data and handle disconnect events.
+
+
+\begin{DoxyParams}{Parameters}
+{\em source} & A pointer to the listener server socket. \\
+\hline
+{\em kset} & \mbox{[}const\mbox{]} A pointer to the QSTP server signature key (private key) used for authentication. \\
+\hline
+{\em receive\+\_\+callback} & A pointer to the callback function for processing incoming data from clients. \\
+\hline
+{\em disconnect\+\_\+callback} & A pointer to the callback function that is invoked when a client disconnects.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Returns a value of type {\ttfamily \doxylink{qstp_8h_a79f518d89bcc513585dd80cce892d853}{qstp\+\_\+errors}} indicating the outcome of starting the IPv4 server. 
+\end{DoxyReturn}
+\Hypertarget{server_8h_a7832a089de16c9737dd9f4e65c04e266}\index{server.h@{server.h}!qstp\_server\_start\_ipv6@{qstp\_server\_start\_ipv6}}
+\index{qstp\_server\_start\_ipv6@{qstp\_server\_start\_ipv6}!server.h@{server.h}}
+\doxysubsubsection{\texorpdfstring{qstp\_server\_start\_ipv6()}{qstp\_server\_start\_ipv6()}}
+{\footnotesize\ttfamily \label{server_8h_a7832a089de16c9737dd9f4e65c04e266} 
+\mbox{\hyperlink{common_8h_a3f0b9b1611da0c7ec65aff9e0ee782b7}{QSTP\+\_\+\+EXPORT\+\_\+\+API}} \mbox{\hyperlink{qstp_8h_a79f518d89bcc513585dd80cce892d853}{qstp\+\_\+errors}} qstp\+\_\+server\+\_\+start\+\_\+ipv6 (\begin{DoxyParamCaption}\item[{qsc\+\_\+socket \texorpdfstring{$\ast$}{*}}]{source}{, }\item[{const \mbox{\hyperlink{structqstp__server__signature__key}{qstp\+\_\+server\+\_\+signature\+\_\+key}} \texorpdfstring{$\ast$}{*}}]{kset}{, }\item[{void(\texorpdfstring{$\ast$}{*}}]{receive\+\_\+callback~}{)(\mbox{\hyperlink{structqstp__connection__state}{qstp\+\_\+connection\+\_\+state}} \texorpdfstring{$\ast$}{*}, const char \texorpdfstring{$\ast$}{*}, size\+\_\+t), }\item[{void(\texorpdfstring{$\ast$}{*}}]{disconnect\+\_\+callback~}{)(\mbox{\hyperlink{structqstp__connection__state}{qstp\+\_\+connection\+\_\+state}} \texorpdfstring{$\ast$}{*})}\end{DoxyParamCaption})}
+
+
+
+Start the IPv6 multi-\/threaded server. 
+
+This function starts the QSTP server on an IPv6 network interface using a multi-\/threaded model. It listens for incoming client connections on the specified listener socket and uses the provided QSTP private key for authentication and key exchange. The function also accepts callback functions to process incoming data and handle disconnect events.
+
+
+\begin{DoxyParams}{Parameters}
+{\em source} & A pointer to the listener server socket. \\
+\hline
+{\em kset} & \mbox{[}const\mbox{]} A pointer to the QSTP server signature key (private key) used for authentication. \\
+\hline
+{\em receive\+\_\+callback} & A pointer to the callback function for processing incoming data from clients. \\
+\hline
+{\em disconnect\+\_\+callback} & A pointer to the callback function that is invoked when a client disconnects.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Returns a value of type {\ttfamily \doxylink{qstp_8h_a79f518d89bcc513585dd80cce892d853}{qstp\+\_\+errors}} indicating the outcome of starting the IPv6 server. 
+\end{DoxyReturn}

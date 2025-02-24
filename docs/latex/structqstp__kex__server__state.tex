@@ -1,0 +1,94 @@
+\doxysection{qstp\+\_\+kex\+\_\+server\+\_\+state Struct Reference}
+\hypertarget{structqstp__kex__server__state}{}\label{structqstp__kex__server__state}\index{qstp\_kex\_server\_state@{qstp\_kex\_server\_state}}
+
+
+The QSTP server state structure.  
+
+
+
+
+{\ttfamily \#include $<$kex.\+h$>$}
+
+\doxysubsubsection*{Data Fields}
+\begin{DoxyCompactItemize}
+\item 
+uint8\+\_\+t \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{structqstp__kex__server__state_a08e0696a0e6be1d9024fa4e2f857c563}{prikey}}
+\item 
+uint8\+\_\+t \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{structqstp__kex__server__state_a0c304dd78903876571278d631f504bac}{pubkey}}
+\item 
+uint8\+\_\+t \mbox{\hyperlink{structqstp__kex__server__state_aaea99dd0211d6677a81506000daf1bb6}{serial}} \mbox{[}\mbox{\hyperlink{qstp_8h_a15123453f0f6e1363c8c75ec14ae1079}{QSTP\+\_\+\+CERTIFICATE\+\_\+\+SERIAL\+\_\+\+SIZE}}\mbox{]}
+\item 
+uint8\+\_\+t \mbox{\hyperlink{structqstp__kex__server__state_ad21c50c29cf68b741b00f207e135add8}{schash}} \mbox{[}\mbox{\hyperlink{qstp_8h_a992e03e670588e5c8fee09c0421d6318}{QSTP\+\_\+\+CERTIFICATE\+\_\+\+HASH\+\_\+\+SIZE}}\mbox{]}
+\item 
+uint8\+\_\+t \mbox{\hyperlink{structqstp__kex__server__state_a07e9945bffd27239f92398057a10af10}{sigkey}} \mbox{[}\mbox{\hyperlink{qstp_8h_a44b34a8675212da8c2f95e484162e9b0}{QSTP\+\_\+\+ASYMMETRIC\+\_\+\+SIGNING\+\_\+\+KEY\+\_\+\+SIZE}}\mbox{]}
+\item 
+uint8\+\_\+t \mbox{\hyperlink{structqstp__kex__server__state_a028f039355b006a3a41036e005195284}{verkey}} \mbox{[}\mbox{\hyperlink{qstp_8h_a5040191c87dcb930893d2b62f60e2d92}{QSTP\+\_\+\+ASYMMETRIC\+\_\+\+VERIFICATION\+\_\+\+KEY\+\_\+\+SIZE}}\mbox{]}
+\item 
+uint64\+\_\+t \mbox{\hyperlink{structqstp__kex__server__state_a6d579765908169e6fcb1bdc8f105132d}{expiration}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+The QSTP server state structure. 
+
+This structure holds the state information for a server participating in a key exchange. It includes\+:
+
+
+\begin{DoxyItemize}
+\item {\ttfamily prikey\+:} A pointer to the server\textquotesingle{}s private key for the asymmetric cipher.
+\item {\ttfamily pubkey\+:} A pointer to the server\textquotesingle{}s public key for the asymmetric cipher.
+\item {\ttfamily serial\+:} The certificate serial number acting as the key identity.
+\item {\ttfamily schash\+:} The session token hash used to secure the key exchange.
+\item {\ttfamily sigkey\+:} The server\textquotesingle{}s private signing key used for signing key exchange data.
+\item {\ttfamily verkey\+:} The local asymmetric signature verification key.
+\item {\ttfamily expiration\+:} The expiration time (in seconds from the epoch) for the key exchange session. 
+\end{DoxyItemize}
+
+\doxysubsection{Field Documentation}
+\Hypertarget{structqstp__kex__server__state_a6d579765908169e6fcb1bdc8f105132d}\index{qstp\_kex\_server\_state@{qstp\_kex\_server\_state}!expiration@{expiration}}
+\index{expiration@{expiration}!qstp\_kex\_server\_state@{qstp\_kex\_server\_state}}
+\doxysubsubsection{\texorpdfstring{expiration}{expiration}}
+{\footnotesize\ttfamily \label{structqstp__kex__server__state_a6d579765908169e6fcb1bdc8f105132d} 
+uint64\+\_\+t expiration}
+
+The expiration time in seconds from epoch \Hypertarget{structqstp__kex__server__state_a08e0696a0e6be1d9024fa4e2f857c563}\index{qstp\_kex\_server\_state@{qstp\_kex\_server\_state}!prikey@{prikey}}
+\index{prikey@{prikey}!qstp\_kex\_server\_state@{qstp\_kex\_server\_state}}
+\doxysubsubsection{\texorpdfstring{prikey}{prikey}}
+{\footnotesize\ttfamily \label{structqstp__kex__server__state_a08e0696a0e6be1d9024fa4e2f857c563} 
+uint8\+\_\+t\texorpdfstring{$\ast$}{*} prikey}
+
+Pointer to the asymmetric cipher private key \Hypertarget{structqstp__kex__server__state_a0c304dd78903876571278d631f504bac}\index{qstp\_kex\_server\_state@{qstp\_kex\_server\_state}!pubkey@{pubkey}}
+\index{pubkey@{pubkey}!qstp\_kex\_server\_state@{qstp\_kex\_server\_state}}
+\doxysubsubsection{\texorpdfstring{pubkey}{pubkey}}
+{\footnotesize\ttfamily \label{structqstp__kex__server__state_a0c304dd78903876571278d631f504bac} 
+uint8\+\_\+t\texorpdfstring{$\ast$}{*} pubkey}
+
+Pointer to the asymmetric cipher public key \Hypertarget{structqstp__kex__server__state_ad21c50c29cf68b741b00f207e135add8}\index{qstp\_kex\_server\_state@{qstp\_kex\_server\_state}!schash@{schash}}
+\index{schash@{schash}!qstp\_kex\_server\_state@{qstp\_kex\_server\_state}}
+\doxysubsubsection{\texorpdfstring{schash}{schash}}
+{\footnotesize\ttfamily \label{structqstp__kex__server__state_ad21c50c29cf68b741b00f207e135add8} 
+uint8\+\_\+t schash\mbox{[}\mbox{\hyperlink{qstp_8h_a992e03e670588e5c8fee09c0421d6318}{QSTP\+\_\+\+CERTIFICATE\+\_\+\+HASH\+\_\+\+SIZE}}\mbox{]}}
+
+The session token hash \Hypertarget{structqstp__kex__server__state_aaea99dd0211d6677a81506000daf1bb6}\index{qstp\_kex\_server\_state@{qstp\_kex\_server\_state}!serial@{serial}}
+\index{serial@{serial}!qstp\_kex\_server\_state@{qstp\_kex\_server\_state}}
+\doxysubsubsection{\texorpdfstring{serial}{serial}}
+{\footnotesize\ttfamily \label{structqstp__kex__server__state_aaea99dd0211d6677a81506000daf1bb6} 
+uint8\+\_\+t serial\mbox{[}\mbox{\hyperlink{qstp_8h_a15123453f0f6e1363c8c75ec14ae1079}{QSTP\+\_\+\+CERTIFICATE\+\_\+\+SERIAL\+\_\+\+SIZE}}\mbox{]}}
+
+The key identity string (certificate serial number) \Hypertarget{structqstp__kex__server__state_a07e9945bffd27239f92398057a10af10}\index{qstp\_kex\_server\_state@{qstp\_kex\_server\_state}!sigkey@{sigkey}}
+\index{sigkey@{sigkey}!qstp\_kex\_server\_state@{qstp\_kex\_server\_state}}
+\doxysubsubsection{\texorpdfstring{sigkey}{sigkey}}
+{\footnotesize\ttfamily \label{structqstp__kex__server__state_a07e9945bffd27239f92398057a10af10} 
+uint8\+\_\+t sigkey\mbox{[}\mbox{\hyperlink{qstp_8h_a44b34a8675212da8c2f95e484162e9b0}{QSTP\+\_\+\+ASYMMETRIC\+\_\+\+SIGNING\+\_\+\+KEY\+\_\+\+SIZE}}\mbox{]}}
+
+The asymmetric signature signing key \Hypertarget{structqstp__kex__server__state_a028f039355b006a3a41036e005195284}\index{qstp\_kex\_server\_state@{qstp\_kex\_server\_state}!verkey@{verkey}}
+\index{verkey@{verkey}!qstp\_kex\_server\_state@{qstp\_kex\_server\_state}}
+\doxysubsubsection{\texorpdfstring{verkey}{verkey}}
+{\footnotesize\ttfamily \label{structqstp__kex__server__state_a028f039355b006a3a41036e005195284} 
+uint8\+\_\+t verkey\mbox{[}\mbox{\hyperlink{qstp_8h_a5040191c87dcb930893d2b62f60e2d92}{QSTP\+\_\+\+ASYMMETRIC\+\_\+\+VERIFICATION\+\_\+\+KEY\+\_\+\+SIZE}}\mbox{]}}
+
+The local asymmetric signature verification key 
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Users/stepp/\+Documents/\+Visual Studio 2022/\+Projects/\+C/\+QSTP/\+QSTP/\mbox{\hyperlink{kex_8h}{kex.\+h}}\end{DoxyCompactItemize}
