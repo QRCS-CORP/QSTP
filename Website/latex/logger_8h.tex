@@ -1,0 +1,202 @@
+\doxysection{C\+:/\+Users/stepp/\+Documents/\+Visual Studio 2022/\+Projects/\+C/\+QSTP/\+QSTP/logger.h File Reference}
+\hypertarget{logger_8h}{}\label{logger_8h}\index{C:/Users/stepp/Documents/Visual Studio 2022/Projects/C/QSTP/QSTP/logger.h@{C:/Users/stepp/Documents/Visual Studio 2022/Projects/C/QSTP/QSTP/logger.h}}
+
+
+QSTP logging functions.  
+
+
+{\ttfamily \#include "{}common.\+h"{}}\newline
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{logger_8h_a0b8c2a715a8906bf660fa3d3fd00a110}{QSTP\+\_\+\+LOGGING\+\_\+\+MESSAGE\+\_\+\+MAX}}~256
+\begin{DoxyCompactList}\small\item\em Maximum length of a log message. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+bool \mbox{\hyperlink{logger_8h_abf4e8c8638b8719876e7e073ee36de55}{qstp\+\_\+logger\+\_\+exists}} (void)
+\begin{DoxyCompactList}\small\item\em Test if the log file exists. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{logger_8h_aa015416192cba1d1cf5a10461370eaef}{qstp\+\_\+logger\+\_\+initialize}} (const char \texorpdfstring{$\ast$}{*}path)
+\begin{DoxyCompactList}\small\item\em Initialize the logger. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{logger_8h_a32cfcb51c4a2e37a7045482b482898e0}{qstp\+\_\+logger\+\_\+print}} (void)
+\begin{DoxyCompactList}\small\item\em Print the log file. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{logger_8h_a2e70e0b7b9f675aee4962c21979c9cca}{qstp\+\_\+logger\+\_\+read}} (char \texorpdfstring{$\ast$}{*}output, size\+\_\+t otplen)
+\begin{DoxyCompactList}\small\item\em Read the log file into a buffer. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{logger_8h_a45612858ac5277ac59c0c8059573433e}{qstp\+\_\+logger\+\_\+reset}} (void)
+\begin{DoxyCompactList}\small\item\em Reset the logger. \end{DoxyCompactList}\item 
+size\+\_\+t \mbox{\hyperlink{logger_8h_af93f260ef359783e0ea3344fc1c20d53}{qstp\+\_\+logger\+\_\+size}} (void)
+\begin{DoxyCompactList}\small\item\em Get the size of the log file. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{logger_8h_a36b5deaa2774645ea60d68488b2a3f3d}{qstp\+\_\+logger\+\_\+write}} (const char \texorpdfstring{$\ast$}{*}message)
+\begin{DoxyCompactList}\small\item\em Write a message to the log file. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{logger_8h_a307e614ef1d21fa09fe670330a968ce4}{qstp\+\_\+logger\+\_\+test}} (void)
+\begin{DoxyCompactList}\small\item\em Run a manual test of the logger functions. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+QSTP logging functions. 
+
+This header defines the internal logging functions for the Quantum Secure Tunneling Protocol (QSTP). These functions provide a basic logging subsystem to record operational events, errors, and diagnostic messages during QSTP execution. The logging system is designed for debugging and monitoring purposes and includes functionality to initialize the log, write messages, read and print the log, reset (clear) the log, and retrieve the current log file size.
+
+The logging subsystem uses several defined constants\+:
+
+
+\begin{DoxyItemize}
+\item {\ttfamily QSTP\+\_\+\+LOGGING\+\_\+\+MESSAGE\+\_\+\+MAX\+:} Defines the maximum allowed length (in characters) for a single log message.
+\item {\ttfamily QSTP\+\_\+\+LOGGER\+\_\+\+PATH\+:} The default directory path where the QSTP log file is stored.
+\item {\ttfamily QSTP\+\_\+\+LOGGER\+\_\+\+FILE\+:} The default log filename.
+\item {\ttfamily QSTP\+\_\+\+LOGGER\+\_\+\+HEAD\+:} The header string written to the log file at initialization, which typically includes version information.
+\end{DoxyItemize}
+
+The logger also includes a built-\/in manual test ({\ttfamily \doxylink{logger_8h_a307e614ef1d21fa09fe670330a968ce4}{qstp\+\_\+logger\+\_\+test()}}) that exercises all of the logging functions to ensure proper operation.
+
+\begin{DoxyNote}{Note}
+These functions and constants are internal and non-\/exportable. 
+\end{DoxyNote}
+
+
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{logger_8h_a0b8c2a715a8906bf660fa3d3fd00a110}\index{logger.h@{logger.h}!QSTP\_LOGGING\_MESSAGE\_MAX@{QSTP\_LOGGING\_MESSAGE\_MAX}}
+\index{QSTP\_LOGGING\_MESSAGE\_MAX@{QSTP\_LOGGING\_MESSAGE\_MAX}!logger.h@{logger.h}}
+\doxysubsubsection{\texorpdfstring{QSTP\_LOGGING\_MESSAGE\_MAX}{QSTP\_LOGGING\_MESSAGE\_MAX}}
+{\footnotesize\ttfamily \label{logger_8h_a0b8c2a715a8906bf660fa3d3fd00a110} 
+\#define QSTP\+\_\+\+LOGGING\+\_\+\+MESSAGE\+\_\+\+MAX~256}
+
+
+
+Maximum length of a log message. 
+
+This macro defines the maximum number of characters allowed for a single log message. 
+
+\doxysubsection{Function Documentation}
+\Hypertarget{logger_8h_abf4e8c8638b8719876e7e073ee36de55}\index{logger.h@{logger.h}!qstp\_logger\_exists@{qstp\_logger\_exists}}
+\index{qstp\_logger\_exists@{qstp\_logger\_exists}!logger.h@{logger.h}}
+\doxysubsubsection{\texorpdfstring{qstp\_logger\_exists()}{qstp\_logger\_exists()}}
+{\footnotesize\ttfamily \label{logger_8h_abf4e8c8638b8719876e7e073ee36de55} 
+bool qstp\+\_\+logger\+\_\+exists (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Test if the log file exists. 
+
+This function checks whether the QSTP log file exists in the configured logging directory.
+
+\begin{DoxyReturn}{Returns}
+Returns true if the log file exists, otherwise false. 
+\end{DoxyReturn}
+\Hypertarget{logger_8h_aa015416192cba1d1cf5a10461370eaef}\index{logger.h@{logger.h}!qstp\_logger\_initialize@{qstp\_logger\_initialize}}
+\index{qstp\_logger\_initialize@{qstp\_logger\_initialize}!logger.h@{logger.h}}
+\doxysubsubsection{\texorpdfstring{qstp\_logger\_initialize()}{qstp\_logger\_initialize()}}
+{\footnotesize\ttfamily \label{logger_8h_aa015416192cba1d1cf5a10461370eaef} 
+void qstp\+\_\+logger\+\_\+initialize (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{path}{}\end{DoxyParamCaption})}
+
+
+
+Initialize the logger. 
+
+This function initializes the QSTP logging subsystem. It sets the log file path to the provided value and creates the log file if it does not already exist, writing the default header ({\ttfamily QSTP\+\_\+\+LOGGER\+\_\+\+HEAD}) to the file.
+
+
+\begin{DoxyParams}{Parameters}
+{\em path} & A pointer to a null-\/terminated string specifying the log file path. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{logger_8h_a32cfcb51c4a2e37a7045482b482898e0}\index{logger.h@{logger.h}!qstp\_logger\_print@{qstp\_logger\_print}}
+\index{qstp\_logger\_print@{qstp\_logger\_print}!logger.h@{logger.h}}
+\doxysubsubsection{\texorpdfstring{qstp\_logger\_print()}{qstp\_logger\_print()}}
+{\footnotesize\ttfamily \label{logger_8h_a32cfcb51c4a2e37a7045482b482898e0} 
+void qstp\+\_\+logger\+\_\+print (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Print the log file. 
+
+This function outputs the contents of the QSTP log file to the standard output or a designated debug console. It is useful for real-\/time debugging and monitoring of log messages. \Hypertarget{logger_8h_a2e70e0b7b9f675aee4962c21979c9cca}\index{logger.h@{logger.h}!qstp\_logger\_read@{qstp\_logger\_read}}
+\index{qstp\_logger\_read@{qstp\_logger\_read}!logger.h@{logger.h}}
+\doxysubsubsection{\texorpdfstring{qstp\_logger\_read()}{qstp\_logger\_read()}}
+{\footnotesize\ttfamily \label{logger_8h_a2e70e0b7b9f675aee4962c21979c9cca} 
+void qstp\+\_\+logger\+\_\+read (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{output}{, }\item[{size\+\_\+t}]{otplen}{}\end{DoxyParamCaption})}
+
+
+
+Read the log file into a buffer. 
+
+This function reads the contents of the QSTP log file into the provided output array. The caller must ensure that the output buffer is large enough to hold the log contents.
+
+
+\begin{DoxyParams}{Parameters}
+{\em output} & A pointer to the buffer where the log contents will be stored. \\
+\hline
+{\em otplen} & The size of the output buffer in bytes. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{logger_8h_a45612858ac5277ac59c0c8059573433e}\index{logger.h@{logger.h}!qstp\_logger\_reset@{qstp\_logger\_reset}}
+\index{qstp\_logger\_reset@{qstp\_logger\_reset}!logger.h@{logger.h}}
+\doxysubsubsection{\texorpdfstring{qstp\_logger\_reset()}{qstp\_logger\_reset()}}
+{\footnotesize\ttfamily \label{logger_8h_a45612858ac5277ac59c0c8059573433e} 
+void qstp\+\_\+logger\+\_\+reset (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Reset the logger. 
+
+This function erases all contents of the QSTP log file, effectively resetting the log. This is useful for clearing old log data before starting a new session or for troubleshooting. \Hypertarget{logger_8h_af93f260ef359783e0ea3344fc1c20d53}\index{logger.h@{logger.h}!qstp\_logger\_size@{qstp\_logger\_size}}
+\index{qstp\_logger\_size@{qstp\_logger\_size}!logger.h@{logger.h}}
+\doxysubsubsection{\texorpdfstring{qstp\_logger\_size()}{qstp\_logger\_size()}}
+{\footnotesize\ttfamily \label{logger_8h_af93f260ef359783e0ea3344fc1c20d53} 
+size\+\_\+t qstp\+\_\+logger\+\_\+size (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Get the size of the log file. 
+
+This function returns the current size (in bytes) of the QSTP log file.
+
+\begin{DoxyReturn}{Returns}
+Returns the size of the log file in bytes. 
+\end{DoxyReturn}
+\Hypertarget{logger_8h_a307e614ef1d21fa09fe670330a968ce4}\index{logger.h@{logger.h}!qstp\_logger\_test@{qstp\_logger\_test}}
+\index{qstp\_logger\_test@{qstp\_logger\_test}!logger.h@{logger.h}}
+\doxysubsubsection{\texorpdfstring{qstp\_logger\_test()}{qstp\_logger\_test()}}
+{\footnotesize\ttfamily \label{logger_8h_a307e614ef1d21fa09fe670330a968ce4} 
+bool qstp\+\_\+logger\+\_\+test (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Run a manual test of the logger functions. 
+
+This function performs a manual test of the QSTP logging subsystem. The test includes\+:
+
+
+\begin{DoxyItemize}
+\item Checking if the log file exists.
+\item Initializing the logger with a test path.
+\item Writing test messages to the log.
+\item Reading and printing the log contents.
+\item Resetting the log and verifying that the log is cleared.
+\end{DoxyItemize}
+
+This test ensures that all logging operations (initialization, writing, reading, resetting, and size retrieval) function as expected.
+
+\begin{DoxyReturn}{Returns}
+Returns true if all logger tests pass successfully. 
+\end{DoxyReturn}
+\Hypertarget{logger_8h_a36b5deaa2774645ea60d68488b2a3f3d}\index{logger.h@{logger.h}!qstp\_logger\_write@{qstp\_logger\_write}}
+\index{qstp\_logger\_write@{qstp\_logger\_write}!logger.h@{logger.h}}
+\doxysubsubsection{\texorpdfstring{qstp\_logger\_write()}{qstp\_logger\_write()}}
+{\footnotesize\ttfamily \label{logger_8h_a36b5deaa2774645ea60d68488b2a3f3d} 
+bool qstp\+\_\+logger\+\_\+write (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{message}{}\end{DoxyParamCaption})}
+
+
+
+Write a message to the log file. 
+
+This function appends the provided log message to the QSTP log file. The message should be a null-\/terminated string and must not exceed {\ttfamily QSTP\+\_\+\+LOGGING\+\_\+\+MESSAGE\+\_\+\+MAX} characters.
+
+
+\begin{DoxyParams}{Parameters}
+{\em message} & \mbox{[}const\mbox{]} A pointer to the log message string.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Returns true if the message was successfully written to the log file; otherwise, false. 
+\end{DoxyReturn}
