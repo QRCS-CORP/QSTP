@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.13.2"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Quantum Secure Tunneling Protocol: qstp_connection_set Struct Reference</title>
+<title>Quantum Secure Tunneling Protocol: C:/Users/stepp/Documents/Visual Studio 2022/Projects/C/QSTP/QSTP/common.h File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -53,41 +53,47 @@ $(function() { codefold.init(0); });
 </div>
 <script type="text/javascript">
 /* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
-$(function(){initNavTree('structqstp__connection__set.html',''); initResizable(true); });
+$(function(){initNavTree('common_8h.html',''); initResizable(true); });
 /* @license-end */
 </script>
 <div id="doc-content">
 <div class="header">
   <div class="summary">
-<a href="#pub-attribs">Data Fields</a>  </div>
-  <div class="headertitle"><div class="title">qstp_connection_set Struct Reference</div></div>
+<a href="#define-members">Macros</a>  </div>
+  <div class="headertitle"><div class="title">common.h File Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>QSTP common includes and definitions.  
+<a href="#details">More...</a></p>
+<div class="textblock"><code>#include &lt;assert.h&gt;</code><br />
+<code>#include &lt;errno.h&gt;</code><br />
+<code>#include &lt;stdbool.h&gt;</code><br />
+<code>#include &lt;stdint.h&gt;</code><br />
+<code>#include &lt;string.h&gt;</code><br />
+<code>#include &quot;../../QSC/QSC/common.h&quot;</code><br />
+</div>
+<p><a href="common_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
-Data Fields</h2></td></tr>
-<tr class="memitem:a83f4b186bc880d1a76999f0aefec7c62" id="r_a83f4b186bc880d1a76999f0aefec7c62"><td class="memItemLeft" align="right" valign="top"><a id="a83f4b186bc880d1a76999f0aefec7c62" name="a83f4b186bc880d1a76999f0aefec7c62"></a>
-<a class="el" href="structqstp__connection__state.html">qstp_connection_state</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>conset</b></td></tr>
-<tr class="separator:a83f4b186bc880d1a76999f0aefec7c62"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a08fd98a0f5a97327f63c94068513d779" id="r_a08fd98a0f5a97327f63c94068513d779"><td class="memItemLeft" align="right" valign="top"><a id="a08fd98a0f5a97327f63c94068513d779" name="a08fd98a0f5a97327f63c94068513d779"></a>
-bool *&#160;</td><td class="memItemRight" valign="bottom"><b>active</b></td></tr>
-<tr class="separator:a08fd98a0f5a97327f63c94068513d779"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5c079aea7a092ef74261d0d639e8d3f8" id="r_a5c079aea7a092ef74261d0d639e8d3f8"><td class="memItemLeft" align="right" valign="top"><a id="a5c079aea7a092ef74261d0d639e8d3f8" name="a5c079aea7a092ef74261d0d639e8d3f8"></a>
-size_t&#160;</td><td class="memItemRight" valign="bottom"><b>maximum</b></td></tr>
-<tr class="separator:a5c079aea7a092ef74261d0d639e8d3f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae809d5359ac030c60a30a8f0b2294b82" id="r_ae809d5359ac030c60a30a8f0b2294b82"><td class="memItemLeft" align="right" valign="top"><a id="ae809d5359ac030c60a30a8f0b2294b82" name="ae809d5359ac030c60a30a8f0b2294b82"></a>
-size_t&#160;</td><td class="memItemRight" valign="bottom"><b>length</b></td></tr>
-<tr class="separator:ae809d5359ac030c60a30a8f0b2294b82"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
+Macros</h2></td></tr>
+<tr class="memitem:a3f0b9b1611da0c7ec65aff9e0ee782b7" id="r_a3f0b9b1611da0c7ec65aff9e0ee782b7"><td class="memItemLeft" align="right" valign="top"><a id="a3f0b9b1611da0c7ec65aff9e0ee782b7" name="a3f0b9b1611da0c7ec65aff9e0ee782b7"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>QSTP_EXPORT_API</b></td></tr>
+<tr class="memdesc:a3f0b9b1611da0c7ec65aff9e0ee782b7"><td class="mdescLeft">&#160;</td><td class="mdescRight">The api export prefix. <br /></td></tr>
+<tr class="separator:a3f0b9b1611da0c7ec65aff9e0ee782b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<hr/>The documentation for this struct was generated from the following file:<ul>
-<li>C:/Users/stepp/Documents/Visual Studio 2022/Projects/C/QSTP/QSTP/<b>connections.c</b></li>
-</ul>
-</div><!-- contents -->
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>QSTP common includes and definitions. </p>
+<dl class="section note"><dt>Note</dt><dd>These are internal definitions.</dd></dl>
+<dl class="section author"><dt>Author</dt><dd>John G. Underhill </dd></dl>
+<dl class="section version"><dt>Version</dt><dd>1.0 </dd></dl>
+<dl class="section date"><dt>Date</dt><dd>August 27, 2024 \contact: <a href="#" onclick="location.href='mai'+'lto:'+'joh'+'n.'+'und'+'er'+'hil'+'l@'+'pro'+'to'+'nma'+'il'+'.co'+'m'; return false;">john.<span class="obfuscator">.nosp@m.</span>unde<span class="obfuscator">.nosp@m.</span>rhill<span class="obfuscator">.nosp@m.</span>@pro<span class="obfuscator">.nosp@m.</span>tonma<span class="obfuscator">.nosp@m.</span>il.c<span class="obfuscator">.nosp@m.</span>om</a> </dd></dl>
+</div></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="structqstp__connection__set.html">qstp_connection_set</a></li>
+    <li class="navelem"><a class="el" href="dir_5a7a8ad7fd52b2a05665dc92ffe673dd.html">QSTP</a></li><li class="navelem"><a class="el" href="common_8h.html">common.h</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.13.2 </li>
   </ul>
 </div>
