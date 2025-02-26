@@ -6,7 +6,7 @@ QSTP is a next-generation cryptographic protocol designed to enable secure commu
 
 Engineered to address the challenges posed by quantum computing threats, QSTP introduces entirely new mechanisms—designed from the ground up for both security and performance in a post-quantum context. This design avoids the legacy issues of backward compatibility, complex versioning, and outdated APIs.
 
-See the documentation at: https://qrcs-corp.github.io/QSTP/
+[View full documentation online](https://qrcs-corp.github.io/QSTP/)
 
 ## Cryptographic Primitives
 
@@ -16,10 +16,11 @@ QSTP employs state-of-the-art cryptographic algorithms to deliver strong securit
   QSTP supports either **Kyber** or **McEliece** as its key encapsulation mechanisms.
 
 - **Digital Signatures:**  
-  The protocol uses asymmetric signature schemes such as **Dilithium** or **Sphincs+** for signing.
+  The protocol uses the asymmetric signature schemes **Dilithium** or **Sphincs+** for signing.
 
 - **Symmetric Cipher:**  
   QSTP utilizes the Rijndael-based Cryptographic Stream (RCS) cipher. This cipher is enhanced with:
+  - Uses the wide-block form of Rigndael with a 256-bit state.
   - An increased number of rounds
   - A cryptographically strong key schedule
   - Integrated AEAD authentication via post-quantum secure KMAC or QMAC
