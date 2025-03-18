@@ -6,7 +6,9 @@ QSTP is a next-generation cryptographic protocol designed to enable secure commu
 
 Engineered to address the challenges posed by quantum computing threats, QSTP introduces entirely new mechanisms—designed from the ground up for both security and performance in a post-quantum context. This design avoids the legacy issues of backward compatibility, complex versioning, and outdated APIs.
 
-[View full documentation online](https://qrcs-corp.github.io/QSTP/)
+[QSTP Help Documentation](https://qrcs-corp.github.io/QSTP/)  
+[QSTP Protocol Specification](https://qrcs-corp.github.io/QSTP/pdf/QSTP_Specification.pdf)  
+[QSTP Summary Document](https://qrcs-corp.github.io/QSTP/pdf/QSTP_Summary.pdf)  
 
 ## Cryptographic Primitives
 
