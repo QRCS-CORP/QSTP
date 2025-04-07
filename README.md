@@ -74,5 +74,5 @@ QRCS-PL private License. See license file for details.
 Software is copyrighted and QSTP is patent pending.
 Written by John G. Underhill, under the QRCS-PL license, see the included license file for details. 
 Not to be redistributed or used commercially without the author's expressed written permission. 
-All rights reserved by QRCS Corp. 2025.
+_All rights reserved by QRCS Corp. 2025._
 
