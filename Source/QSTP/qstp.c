@@ -123,8 +123,8 @@ void qstp_connection_state_dispose(qstp_connection_state* cns)
 
 	if (cns != NULL)
 	{
-		qsc_rcs_dispose(&cns->rxcpr);
-		qsc_rcs_dispose(&cns->txcpr);
+		qstp_cipher_dispose(&cns->rxcpr);
+		qstp_cipher_dispose(&cns->txcpr);
 		qsc_memutils_clear((uint8_t*)&cns->target, sizeof(qsc_socket));
 		cns->rxseq = 0;
 		cns->txseq = 0;
@@ -159,11 +159,11 @@ qstp_errors qstp_decrypt_packet(qstp_connection_state* cns, uint8_t* message, si
 					/* serialize the header and add it to the ciphers associated data */
 					qstp_packet_header_serialize(packetin, hdr);
 
-					qsc_rcs_set_associated(&cns->rxcpr, hdr, QSTP_PACKET_HEADER_SIZE);
+					qstp_cipher_set_associated(&cns->rxcpr, hdr, QSTP_PACKET_HEADER_SIZE);
 					*msglen = packetin->msglen - QSTP_MACTAG_SIZE;
 
 					/* authenticate then decrypt the data */
-					if (qsc_rcs_transform(&cns->rxcpr, message, packetin->pmessage, *msglen) == true)
+					if (qstp_cipher_transform(&cns->rxcpr, message, packetin->pmessage, *msglen) == true)
 					{
 						qerr = qstp_error_none;
 					}
@@ -214,9 +214,9 @@ qstp_errors qstp_encrypt_packet(qstp_connection_state* cns, qstp_network_packet*
 
 			/* serialize the header and add it to the ciphers associated data */
 			qstp_packet_header_serialize(packetout, hdr);
-			qsc_rcs_set_associated(&cns->txcpr, hdr, QSTP_PACKET_HEADER_SIZE);
+			qstp_cipher_set_associated(&cns->txcpr, hdr, QSTP_PACKET_HEADER_SIZE);
 			/* encrypt the message */
-			qsc_rcs_transform(&cns->txcpr, packetout->pmessage, message, msglen);
+			qstp_cipher_transform(&cns->txcpr, packetout->pmessage, message, msglen);
 
 			qerr = qstp_error_none;
 		}

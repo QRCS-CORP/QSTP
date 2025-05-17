@@ -42,8 +42,8 @@
 
 #include "common.h"
 #include "../../QSC/QSC/socketbase.h"
-#include "../../QSC/QSC/rcs.h"
 #include "../../QSC/QSC/sha3.h"
+
 /**
  * \file qstp.h
  * \brief QSTP support header
@@ -78,9 +78,33 @@
  * stack size (e.g., to 200KB) to accommodate the larger key sizes.
  *
  * The parameter sets used by QSTP are selected in the QSC library (via libraries/common.h) at their library defaults.
- * A true 512-bit security level can be achieved by selecting the McEliece/SPHINCS+ parameter and configuring SPHINCS+
- * to one of the 512-bit options.
  */
+
+
+/*!
+* \def QSTP_USE_RCS_ENCRYPTION
+* \brief If the RCS encryption option is chosen SKDP uses the more modern RCS stream cipher with KMAC/QMAC authentication.
+* The default symmetric cipher/authenticator is AES-256/GCM (GMAC Counter Mode) NIST standardized per SP800-38a.
+*/
+//#define QSTP_USE_RCS_ENCRYPTION
+
+#if defined(QSTP_USE_RCS_ENCRYPTION)
+#	include "../../QSC/QSC/rcs.h"
+#	define qstp_cipher_state qsc_rcs_state
+#	define qstp_cipher_dispose qsc_rcs_dispose
+#	define qstp_cipher_initialize qsc_rcs_initialize
+#	define qstp_cipher_keyparams qsc_rcs_keyparams
+#	define qstp_cipher_set_associated qsc_rcs_set_associated
+#	define qstp_cipher_transform qsc_rcs_transform
+#else
+#	include "../../QSC/QSC/aes.h"
+#	define qstp_cipher_state qsc_aes_gcm256_state
+#	define qstp_cipher_dispose qsc_aes_gcm256_dispose
+#	define qstp_cipher_initialize qsc_aes_gcm256_initialize
+#	define qstp_cipher_keyparams qsc_aes_keyparams
+#	define qstp_cipher_set_associated qsc_aes_gcm256_set_associated
+#	define qstp_cipher_transform qsc_aes_gcm256_transform
+#endif
 
 /*!
  * \def QSTP_CONFIG_DILITHIUM_KYBER
@@ -590,13 +614,21 @@ QSTP_EXPORT_API typedef enum qstp_configuration_sets
  * \def QSTP_MACTAG_SIZE
  * \brief The MAC tag size in bytes.
  */
-#define QSTP_MACTAG_SIZE 32
+#if defined(QSTP_USE_RCS_ENCRYPTION)
+#	define QSTP_MACTAG_SIZE 32
+#else
+#	define QSTP_MACTAG_SIZE 16
+#endif
 
 /*!
  * \def QSTP_NONCE_SIZE
  * \brief The size in bytes of the symmetric cipher nonce.
  */
-#define QSTP_NONCE_SIZE 32
+#if defined(QSTP_USE_RCS_ENCRYPTION)
+#	define QSTP_NONCE_SIZE 32
+#else
+#	define QSTP_NONCE_SIZE 16
+#endif
 
 /*!
  * \def QSTP_PACKET_ERROR_SEQUENCE
@@ -1080,8 +1112,8 @@ QSTP_EXPORT_API typedef struct qstp_network_packet
 QSTP_EXPORT_API typedef struct qstp_connection_state
 {
 	qsc_socket target;		/*!< The target socket structure */
-	qsc_rcs_state rxcpr;	/*!< The receive channel cipher state */
-	qsc_rcs_state txcpr;	/*!< The transmit channel cipher state */
+	qstp_cipher_state rxcpr;/*!< The receive channel cipher state */
+	qstp_cipher_state txcpr;/*!< The transmit channel cipher state */
 	uint64_t rxseq;			/*!< The receive channel packet sequence number */
 	uint64_t txseq;			/*!< The transmit channel packet sequence number */
 	uint32_t cid;			/*!< The connection instance count */

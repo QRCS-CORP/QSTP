@@ -31,8 +31,8 @@ static void client_state_initialize(qstp_kex_client_state* kcs, qstp_connection_
 	qsc_memutils_copy(kcs->verkey, cert->verkey, QSTP_ASYMMETRIC_VERIFICATION_KEY_SIZE);
 	kcs->expiration = cert->expiration.to;
 	cns->target.instance = qsc_acp_uint32();
-	qsc_rcs_dispose(&cns->rxcpr);
-	qsc_rcs_dispose(&cns->txcpr);
+	qstp_cipher_dispose(&cns->rxcpr);
+	qstp_cipher_dispose(&cns->txcpr);
 	cns->exflag = qstp_flag_none;
 	cns->cid = 0;
 	cns->rxseq = 0;

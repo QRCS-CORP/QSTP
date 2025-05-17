@@ -279,22 +279,22 @@ static qstp_errors kex_client_exchange_request(const qstp_kex_client_state* kcs,
 					qsc_keccak_permute(&kstate, QSC_KECCAK_PERMUTATION_ROUNDS);
 
 					/* initialize the symmetric cipher, and raise client channel-1 tx */
-					qsc_rcs_keyparams kp1;
+					qstp_cipher_keyparams kp1;
 					kp1.key = prnd;
 					kp1.keylen = QSTP_SYMMETRIC_KEY_SIZE;
 					kp1.nonce = prnd + QSTP_SYMMETRIC_KEY_SIZE;
 					kp1.info = NULL;
 					kp1.infolen = 0;
-					qsc_rcs_initialize(&cns->txcpr, &kp1, true);
+					qstp_cipher_initialize(&cns->txcpr, &kp1, true);
 
 					/* initialize the symmetric cipher, and raise client channel-1 rx */
-					qsc_rcs_keyparams kp2;
+					qstp_cipher_keyparams kp2;
 					kp2.key = prnd + QSTP_SYMMETRIC_KEY_SIZE + QSTP_NONCE_SIZE;
 					kp2.keylen = QSTP_SYMMETRIC_KEY_SIZE;
 					kp2.nonce = prnd + QSTP_SYMMETRIC_KEY_SIZE + QSTP_NONCE_SIZE + QSTP_SYMMETRIC_KEY_SIZE;
 					kp2.info = NULL;
 					kp2.infolen = 0;
-					qsc_rcs_initialize(&cns->rxcpr, &kp2, false);
+					qstp_cipher_initialize(&cns->rxcpr, &kp2, false);
 
 					cns->exflag = qstp_flag_exchange_request;
 					qerr = qstp_error_none;
@@ -508,22 +508,22 @@ static qstp_errors kex_server_exchange_response(qstp_kex_server_state* kss, qstp
 				qsc_keccak_permute(&kstate, QSC_KECCAK_PERMUTATION_ROUNDS);
 
 				/* initialize the symmetric cipher, and raise client channel-1 tx */
-				qsc_rcs_keyparams kp1;
+				qstp_cipher_keyparams kp1;
 				kp1.key = prnd;
 				kp1.keylen = QSTP_SYMMETRIC_KEY_SIZE;
 				kp1.nonce = prnd + QSTP_SYMMETRIC_KEY_SIZE;
 				kp1.info = NULL;
 				kp1.infolen = 0;
-				qsc_rcs_initialize(&cns->rxcpr, &kp1, false);
+				qstp_cipher_initialize(&cns->rxcpr, &kp1, false);
 
 				/* initialize the symmetric cipher, and raise client channel-1 rx */
-				qsc_rcs_keyparams kp2;
+				qstp_cipher_keyparams kp2;
 				kp2.key = prnd + QSTP_SYMMETRIC_KEY_SIZE + QSTP_NONCE_SIZE;
 				kp2.keylen = QSTP_SYMMETRIC_KEY_SIZE;
 				kp2.nonce = prnd + QSTP_SYMMETRIC_KEY_SIZE + QSTP_NONCE_SIZE + QSTP_SYMMETRIC_KEY_SIZE;
 				kp2.info = NULL;
 				kp2.infolen = 0;
-				qsc_rcs_initialize(&cns->txcpr, &kp2, true);
+				qstp_cipher_initialize(&cns->txcpr, &kp2, true);
 
 				/* assemble the exchange-response packet */
 				qstp_header_create(packetout, qstp_flag_exchange_response, cns->txseq, KEX_EXCHANGE_RESPONSE_MESSAGE_SIZE);
