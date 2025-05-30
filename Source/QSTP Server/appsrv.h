@@ -40,9 +40,14 @@
 #ifndef QSTP_SERVER_APP_H
 #define QSTP_SERVER_APP_H
 
-#include "common.h"
-#include "../../QSC/QSC/socketbase.h"
-#include "../../QSC/QSC/socketserver.h"
+#include <assert.h>
+#include <errno.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <string.h>
+#include "qstpcommon.h"
+#include "socketbase.h"
+#include "socketserver.h"
 
 #define QSTP_ROOT_CERTIFICATE_NAME_SIZE 21
 static const char QSTP_ROOT_CERTIFICATE_NAME[] = "root_public_cert.qrr";

@@ -40,7 +40,7 @@
 #ifndef QSTP_CONNECTIONS_H
 #define QSTP_CONNECTIONS_H
 
-#include "common.h"
+#include "qstpcommon.h"
 #include "qstp.h"
 
 /**

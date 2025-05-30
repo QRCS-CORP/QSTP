@@ -40,8 +40,7 @@
 #ifndef QSTP_KEX_H
 #define QSTP_KEX_H
 
-#include "common.h"
-#include "../QSTP/qstp.h"
+#include "qstp.h"
 
 /**
  * \file kex.h

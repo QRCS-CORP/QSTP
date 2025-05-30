@@ -40,7 +40,7 @@
 #ifndef QSTP_ROOT_H
 #define QSTP_ROOT_H
 
-#include "common.h"
+#include "qstpcommon.h"
 #include "qstp.h"
 
 /**

@@ -40,7 +40,12 @@
 #ifndef QSTP_CLIENT_APP_H
 #define QSTP_CLIENT_APP_H
 
-#include "common.h"
+#include <assert.h>
+#include <errno.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <string.h>
+#include "qstpcommon.h"
 
 /**
 * \file appclt.h

@@ -45,7 +45,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
-#include "../../QSC/QSC/common.h"
+#include "qsccommon.h"
 
 /**
 * \file common.h

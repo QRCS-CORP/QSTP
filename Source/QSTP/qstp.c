@@ -1,15 +1,15 @@
 #include "qstp.h"
-#include "../QSTP/logger.h"
-#include "../../QSC/QSC/async.h"
-#include "../../QSC/QSC/acp.h"
-#include "../../QSC/QSC/encoding.h"
-#include "../../QSC/QSC/fileutils.h"
-#include "../../QSC/QSC/intutils.h"
-#include "../../QSC/QSC/memutils.h"
-#include "../../QSC/QSC/netutils.h"
-#include "../../QSC/QSC/sha3.h"
-#include "../../QSC/QSC/stringutils.h"
-#include "../../QSC/QSC/timestamp.h"
+#include "logger.h"
+#include "async.h"
+#include "acp.h"
+#include "encoding.h"
+#include "fileutils.h"
+#include "intutils.h"
+#include "memutils.h"
+#include "netutils.h"
+#include "sha3.h"
+#include "stringutils.h"
+#include "timestamp.h"
 
 qstp_configuration_sets qstp_configuration_from_string(const char* config)
 {
@@ -268,7 +268,7 @@ qstp_errors qstp_header_validate(qstp_connection_state* cns, const qstp_network_
 	{
 		if (packetin->flag == qstp_flag_error_condition)
 		{
-			merr = (qstp_flags)packetin->pmessage[0];
+			merr = (qstp_errors)packetin->pmessage[0];
 		}
 		else
 		{

@@ -1,13 +1,13 @@
 ﻿#include "kex.h"
-#include "../../QSC/QSC/acp.h"
-#include "../../QSC/QSC/encoding.h"
-#include "../../QSC/QSC/intutils.h"
-#include "../../QSC/QSC/memutils.h"
-#include "../../QSC/QSC/rcs.h"
-#include "../../QSC/QSC/sha3.h"
-#include "../../QSC/QSC/socketserver.h"
-#include "../../QSC/QSC/stringutils.h"
-#include "../../QSC/QSC/timestamp.h"
+#include "acp.h"
+#include "encoding.h"
+#include "intutils.h"
+#include "memutils.h"
+#include "rcs.h"
+#include "sha3.h"
+#include "socketserver.h"
+#include "stringutils.h"
+#include "timestamp.h"
 
 #define KEX_CONNECT_REQUEST_MESSAGE_SIZE (QSTP_CERTIFICATE_SERIAL_SIZE + QSTP_PROTOCOL_SET_SIZE)
 #define KEX_CONNECT_REQUEST_PACKET_SIZE (QSTP_PACKET_HEADER_SIZE + KEX_CONNECT_REQUEST_MESSAGE_SIZE)
@@ -283,6 +283,9 @@ static qstp_errors kex_client_exchange_request(const qstp_kex_client_state* kcs,
 					kp1.key = prnd;
 					kp1.keylen = QSTP_SYMMETRIC_KEY_SIZE;
 					kp1.nonce = prnd + QSTP_SYMMETRIC_KEY_SIZE;
+#if !defined(QSTP_USE_RCS_ENCRYPTION)
+					kp1.noncelen = QSTP_NONCE_SIZE;
+#endif
 					kp1.info = NULL;
 					kp1.infolen = 0;
 					qstp_cipher_initialize(&cns->txcpr, &kp1, true);
@@ -292,6 +295,9 @@ static qstp_errors kex_client_exchange_request(const qstp_kex_client_state* kcs,
 					kp2.key = prnd + QSTP_SYMMETRIC_KEY_SIZE + QSTP_NONCE_SIZE;
 					kp2.keylen = QSTP_SYMMETRIC_KEY_SIZE;
 					kp2.nonce = prnd + QSTP_SYMMETRIC_KEY_SIZE + QSTP_NONCE_SIZE + QSTP_SYMMETRIC_KEY_SIZE;
+#if !defined(QSTP_USE_RCS_ENCRYPTION)
+					kp2.noncelen = QSTP_NONCE_SIZE;
+#endif
 					kp2.info = NULL;
 					kp2.infolen = 0;
 					qstp_cipher_initialize(&cns->rxcpr, &kp2, false);
@@ -512,6 +518,9 @@ static qstp_errors kex_server_exchange_response(qstp_kex_server_state* kss, qstp
 				kp1.key = prnd;
 				kp1.keylen = QSTP_SYMMETRIC_KEY_SIZE;
 				kp1.nonce = prnd + QSTP_SYMMETRIC_KEY_SIZE;
+#if !defined(QSTP_USE_RCS_ENCRYPTION)
+				kp1.noncelen = QSTP_NONCE_SIZE;
+#endif
 				kp1.info = NULL;
 				kp1.infolen = 0;
 				qstp_cipher_initialize(&cns->rxcpr, &kp1, false);
@@ -521,6 +530,9 @@ static qstp_errors kex_server_exchange_response(qstp_kex_server_state* kss, qstp
 				kp2.key = prnd + QSTP_SYMMETRIC_KEY_SIZE + QSTP_NONCE_SIZE;
 				kp2.keylen = QSTP_SYMMETRIC_KEY_SIZE;
 				kp2.nonce = prnd + QSTP_SYMMETRIC_KEY_SIZE + QSTP_NONCE_SIZE + QSTP_SYMMETRIC_KEY_SIZE;
+#if !defined(QSTP_USE_RCS_ENCRYPTION)
+				kp2.noncelen = QSTP_NONCE_SIZE;
+#endif
 				kp2.info = NULL;
 				kp2.infolen = 0;
 				qstp_cipher_initialize(&cns->txcpr, &kp2, true);

@@ -40,9 +40,9 @@
 #ifndef QSTP_H
 #define QSTP_H
 
-#include "common.h"
-#include "../../QSC/QSC/socketbase.h"
-#include "../../QSC/QSC/sha3.h"
+#include "qstpcommon.h"
+#include "socketbase.h"
+#include "sha3.h"
 
 /**
  * \file qstp.h
@@ -89,7 +89,7 @@
 //#define QSTP_USE_RCS_ENCRYPTION
 
 #if defined(QSTP_USE_RCS_ENCRYPTION)
-#	include "../../QSC/QSC/rcs.h"
+#	include "rcs.h"
 #	define qstp_cipher_state qsc_rcs_state
 #	define qstp_cipher_dispose qsc_rcs_dispose
 #	define qstp_cipher_initialize qsc_rcs_initialize
@@ -97,7 +97,7 @@
 #	define qstp_cipher_set_associated qsc_rcs_set_associated
 #	define qstp_cipher_transform qsc_rcs_transform
 #else
-#	include "../../QSC/QSC/aes.h"
+#	include "aes.h"
 #	define qstp_cipher_state qsc_aes_gcm256_state
 #	define qstp_cipher_dispose qsc_aes_gcm256_dispose
 #	define qstp_cipher_initialize qsc_aes_gcm256_initialize
@@ -126,14 +126,14 @@
 //#define QSTP_CONFIG_SPHINCS_MCELIECE
 
 #if defined(QSTP_CONFIG_DILITHIUM_KYBER)
-#	include "../../QSC/QSC/dilithium.h"
-#	include "../../QSC/QSC/kyber.h"
+#	include "dilithium.h"
+#	include "kyber.h"
 #elif defined(QSTP_CONFIG_DILITHIUM_MCELIECE)
-#	include "../../QSC/QSC/dilithium.h"
-#	include "../../QSC/QSC/mceliece.h"
+#	include "dilithium.h"
+#	include "mceliece.h"
 #elif defined(QSTP_CONFIG_SPHINCS_MCELIECE)
-#	include "../../QSC/QSC/sphincsplus.h"
-#	include "../../QSC/QSC/mceliece.h"
+#	include "sphincsplus.h"
+#	include "mceliece.h"
 #else
 #	error Invalid parameter set!
 #endif

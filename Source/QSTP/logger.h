@@ -40,7 +40,7 @@
 #ifndef QSTP_LOGGER_H
 #define QSTP_LOGGER_H
 
-#include "common.h"
+#include "qstpcommon.h"
 
 /**
  * \file logger.h
