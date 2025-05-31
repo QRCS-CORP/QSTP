@@ -533,7 +533,7 @@ bool qstp_root_certificate_compare(const qstp_root_certificate* a, const qstp_ro
 			a->expiration.from == b->expiration.from && 
 			a->expiration.to == b->expiration.to)
 		{
-			if (qsc_memutils_are_equal((const char*)a->issuer, (const char*)b->issuer, QSTP_CERTIFICATE_ISSUER_SIZE) == true)
+			if (qsc_memutils_are_equal((const uint8_t*)a->issuer, (const uint8_t*)b->issuer, QSTP_CERTIFICATE_ISSUER_SIZE) == true)
 			{
 				if (qsc_memutils_are_equal(a->serial, b->serial, QSTP_CERTIFICATE_SERIAL_SIZE) == true)
 				{
