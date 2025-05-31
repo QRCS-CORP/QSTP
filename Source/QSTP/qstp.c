@@ -533,7 +533,7 @@ bool qstp_root_certificate_compare(const qstp_root_certificate* a, const qstp_ro
 			a->expiration.from == b->expiration.from && 
 			a->expiration.to == b->expiration.to)
 		{
-			if (qsc_memutils_are_equal(a->issuer, b->issuer, QSTP_CERTIFICATE_ISSUER_SIZE) == true)
+			if (qsc_memutils_are_equal((const char*)a->issuer, (const char*)b->issuer, QSTP_CERTIFICATE_ISSUER_SIZE) == true)
 			{
 				if (qsc_memutils_are_equal(a->serial, b->serial, QSTP_CERTIFICATE_SERIAL_SIZE) == true)
 				{
@@ -829,7 +829,7 @@ void qstp_root_certificate_hash(uint8_t output[QSTP_CERTIFICATE_HASH_SIZE], cons
 		qsc_sha3_update(&kstate, qsc_keccak_rate_256, nbuf, sizeof(uint64_t));
 		qsc_intutils_le64to8(nbuf, root->expiration.to);
 		qsc_sha3_update(&kstate, qsc_keccak_rate_256, nbuf, sizeof(uint64_t));
-		qsc_sha3_update(&kstate, qsc_keccak_rate_256, root->issuer, qsc_stringutils_string_size(root->issuer));
+		qsc_sha3_update(&kstate, qsc_keccak_rate_256, (const uint8_t*)root->issuer, qsc_stringutils_string_size(root->issuer));
 		qsc_sha3_update(&kstate, qsc_keccak_rate_256, root->serial, QSTP_CERTIFICATE_SERIAL_SIZE);
 		qsc_sha3_update(&kstate, qsc_keccak_rate_256, root->verkey, QSTP_ASYMMETRIC_VERIFICATION_KEY_SIZE);
 		qsc_sha3_finalize(&kstate, qsc_keccak_rate_256, output);
@@ -931,7 +931,7 @@ bool qstp_root_certificate_to_file(const qstp_root_certificate* root, const char
 		}
 
 		qstp_root_certificate_serialize(sroot, root);
-		res = qsc_fileutils_copy_stream_to_file(fpath, sroot, sizeof(sroot));
+		res = qsc_fileutils_copy_stream_to_file(fpath, (const char*)sroot, sizeof(sroot));
 	}
 
 	return res;
@@ -952,7 +952,7 @@ bool qstp_root_file_to_certificate(qstp_root_certificate* root, const char* fpat
 		{
 			uint8_t sroot[QSTP_ROOT_CERTIFICATE_SIZE] = { 0 };
 
-			if (qsc_fileutils_copy_file_to_stream(fpath, sroot, QSTP_ROOT_CERTIFICATE_SIZE) == QSTP_ROOT_CERTIFICATE_SIZE)
+			if (qsc_fileutils_copy_file_to_stream(fpath, (char*)sroot, QSTP_ROOT_CERTIFICATE_SIZE) == QSTP_ROOT_CERTIFICATE_SIZE)
 			{
 				qstp_root_certificate_deserialize(root, sroot);
 				res = true;
@@ -978,7 +978,7 @@ bool qstp_root_file_to_key(qstp_root_signature_key* kset, const char* fpath)
 		{
 			uint8_t skset[QSTP_ROOT_SIGNATURE_KEY_SIZE] = { 0 };
 
-			if (qsc_fileutils_copy_file_to_stream(fpath, skset, QSTP_ROOT_SIGNATURE_KEY_SIZE) == QSTP_ROOT_SIGNATURE_KEY_SIZE)
+			if (qsc_fileutils_copy_file_to_stream(fpath, (char*)skset, QSTP_ROOT_SIGNATURE_KEY_SIZE) == QSTP_ROOT_SIGNATURE_KEY_SIZE)
 			{
 				qstp_root_key_deserialize(kset, skset);
 				res = true;
@@ -1053,7 +1053,7 @@ bool qstp_root_key_to_file(const qstp_root_signature_key* kset, const char* fpat
 		}
 
 		qstp_root_key_serialize(skset, kset);
-		res = qsc_fileutils_copy_stream_to_file(fpath, skset, QSTP_ROOT_SIGNATURE_KEY_SIZE);
+		res = qsc_fileutils_copy_stream_to_file(fpath, (const char*)skset, QSTP_ROOT_SIGNATURE_KEY_SIZE);
 	}
 
 	return res;
@@ -1100,7 +1100,7 @@ bool qstp_server_certificate_compare(const qstp_server_certificate* a, const qst
 			a->expiration.from == b->expiration.from && 
 			a->expiration.to == b->expiration.to)
 		{
-			if (qsc_memutils_are_equal(a->issuer, b->issuer, QSTP_CERTIFICATE_ISSUER_SIZE) == true)
+			if (qsc_memutils_are_equal((const uint8_t*)a->issuer, (const uint8_t*)b->issuer, QSTP_CERTIFICATE_ISSUER_SIZE) == true)
 			{
 				if (qsc_memutils_are_equal(a->serial, b->serial, QSTP_CERTIFICATE_SERIAL_SIZE) == true)
 				{
@@ -1470,7 +1470,7 @@ void qstp_server_certificate_hash(uint8_t output[QSTP_CERTIFICATE_HASH_SIZE], co
 		qsc_sha3_update(&kstate, qsc_keccak_rate_256, nbuf, sizeof(uint64_t));
 		qsc_intutils_le64to8(nbuf, cert->expiration.to);
 		qsc_sha3_update(&kstate, qsc_keccak_rate_256, nbuf, sizeof(uint64_t));
-		qsc_sha3_update(&kstate, qsc_keccak_rate_256, cert->issuer, qsc_stringutils_string_size((const char*)cert->issuer));
+		qsc_sha3_update(&kstate, qsc_keccak_rate_256, (const uint8_t*)cert->issuer, qsc_stringutils_string_size((const char*)cert->issuer));
 		qsc_sha3_update(&kstate, qsc_keccak_rate_256, cert->serial, QSTP_CERTIFICATE_SERIAL_SIZE);
 		qsc_sha3_update(&kstate, qsc_keccak_rate_256, cert->verkey, QSTP_ASYMMETRIC_VERIFICATION_KEY_SIZE);
 		qsc_sha3_finalize(&kstate, qsc_keccak_rate_256, output);
@@ -1540,7 +1540,7 @@ bool qstp_server_certificate_to_file(const qstp_server_certificate* cert, const 
 		}
 
 		qstp_server_certificate_serialize(scert, cert);
-		res = qsc_fileutils_copy_stream_to_file(fpath, scert, QSTP_SERVER_CERTIFICATE_SIZE);
+		res = qsc_fileutils_copy_stream_to_file(fpath, (const char*)scert, QSTP_SERVER_CERTIFICATE_SIZE);
 	}
 
 	return res;
@@ -1561,7 +1561,7 @@ bool qstp_server_file_to_certificate(qstp_server_certificate* cert, const char* 
 		{
 			uint8_t scert[QSTP_SERVER_CERTIFICATE_SIZE] = { 0 };
 
-			if (qsc_fileutils_copy_file_to_stream(fpath, scert, QSTP_SERVER_CERTIFICATE_SIZE) == QSTP_SERVER_CERTIFICATE_SIZE)
+			if (qsc_fileutils_copy_file_to_stream(fpath, (char*)scert, QSTP_SERVER_CERTIFICATE_SIZE) == QSTP_SERVER_CERTIFICATE_SIZE)
 			{
 				qstp_server_certificate_deserialize(cert, scert);
 				res = true;
@@ -1587,7 +1587,7 @@ bool qstp_server_file_to_key(qstp_server_signature_key* kset, const char* fpath)
 		{
 			uint8_t skset[QSTP_SERVER_SIGNATURE_KEY_SIZE] = { 0 };
 
-			if (qsc_fileutils_copy_file_to_stream(fpath, skset, QSTP_SERVER_SIGNATURE_KEY_SIZE) == QSTP_SERVER_SIGNATURE_KEY_SIZE)
+			if (qsc_fileutils_copy_file_to_stream(fpath, (char*)skset, QSTP_SERVER_SIGNATURE_KEY_SIZE) == QSTP_SERVER_SIGNATURE_KEY_SIZE)
 			{
 				qstp_server_key_deserialize(kset, skset);
 				res = true;
@@ -1664,7 +1664,7 @@ bool qstp_server_key_to_file(const qstp_server_signature_key* kset, const char* 
 		}
 
 		qstp_server_key_serialize(skset, kset);
-		res = qsc_fileutils_copy_stream_to_file(fpath, skset, QSTP_SERVER_SIGNATURE_KEY_SIZE);
+		res = qsc_fileutils_copy_stream_to_file(fpath, (const char*)skset, QSTP_SERVER_SIGNATURE_KEY_SIZE);
 	}
 
 	return res;

@@ -62,26 +62,28 @@ static void server_poll_sockets(void)
 	}
 }
 
-static void server_receive_loop(server_receiver_state* prcv)
+static void server_receive_loop(void* prcv)
 {
 	assert(prcv != NULL);
 
 	qstp_network_packet pkt = { 0 };
 	char cadd[QSC_SOCKET_ADDRESS_MAX_SIZE] = { 0 };
 	qstp_kex_server_state* pkss;
+	server_receiver_state* pprcv;
 	uint8_t* rbuf;
 	size_t mlen;
 	size_t plen;
 	size_t slen;
 	qstp_errors qerr;
 
-	qsc_memutils_copy(cadd, (const char*)prcv->pcns->target.address, sizeof(cadd));
+	pprcv = (server_receiver_state*)prcv;
+	qsc_memutils_copy(cadd, (const char*)pprcv->pcns->target.address, sizeof(cadd));
 	pkss = (qstp_kex_server_state*)qsc_memutils_malloc(sizeof(qstp_kex_server_state));
 
 	if (pkss != NULL)
 	{
 		server_state_initialize(pkss, prcv);
-		qerr = qstp_kex_server_key_exchange(pkss, prcv->pcns);
+		qerr = qstp_kex_server_key_exchange(pkss, pprcv->pcns);
 		qsc_memutils_alloc_free(pkss);
 		pkss = NULL;
 
@@ -91,12 +93,12 @@ static void server_receive_loop(server_receiver_state* prcv)
 
 			if (rbuf != NULL)
 			{
-				while (prcv->pcns->target.connection_status == qsc_socket_state_connected)
+				while (pprcv->pcns->target.connection_status == qsc_socket_state_connected)
 				{
 					mlen = 0;
 					slen = 0;
 
-					plen = qsc_socket_peek(&prcv->pcns->target, rbuf, QSTP_PACKET_HEADER_SIZE);
+					plen = qsc_socket_peek(&pprcv->pcns->target, rbuf, QSTP_PACKET_HEADER_SIZE);
 
 					if (plen == QSTP_PACKET_HEADER_SIZE)
 					{
@@ -111,7 +113,7 @@ static void server_receive_loop(server_receiver_state* prcv)
 						if (rbuf != NULL)
 						{
 							qsc_memutils_clear(rbuf, plen);
-							mlen = qsc_socket_receive(&prcv->pcns->target, rbuf, plen, qsc_socket_receive_flag_wait_all);
+							mlen = qsc_socket_receive(&pprcv->pcns->target, rbuf, plen, qsc_socket_receive_flag_wait_all);
 							
 							if (mlen != 0)
 							{
@@ -128,11 +130,11 @@ static void server_receive_loop(server_receiver_state* prcv)
 									{
 										qsc_memutils_clear(mstr, slen);
 
-										qerr = qstp_decrypt_packet(prcv->pcns, mstr, &mlen, &pkt);
+										qerr = qstp_decrypt_packet(pprcv->pcns, mstr, &mlen, &pkt);
 
 										if (qerr == qstp_error_none)
 										{
-											prcv->receive_callback(prcv->pcns, (char*)mstr, mlen);
+											pprcv->receive_callback(pprcv->pcns, (char*)mstr, mlen);
 										}
 										else
 										{
@@ -154,26 +156,26 @@ static void server_receive_loop(server_receiver_state* prcv)
 								{
 									/* test the keepalive */
 
-									if (pkt.sequence == prcv->pkpa->seqctr)
+									if (pkt.sequence == pprcv->pkpa->seqctr)
 									{
 										uint64_t tme;
 
 										tme = qsc_intutils_le8to64(pkt.pmessage);
 
-										if (prcv->pkpa->etime == tme)
+										if (pprcv->pkpa->etime == tme)
 										{
-											prcv->pkpa->seqctr += 1;
-											prcv->pkpa->recd = true;
+											pprcv->pkpa->seqctr += 1;
+											pprcv->pkpa->recd = true;
 										}
 										else
 										{
-											qstp_log_write(qstp_messages_keepalive_fail, (const char*)prcv->pcns->target.address);
+											qstp_log_write(qstp_messages_keepalive_fail, (const char*)pprcv->pcns->target.address);
 											break;
 										}
 									}
 									else
 									{
-										qstp_log_write(qstp_messages_keepalive_timeout, (const char*)prcv->pcns->target.address);
+										qstp_log_write(qstp_messages_keepalive_timeout, (const char*)pprcv->pcns->target.address);
 										break;
 									}
 								}
@@ -228,9 +230,9 @@ static void server_receive_loop(server_receiver_state* prcv)
 				qstp_log_write(qstp_messages_allocate_fail, cadd);
 			}
 
-			if (prcv->disconnect_callback != NULL)
+			if (pprcv->disconnect_callback != NULL)
 			{
-				prcv->disconnect_callback(prcv->pcns);
+				pprcv->disconnect_callback(pprcv->pcns);
 			}
 		}
 		else
@@ -238,11 +240,11 @@ static void server_receive_loop(server_receiver_state* prcv)
 			qstp_log_message(qstp_messages_kex_fail);
 		}
 
-		if (prcv != NULL)
+		if (pprcv != NULL)
 		{
-			qstp_connections_reset(prcv->pcns->cid);
-			qsc_memutils_alloc_free(prcv);
-			prcv = NULL;
+			qstp_connections_reset(pprcv->pcns->cid);
+			qsc_memutils_alloc_free(pprcv);
+			pprcv = NULL;
 		}
 	}
 	else
@@ -290,7 +292,7 @@ static qstp_errors server_start(const qstp_server_signature_key* kset,
 					prcv->receive_callback = receive_callback;
 
 					qstp_log_write(qstp_messages_connect_success, (const char*)cns->target.address);
-					qsc_async_thread_create((void*)&server_receive_loop, prcv);
+					qsc_async_thread_create(&server_receive_loop, prcv);
 					server_poll_sockets();
 				}
 				else

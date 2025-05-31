@@ -173,7 +173,6 @@ static qstp_errors kex_client_connect_request(qstp_kex_client_state* kcs, qstp_c
 	assert(cns != NULL);
 	assert(packetout != NULL);
 
-	qsc_keccak_state kstate = { 0 };
 	qstp_errors qerr;
 	uint64_t tm;
 
@@ -416,7 +415,7 @@ static qstp_errors kex_server_connect_response(qstp_kex_server_state* kss, qstp_
 				pconf = packetin->pmessage + QSTP_CERTIFICATE_SERIAL_SIZE, QSTP_PROTOCOL_SET_SIZE;
 				
 				/* compare the state configuration string to the message configuration string */
-				if (qsc_memutils_are_equal(pconf, QSTP_PROTOCOL_SET_STRING, QSTP_PROTOCOL_SET_SIZE - 1) == true)
+				if (qsc_memutils_are_equal(pconf, (const uint8_t*)QSTP_PROTOCOL_SET_STRING, QSTP_PROTOCOL_SET_SIZE - 1U) == true)
 				{
 					uint8_t phdr[QSTP_PACKET_HEADER_SIZE] = { 0 };
 

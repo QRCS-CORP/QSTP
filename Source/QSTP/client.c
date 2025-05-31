@@ -129,7 +129,7 @@ static void client_receive_loop(void* prcv)
 	size_t slen;
 	qstp_errors qerr;
 
-	pprcv = prcv;
+	pprcv = (client_receiver_state*)prcv;
 	qsc_memutils_copy(cadd, (const char*)pprcv->pcns->target.address, sizeof(cadd));
 
 	rbuf = (uint8_t*)qsc_memutils_malloc(QSTP_PACKET_HEADER_SIZE);

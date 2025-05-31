@@ -31,8 +31,6 @@ bool qstp_root_certificate_export(const qstp_root_certificate* root, const char*
 		if (qsc_folderutils_directory_exists(fpath) == true &&
 			qsc_stringutils_string_size(root->issuer) > 0)
 		{
-			char scert[QSTP_ROOT_CERTIFICATE_SIZE] = { 0 };
-
 			qsc_stringutils_copy_string(cpath, sizeof(cpath), fpath);
 
 			if (qsc_folderutils_directory_has_delimiter(cpath) == false)
@@ -81,7 +79,7 @@ void qstp_root_certificate_print(const qstp_root_certificate* root)
 	size_t elen;
 	size_t slen;
 
-	elen = qstp_root_certificate_encoded_size(root);
+	elen = qstp_root_certificate_encoded_size();
 	penk = qsc_memutils_malloc(elen);
 
 	if (penk != NULL)
@@ -107,7 +105,7 @@ void qstp_root_server_certificate_print(const qstp_server_certificate* cert)
 	size_t elen;
 	size_t slen;
 
-	elen = qstp_server_certificate_encoded_size(cert);
+	elen = qstp_server_certificate_encoded_size();
 	penk = qsc_memutils_malloc(elen);
 
 	if (penk != NULL)
