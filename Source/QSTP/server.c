@@ -37,7 +37,7 @@ static void server_state_initialize(qstp_kex_server_state* kss, const server_rec
 	kss->expiration = prcv->kset->expiration.to;
 }
 
-static void server_poll_sockets()
+static void server_poll_sockets(void)
 {
 	size_t clen;
 	qsc_mutex mtx;
@@ -359,12 +359,12 @@ void qstp_server_key_generate(qstp_server_signature_key* kset, const char issuer
 	}
 }
 
-void qstp_server_pause()
+void qstp_server_pause(void)
 {
 	m_server_pause = true;
 }
 
-void qstp_server_quit()
+void qstp_server_quit(void)
 {
 	size_t clen;
 	qsc_mutex mtx;
@@ -394,7 +394,7 @@ void qstp_server_quit()
 	m_server_run = false;
 }
 
-void qstp_server_resume()
+void qstp_server_resume(void)
 {
 	m_server_pause = false;
 }

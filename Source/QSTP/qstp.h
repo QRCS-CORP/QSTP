@@ -1431,7 +1431,7 @@ QSTP_EXPORT_API size_t qstp_root_certificate_encode(char* enck, size_t enclen, c
  *
  * \return Returns the size in bytes of the encoded root certificate string.
  */
-QSTP_EXPORT_API size_t qstp_root_certificate_encoded_size();
+QSTP_EXPORT_API size_t qstp_root_certificate_encoded_size(void);
 
 /*!
  * \brief Extract the root certificate from a root signature key.
@@ -1575,7 +1575,7 @@ QSTP_EXPORT_API size_t qstp_server_certificate_encode(char* enck, size_t enclen,
  *
  * \return Returns the size in bytes of the encoded certificate string.
  */
-QSTP_EXPORT_API size_t qstp_server_certificate_encoded_size();
+QSTP_EXPORT_API size_t qstp_server_certificate_encoded_size(void);
 
 /*!
  * \brief Extract the server certificate from a server signature key.
@@ -1704,6 +1704,5 @@ QSTP_EXPORT_API bool qstp_test_root_certificate_encoding(const qstp_root_certifi
 * \return Returns true if the encoding tests succeed
 */
 QSTP_EXPORT_API bool qstp_test_server_certificate_encoding(const qstp_server_certificate* cert);
-
 
 #endif

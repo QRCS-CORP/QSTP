@@ -646,7 +646,7 @@ void qstp_root_certificate_deserialize(qstp_root_certificate* root, const uint8_
 	}
 }
 
-size_t qstp_root_certificate_encoded_size()
+size_t qstp_root_certificate_encoded_size(void)
 {
 	size_t elen;
 	size_t klen;
@@ -1249,7 +1249,7 @@ void qstp_server_certificate_deserialize(qstp_server_certificate* cert, const ui
 	}
 }
 
-size_t qstp_server_certificate_encoded_size()
+size_t qstp_server_certificate_encoded_size(void)
 {
 	size_t elen;
 	size_t klen;

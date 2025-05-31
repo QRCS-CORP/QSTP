@@ -58,7 +58,7 @@ void qstp_logger_initialize(const char* path)
 	}
 }
 
-bool qstp_logger_exists()
+bool qstp_logger_exists(void)
 {
 	bool res;
 
@@ -72,7 +72,7 @@ bool qstp_logger_exists()
 	return res;
 }
 
-void qstp_logger_print()
+void qstp_logger_print(void)
 {
 	char buf[QSTP_LOGGING_MESSAGE_MAX] = { 0 };
 	size_t lctr;
@@ -109,7 +109,7 @@ void qstp_logger_read(char* output, size_t otplen)
 	}
 }
 
-void qstp_logger_reset()
+void qstp_logger_reset(void)
 {
 	char dtm[QSC_TIMESTAMP_STRING_SIZE] = { 0 };
 	char msg[QSTP_LOGGING_MESSAGE_MAX] = "Created: ";
@@ -130,7 +130,7 @@ void qstp_logger_reset()
 	qsc_fileutils_write_line(m_log_path, msg, mlen);
 }
 
-size_t qstp_logger_size()
+size_t qstp_logger_size(void)
 {
 	size_t res;
 
@@ -170,7 +170,7 @@ bool qstp_logger_write(const char* message)
 	return res;
 }
 
-bool qstp_logger_test()
+bool qstp_logger_test(void)
 {
 	char buf[4 * QSTP_LOGGING_MESSAGE_MAX] = { 0 };
 	char msg1[] = "This is a test message: 1";

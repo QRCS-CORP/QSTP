@@ -90,6 +90,7 @@ static qstp_errors client_send_keep_alive(qstp_keep_alive_state* kctx, const qsc
 	return qerr;
 }
 
+#if defined(QSTP_FUTURE_FEATURE)
 static void client_keepalive_loop(qstp_keep_alive_state* kpa)
 {
 	assert(kpa != NULL);
@@ -113,32 +114,35 @@ static void client_keepalive_loop(qstp_keep_alive_state* kpa)
 	} 
 	while (qerr == qstp_error_none);
 }
+#endif
 
-static void client_receive_loop(client_receiver_state* prcv)
+static void client_receive_loop(void* prcv)
 {
 	assert(prcv != NULL);
 
 	qstp_network_packet pkt = { 0 };
 	char cadd[QSC_SOCKET_ADDRESS_MAX_SIZE] = { 0 };
+	client_receiver_state* pprcv;
 	uint8_t* rbuf;
 	size_t mlen;
 	size_t plen;
 	size_t slen;
 	qstp_errors qerr;
 
-	qsc_memutils_copy(cadd, (const char*)prcv->pcns->target.address, sizeof(cadd));
+	pprcv = prcv;
+	qsc_memutils_copy(cadd, (const char*)pprcv->pcns->target.address, sizeof(cadd));
 
 	rbuf = (uint8_t*)qsc_memutils_malloc(QSTP_PACKET_HEADER_SIZE);
 
 	if (rbuf != NULL)
 	{
-		while (prcv->pcns->target.connection_status == qsc_socket_state_connected)
+		while (pprcv->pcns->target.connection_status == qsc_socket_state_connected)
 		{
 			mlen = 0;
 			slen = 0;
 			qsc_memutils_clear(rbuf, QSTP_PACKET_HEADER_SIZE);
 
-			plen = qsc_socket_peek(&prcv->pcns->target, rbuf, QSTP_PACKET_HEADER_SIZE);
+			plen = qsc_socket_peek(&pprcv->pcns->target, rbuf, QSTP_PACKET_HEADER_SIZE);
 
 			if (plen == QSTP_PACKET_HEADER_SIZE)
 			{
@@ -152,7 +156,7 @@ static void client_receive_loop(client_receiver_state* prcv)
 					if (rbuf != NULL)
 					{
 						qsc_memutils_clear(rbuf, plen);
-						mlen = qsc_socket_receive(&prcv->pcns->target, rbuf, plen, qsc_socket_receive_flag_wait_all);
+						mlen = qsc_socket_receive(&pprcv->pcns->target, rbuf, plen, qsc_socket_receive_flag_wait_all);
 
 						if (mlen > 0)
 						{
@@ -168,11 +172,11 @@ static void client_receive_loop(client_receiver_state* prcv)
 								if (mstr != NULL)
 								{
 									qsc_memutils_clear(mstr, slen);
-									qerr = qstp_decrypt_packet(prcv->pcns, mstr, &mlen, &pkt);
+									qerr = qstp_decrypt_packet(pprcv->pcns, mstr, &mlen, &pkt);
 
 									if (qerr == qstp_error_none)
 									{
-										prcv->receive_callback(prcv->pcns, mstr, mlen);
+										pprcv->receive_callback(pprcv->pcns, (const char*)mstr, mlen);
 									}
 									else
 									{
@@ -201,7 +205,7 @@ static void client_receive_loop(client_receiver_state* prcv)
 								/* copy the keep-alive packet and send it back */
 								pkt.flag = qstp_flag_keep_alive_response;
 								qstp_packet_header_serialize(&pkt, rbuf);
-								qsc_socket_send(&prcv->pcns->target, rbuf, klen, qsc_socket_send_flag_none);
+								qsc_socket_send(&pprcv->pcns->target, rbuf, klen, qsc_socket_send_flag_none);
 							}
 							else
 							{
@@ -315,7 +319,7 @@ qstp_errors qstp_client_connect_ipv4(const qstp_root_certificate* root,
 							if (qerr == qstp_error_none)
 							{
 								/* start the receive loop on a new thread */
-								qsc_async_thread_create((void*)&client_receive_loop, prcv);
+								qsc_async_thread_create(&client_receive_loop, prcv);
 
 								/* start the send loop on the main thread */
 								send_func(prcv->pcns);
@@ -448,7 +452,7 @@ qstp_errors qstp_client_connect_ipv6(const qstp_root_certificate* root,
 							if (qerr == qstp_error_none)
 							{
 								/* start the receive loop on a new thread */
-								qsc_async_thread_create((void*)&client_receive_loop, prcv);
+								qsc_async_thread_create(&client_receive_loop, prcv);
 
 								/* start the send loop on the main thread */
 								send_func(prcv->pcns);

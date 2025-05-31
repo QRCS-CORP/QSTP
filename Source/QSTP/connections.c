@@ -3,7 +3,7 @@
 #include "memutils.h"
 
 /** \cond */
-QSC_SIMD_ALIGN typedef struct qstp_connection_set
+typedef struct qstp_connection_set
 {
 	qstp_connection_state* conset;
 	bool* active;
@@ -69,7 +69,7 @@ size_t qstp_connections_available()
 	return count;
 }
 
-void qstp_connections_clear()
+void qstp_connections_clear(void)
 {
 	qsc_memutils_clear(m_connection_set.conset, sizeof(qstp_connection_state) * m_connection_set.length);
 
@@ -80,7 +80,7 @@ void qstp_connections_clear()
 	}
 }
 
-void qstp_connections_dispose()
+void qstp_connections_dispose(void)
 {
 	if (m_connection_set.conset != NULL)
 	{
@@ -117,7 +117,7 @@ qstp_connection_state* qstp_connections_index(size_t index)
 	return res;
 }
 
-bool qstp_connections_full()
+bool qstp_connections_full(void)
 {
 	bool res;
 
@@ -218,17 +218,18 @@ void qstp_connections_reset(uint32_t cid)
 	}
 }
 
-size_t qstp_connections_size()
+size_t qstp_connections_size(void)
 {
 	return m_connection_set.length;
 }
 
-void qstp_connections_self_test()
+void qstp_connections_self_test(void)
 {
 	qstp_connection_state* xn[20] = { 0 };
 	size_t cnt;
 	bool full;
 
+	(void)full;
 	qstp_connections_initialize(1, 10); /* init with 1 */
 
 	for (size_t i = 1; i < 10; ++i)

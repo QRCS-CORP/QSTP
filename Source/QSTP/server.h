@@ -62,7 +62,7 @@
  * \def QSTP_SERVER_PAUSE_INTERVAL
  * \brief The pause interval (in milliseconds) used by the server pause function.
  */
-#define QSTP_SERVER_PAUSE_INTERVAL 100
+#define QSTP_SERVER_PAUSE_INTERVAL 100U
 
 /**
  * \brief Check the expiration status of a server key.

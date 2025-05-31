@@ -160,4 +160,3 @@ qstp_errors qstp_kex_server_key_exchange(qstp_kex_server_state* kss, qstp_connec
 qstp_errors qstp_kex_client_key_exchange(qstp_kex_client_state* kcs, qstp_connection_state* cns);
 
 #endif
-
