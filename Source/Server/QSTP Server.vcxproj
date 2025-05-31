@@ -21,10 +21,10 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{4f112100-e549-46d8-b189-9b28613d7ffd}</ProjectGuid>
-    <RootNamespace>MPTPRoot</RootNamespace>
+    <ProjectGuid>{eafbc260-1f81-421c-885d-2d7ab0d09f47}</ProjectGuid>
+    <RootNamespace>MPTPListener</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>QSTP Root</ProjectName>
+    <ProjectName>QSTP Server</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -142,18 +142,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="appsrv.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="appsrv.h" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\QSC\QSC\QSC.vcxproj">
       <Project>{7b7f8e47-0f7c-4273-a229-a7ab2a452ea9}</Project>
     </ProjectReference>
     <ProjectReference Include="..\QSTP\MPTP.vcxproj">
       <Project>{7044c00f-cf2f-49af-b1e9-4affc903ea41}</Project>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="apprss.c" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="apprss.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
