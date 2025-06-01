@@ -170,6 +170,7 @@ bool qstp_logger_write(const char* message)
 	return res;
 }
 
+#if defined(QSTP_DEBUG_MODE)
 bool qstp_logger_test(void)
 {
 	char buf[4 * QSTP_LOGGING_MESSAGE_MAX] = { 0 };
@@ -181,6 +182,7 @@ bool qstp_logger_test(void)
 	size_t mlen;
 	bool res;
 
+	(void)mlen;
 	mlen = qsc_stringutils_string_size(msg1);
 	qstp_logger_initialize(NULL);
 	res = qstp_logger_exists();
@@ -205,3 +207,4 @@ bool qstp_logger_test(void)
 
 	return res;
 }
+#endif

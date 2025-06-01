@@ -18,11 +18,13 @@
 #define KEX_EXCHANGE_RESPONSE_MESSAGE_SIZE (0)
 #define KEX_EXCHANGE_RESPONSE_PACKET_SIZE (QSTP_PACKET_HEADER_SIZE + KEX_EXCHANGE_RESPONSE_MESSAGE_SIZE)
 
+#if defined(QSTP_FUTURE_FEATURE)
 static void kex_subheader_serialize(uint8_t* pstream, const qstp_network_packet* packetin)
 {
 	qsc_intutils_le64to8(pstream, packetin->sequence);
 	qsc_intutils_le64to8(pstream + sizeof(uint64_t), packetin->utctime);
 }
+#endif
 
 static void kex_send_network_error(const qsc_socket* sock, qstp_errors error)
 {
@@ -412,7 +414,7 @@ static qstp_errors kex_server_connect_response(qstp_kex_server_state* kss, qstp_
 			if (tm <= kss->expiration)
 			{
 				/* get the configuration string */
-				pconf = packetin->pmessage + QSTP_CERTIFICATE_SERIAL_SIZE, QSTP_PROTOCOL_SET_SIZE;
+				pconf = packetin->pmessage + QSTP_CERTIFICATE_SERIAL_SIZE;
 				
 				/* compare the state configuration string to the message configuration string */
 				if (qsc_memutils_are_equal(pconf, (const uint8_t*)QSTP_PROTOCOL_SET_STRING, QSTP_PROTOCOL_SET_SIZE - 1U) == true)

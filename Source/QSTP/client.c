@@ -51,6 +51,7 @@ static void client_connection_dispose(client_receiver_state* prcv)
 	qstp_connection_state_dispose(prcv->pcns);
 }
 
+#if defined(QSTP_FUTURE_FEATURE)
 static qstp_errors client_send_keep_alive(qstp_keep_alive_state* kctx, const qsc_socket* sock)
 {
 	assert(kctx != NULL);
@@ -90,7 +91,6 @@ static qstp_errors client_send_keep_alive(qstp_keep_alive_state* kctx, const qsc
 	return qerr;
 }
 
-#if defined(QSTP_FUTURE_FEATURE)
 static void client_keepalive_loop(qstp_keep_alive_state* kpa)
 {
 	assert(kpa != NULL);

@@ -264,6 +264,8 @@ qstp_errors qstp_header_validate(qstp_connection_state* cns, const qstp_network_
 
 	qstp_errors merr;
 
+	merr = qstp_error_memory_allocation;
+
 	if (cns != NULL && packetin != NULL)
 	{
 		if (packetin->flag == qstp_flag_error_condition)
@@ -479,6 +481,8 @@ bool qstp_packet_time_valid(const qstp_network_packet* packet)
 
 	uint64_t ltime;
 	bool res;
+
+	res = false;
 
 	if (packet != NULL)
 	{
@@ -922,6 +926,8 @@ bool qstp_root_certificate_to_file(const qstp_root_certificate* root, const char
 
 	uint8_t sroot[QSTP_ROOT_CERTIFICATE_SIZE] = { 0 };
 	bool res;
+
+	res = false;
 
 	if (fpath != NULL && root != NULL)
 	{
@@ -1729,6 +1735,7 @@ void qstp_version_to_string(char* sver, uint8_t version)
 	}
 }
 
+#if defined(QSTP_DEBUG_MODE)
 bool qstp_test_root_certificate_encoding(const qstp_root_certificate* root)
 {
 	assert(root != NULL);
@@ -1802,3 +1809,4 @@ bool qstp_test_server_certificate_encoding(const qstp_server_certificate* cert)
 
 	return res;
 }
+#endif

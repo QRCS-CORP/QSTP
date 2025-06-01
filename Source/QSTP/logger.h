@@ -175,6 +175,7 @@ size_t qstp_logger_size(void);
  */
 bool qstp_logger_write(const char* message);
 
+#if defined(QSTP_DEBUG_MODE)
 /*!
  * \brief Run a manual test of the logger functions.
  *
@@ -193,5 +194,6 @@ bool qstp_logger_write(const char* message);
  * \return Returns true if all logger tests pass successfully.
  */
 bool qstp_logger_test(void);
+#endif
 
 #endif

@@ -146,6 +146,17 @@ void qstp_connections_clear(void);
 void qstp_connections_dispose(void);
 
 /**
+ * \brief Check if the connection collection is full.
+ *
+ * \details
+ * This function checks whether the connection collection has reached its maximum capacity.
+ * When the collection is full, no additional connection state objects can be added.
+ *
+ * \return Returns true if the collection is full; otherwise, false.
+ */
+bool qstp_connections_full(void);
+
+/**
  * \brief Retrieve a connection state pointer by its collection index.
  *
  * \details
@@ -157,17 +168,6 @@ void qstp_connections_dispose(void);
  * \return Returns a pointer to the QSTP connection state, or NULL if the index is invalid.
  */
 qstp_connection_state* qstp_connections_index(size_t index);
-
-/**
- * \brief Check if the connection collection is full.
- *
- * \details
- * This function checks whether the connection collection has reached its maximum capacity.
- * When the collection is full, no additional connection state objects can be added.
- *
- * \return Returns true if the collection is full; otherwise, false.
- */
-bool qstp_connections_full(void);
 
 /**
  * \brief Get the next available connection state.
@@ -201,6 +201,7 @@ void qstp_connections_reset(uint32_t instance);
  */
 size_t qstp_connections_size(void);
 
+#if defined(QSTP_DEBUG_MODE)
 /**
  * \brief Run the self-test for the connection collection.
  *
@@ -212,5 +213,6 @@ size_t qstp_connections_size(void);
  * management routines.
  */
 void qstp_connections_self_test(void);
+#endif
 
 #endif

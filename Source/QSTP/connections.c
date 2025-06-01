@@ -28,7 +28,7 @@ bool qstp_connections_active(size_t index)
 	return res;
 }
 
-qstp_connection_state* qstp_connections_add()
+qstp_connection_state* qstp_connections_add(void)
 {
 	qstp_connection_state* cns;
 
@@ -52,7 +52,7 @@ qstp_connection_state* qstp_connections_add()
 	return cns;
 }
 
-size_t qstp_connections_available()
+size_t qstp_connections_available(void)
 {
 	size_t count;
 
@@ -178,7 +178,7 @@ void qstp_connections_initialize(size_t count, size_t maximum)
 	}
 }
 
-qstp_connection_state* qstp_connections_next()
+qstp_connection_state* qstp_connections_next(void)
 {
 	qstp_connection_state* res;
 
@@ -223,12 +223,14 @@ size_t qstp_connections_size(void)
 	return m_connection_set.length;
 }
 
+#if defined(QSTP_DEBUG_MODE)
 void qstp_connections_self_test(void)
 {
 	qstp_connection_state* xn[20] = { 0 };
 	size_t cnt;
 	bool full;
 
+	(void)cnt;
 	(void)full;
 	qstp_connections_initialize(1, 10); /* init with 1 */
 
@@ -263,3 +265,4 @@ void qstp_connections_self_test(void)
 	qstp_connections_clear();
 	qstp_connections_dispose();
 }
+#endif

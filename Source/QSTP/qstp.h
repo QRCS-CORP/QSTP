@@ -1691,6 +1691,7 @@ QSTP_EXPORT_API uint8_t qstp_version_from_string(const char* sver, size_t sverle
  */
 QSTP_EXPORT_API void qstp_version_to_string(char* sver, uint8_t version);
 
+#if defined(QSTP_DEBUG_MODE)
 /*!
 * \brief Test the root certificate encoding and decoding functions
 *
@@ -1704,5 +1705,6 @@ QSTP_EXPORT_API bool qstp_test_root_certificate_encoding(const qstp_root_certifi
 * \return Returns true if the encoding tests succeed
 */
 QSTP_EXPORT_API bool qstp_test_server_certificate_encoding(const qstp_server_certificate* cert);
+#endif
 
 #endif
