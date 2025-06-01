@@ -176,6 +176,7 @@ static bool client_root_certificate_exists(void)
 	return res;
 }
 
+#if defined(QSTP_FUTURE_FEATURE)
 static bool client_server_certificate_path(char* fpath, size_t pathlen)
 {
 	bool res;
@@ -191,7 +192,6 @@ static bool client_server_certificate_path(char* fpath, size_t pathlen)
 	return res;
 }
 
-#if defined(QSTP_FUTURE_FEATURE)
 static bool client_server_certificate_exists(void)
 {
 	char fpath[QSC_SYSTEM_MAX_PATH] = { 0 };
