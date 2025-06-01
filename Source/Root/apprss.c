@@ -12,7 +12,6 @@
 
 static qstp_root_signature_key m_root_signature_key;
 
-#if defined(QSTP_FUTURE_FEATURE)
 static size_t root_extract_parameter(char* param, const char* command)
 {
 	const char* psub;
@@ -33,8 +32,8 @@ static size_t root_extract_parameter(char* param, const char* command)
 
 	return res;
 }
-#endif
 
+#if defined(QSTP_FUTURE_FEATURE)
 static bool root_extract_parameters(char* param1, char* param2, const char* command)
 {
 	int64_t ilen;
@@ -65,6 +64,7 @@ static bool root_extract_parameters(char* param1, char* param2, const char* comm
 
 	return res;
 }
+#endif
 
 static void root_print_prompt(void)
 {
