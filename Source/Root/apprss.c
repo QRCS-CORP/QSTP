@@ -265,8 +265,6 @@ static bool root_keyset_generate(const char* param, size_t plen)
 
 				if (res == true)
 				{
-					uint8_t spri[QSTP_ROOT_SIGNATURE_KEY_SIZE] = { 0 };
-
 					root_print_prompt();
 					qsc_consoleutils_print_safe("The root certificate has been saved to: ");
 					qsc_consoleutils_print_line(fpath);
@@ -312,8 +310,6 @@ static bool root_server_certificate_print(const char* param)
 		if (qsc_stringutils_string_contains(param, QSTP_SERVER_CERTIFICATE_EXTENSION_NAME) == true &&
 			qsc_fileutils_exists(param) == true)
 		{
-			qstp_server_certificate cert = { 0 };
-
 			if (qstp_server_file_to_certificate(&cert, param) == true)
 			{
 				qstp_root_server_certificate_print(&cert);

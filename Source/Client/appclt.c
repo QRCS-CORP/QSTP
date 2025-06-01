@@ -313,6 +313,7 @@ static bool client_ipv4_dialogue(qsc_ipinfo_ipv4_address* address, qstp_root_cer
 
 static void client_receive_callback(const qstp_connection_state* cns, const char* pmsg, size_t msglen)
 {
+	(void)cns;
 	client_print_string(pmsg, msglen);
 	client_print_prompt();
 }

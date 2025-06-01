@@ -240,8 +240,6 @@ static bool server_key_dialogue()
 				}
 				else
 				{
-					char fpath[QSC_SYSTEM_MAX_PATH] = { 0 };
-
 					server_get_root_path(fpath, sizeof(fpath));
 
 					if (qsc_fileutils_exists(fpath) == true)
@@ -324,8 +322,8 @@ static void server_send_echo(qstp_connection_state* cns, const char* message, si
 		mlen = qsc_stringutils_concat_strings(mstr, sizeof(mstr), message);
 		pkt.pmessage = pmsg;
 		qstp_encrypt_packet(cns, &pkt, (uint8_t*)mstr, mlen);
-		mlen = qstp_packet_to_stream(&pkt, mstr);
-		qsc_socket_send(&cns->target, mstr, mlen, qsc_socket_send_flag_none);
+		mlen = qstp_packet_to_stream(&pkt, (uint8_t*)mstr);
+		qsc_socket_send(&cns->target, (const uint8_t*)mstr, mlen, qsc_socket_send_flag_none);
 	}
 }
 
