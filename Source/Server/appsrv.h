@@ -34,22 +34,17 @@
  * in the LICENSE.txt file distributed with this software.
  *
  * Written by: John G. Underhill
- * Contact: john.underhill@protonmail.com
+ * Contact: contact@qrcscorp.ca
  */
 
 #ifndef QSTP_SERVER_APP_H
 #define QSTP_SERVER_APP_H
 
-#include <assert.h>
-#include <errno.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include <string.h>
 #include "qstpcommon.h"
 #include "socketbase.h"
 #include "socketserver.h"
 
-#define QSTP_ROOT_CERTIFICATE_NAME_SIZE 21
+#define QSTP_ROOT_CERTIFICATE_NAME_SIZE 21U
 static const char QSTP_ROOT_CERTIFICATE_NAME[] = "root_public_cert.qrr";
 
 /**

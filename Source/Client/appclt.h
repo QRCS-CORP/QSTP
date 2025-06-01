@@ -34,17 +34,12 @@
  * in the LICENSE.txt file distributed with this software.
  *
  * Written by: John G. Underhill
- * Contact: john.underhill@protonmail.com
+ * Contact: contact@qrcscorp.ca
  */
 
 #ifndef QSTP_CLIENT_APP_H
 #define QSTP_CLIENT_APP_H
 
-#include <assert.h>
-#include <errno.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include <string.h>
 #include "qstpcommon.h"
 
 /**

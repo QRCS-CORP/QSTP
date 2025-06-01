@@ -34,7 +34,7 @@
  * in the LICENSE.txt file distributed with this software.
  *
  * Written by: John G. Underhill
- * Contact: john.underhill@protonmail.com
+ * Contact: contact@qrcscorp.ca
  */
 
 #include "appsrv.h"
@@ -65,7 +65,7 @@ static void server_print_message(const char* message)
 	{
 		slen = qsc_stringutils_string_size(message);
 
-		if (slen != 0)
+		if (slen != 0U)
 		{
 			server_print_prompt();
 			qsc_consoleutils_print_line(message);
@@ -94,9 +94,9 @@ static void server_print_banner(void)
 {
 	qsc_consoleutils_print_line("QSTP: Server Example Project");
 	qsc_consoleutils_print_line("Quantum Secure Messaging Protocol server.");
-	qsc_consoleutils_print_line("Release:   v1.3.0.0a (A3)");
-	qsc_consoleutils_print_line("Date:      August 1, 2024");
-	qsc_consoleutils_print_line("Contact:   john.underhill@protonmail.com");
+	qsc_consoleutils_print_line("Release:   v1.3.0.0b (A3)");
+	qsc_consoleutils_print_line("Date:      May 31, 2025");
+	qsc_consoleutils_print_line("Contact:   contact@qrcscorp.ca");
 	qsc_consoleutils_print_line("");
 }
 
@@ -308,7 +308,7 @@ static void server_send_echo(qstp_connection_state* cns, const char* message, si
 	qsc_mutex mtx;
 	size_t mlen;
 
-	if (msglen > 0)
+	if (msglen > 0U)
 	{
 		mlen = qsc_stringutils_string_size(rstr);
 		qsc_stringutils_int_to_string((int)cns->target.connection, rstr + mlen, sizeof(rstr) - mlen);

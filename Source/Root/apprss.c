@@ -17,14 +17,14 @@ static size_t root_extract_parameter(char* param, const char* command)
 	const char* psub;
 	size_t res;
 
-	res = 0;
+	res = 0U;
 	psub = qsc_stringutils_reverse_sub_string(command, " ");
 
 	if (psub != NULL)
 	{
 		res = qsc_stringutils_string_size(psub);
 
-		if (res > 0)
+		if (res > 0U)
 		{
 			qsc_memutils_copy(param, psub, res);
 		}
@@ -41,22 +41,22 @@ static bool root_extract_parameters(char* param1, char* param2, const char* comm
 	bool res;
 
 	res = false;
-	ipos = qsc_stringutils_find_string(command, " ") + 1;
+	ipos = qsc_stringutils_find_string(command, " ") + 1U;
 
-	if (ipos > 0)
+	if (ipos > 0U)
 	{
 		ilen = qsc_stringutils_find_string(command + ipos, ", ");
 
-		if (ilen > 0)
+		if (ilen > 0U)
 		{
 			size_t len;
 
 			qsc_memutils_copy(param1, command + ipos, ilen);
 			len = qsc_stringutils_string_size(command + ipos + ilen);
 
-			if (len > 0)
+			if (len > 0U)
 			{
-				qsc_memutils_copy(param2, command + ipos + ilen + 2, len);
+				qsc_memutils_copy(param2, command + ipos + ilen + 2U, len);
 				res = true;
 			}
 		}
@@ -94,7 +94,7 @@ static void root_print_message(const char* message)
 	{
 		slen = qsc_stringutils_string_size(message);
 
-		if (slen != 0)
+		if (slen != 0U)
 		{
 			root_print_prompt();
 			qsc_consoleutils_print_line(message);
@@ -112,9 +112,9 @@ static void root_print_banner(void)
 	qsc_consoleutils_print_line("Quantum Secure Messaging Protocol root server.");
 	qsc_consoleutils_print_line("Type 'quit' to exit the application, 'help' for command help.");
 	qsc_consoleutils_print_line("");
-	qsc_consoleutils_print_line("Release:   v1.1.0.0a (A1)");
-	qsc_consoleutils_print_line("Date:      August 1, 2024");
-	qsc_consoleutils_print_line("Contact:   john.underhill@protonmail.com");
+	qsc_consoleutils_print_line("Release:   v1.1.0.0b (A1)");
+	qsc_consoleutils_print_line("Date:      May 31, 2025");
+	qsc_consoleutils_print_line("Contact:   contact@qrcscorp.ca");
 	qsc_consoleutils_print_line("");
 }
 
@@ -236,7 +236,7 @@ static bool root_keyset_generate(const char* param, size_t plen)
 
 		days = qsc_stringutils_string_to_int(param);
 
-		if (days > 0)
+		if (days > 0U)
 		{
 			root_get_certificate_path(fpath, sizeof(fpath));
 
@@ -327,7 +327,7 @@ static bool root_server_certificate_print(const char* param)
 
 static bool root_certificate_sign(const char* param)
 {
-	assert(param != NULL);
+	QSTP_ASSERT(param != NULL);
 
 	bool res;
 
@@ -338,7 +338,7 @@ static bool root_certificate_sign(const char* param)
 	{
 		qstp_root_certificate root = { 0 };
 
-		qstp_root_certificate_extract(&root, &m_root_signature_key); // TODO: move extract to implementation and pass cert in param
+		qstp_root_certificate_extract(&root, &m_root_signature_key);
 		res = qstp_root_sign_certificate(param, &root, m_root_signature_key.sigkey);
 	}
 
@@ -399,7 +399,7 @@ static bool root_command_interpreter(const char* command)
 	{
 		plen = root_extract_parameter(param, command);
 
-		if (plen > 0)
+		if (plen > 0U)
 		{
 			if (root_certificate_export(param) == true)
 			{
@@ -417,7 +417,7 @@ static bool root_command_interpreter(const char* command)
 	{
 		plen = root_extract_parameter(param, command);
 
-		if (plen > 0)
+		if (plen > 0U)
 		{
 			if (root_keyset_generate(param, plen) == false)
 			{
@@ -444,7 +444,7 @@ static bool root_command_interpreter(const char* command)
 	{
 		plen = root_extract_parameter(param, command);
 
-		if (plen > 0)
+		if (plen > 0U)
 		{
 			if (root_server_certificate_print(param) == false)
 			{
@@ -456,7 +456,7 @@ static bool root_command_interpreter(const char* command)
 	{
 		plen = root_extract_parameter(param, command);
 
-		if (plen > 0)
+		if (plen > 0U)
 		{
 			if (root_certificate_sign(param) == true)
 			{
@@ -470,7 +470,7 @@ static bool root_command_interpreter(const char* command)
 	}
 	else
 	{
-		if (qsc_stringutils_string_size(command) > 0)
+		if (qsc_stringutils_string_size(command) > 0U)
 		{
 			root_print_message("The command is unrecognized, or the parameter is invalid.");
 		}

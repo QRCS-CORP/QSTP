@@ -25,11 +25,6 @@
 #ifndef QSTP_APPRSS_H
 #define QSTP_APPRSS_H
 
-#include <assert.h>
-#include <errno.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include <string.h>
 #include "qstpcommon.h"
 
 #endif
