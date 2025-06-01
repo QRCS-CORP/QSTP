@@ -177,7 +177,7 @@ static bool server_get_key_path(char* fpath, size_t pathlen)
 	return res;
 }
 
-static bool server_key_generate()
+static bool server_key_generate(void)
 {
 	qstp_server_certificate cert = { 0 };
 	char issuer[QSTP_CERTIFICATE_ISSUER_SIZE] = { 0 };
@@ -213,7 +213,7 @@ static bool server_key_generate()
 	return res;
 }
 
-static bool server_key_dialogue()
+static bool server_key_dialogue(void)
 {
 	qstp_root_certificate root = { 0 };
 	char fpath[QSC_SYSTEM_MAX_PATH] = { 0 };
@@ -334,7 +334,7 @@ static void server_disconnect_callback(qstp_connection_state* cns)
 	mtx = qsc_async_mutex_lock_ex();
 	server_print_prompt();
 	qsc_consoleutils_print_safe("The server has disconnected from host: ");
-	qsc_consoleutils_print_line(cns->target.address);
+	qsc_consoleutils_print_line((const char*)cns->target.address);
 	qsc_async_mutex_unlock_ex(mtx);
 }
 

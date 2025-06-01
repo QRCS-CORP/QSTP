@@ -52,6 +52,7 @@ static void client_print_prompt(void)
 	qsc_consoleutils_print_safe("client> ");
 }
 
+#if defined(QSTP_FUTURE_FEATURE)
 static void client_print_error(qstp_errors error)
 {
 	const char* msg;
@@ -64,6 +65,7 @@ static void client_print_error(qstp_errors error)
 		qsc_consoleutils_print_line(msg);
 	}
 }
+#endif
 
 static void client_print_message(const char* message)
 {
@@ -189,6 +191,7 @@ static bool client_server_certificate_path(char* fpath, size_t pathlen)
 	return res;
 }
 
+#if defined(QSTP_FUTURE_FEATURE)
 static bool client_server_certificate_exists(void)
 {
 	char fpath[QSC_SYSTEM_MAX_PATH] = { 0 };
@@ -203,6 +206,7 @@ static bool client_server_certificate_exists(void)
 
 	return res;
 }
+#endif
 
 static bool client_ipv4_dialogue(qsc_ipinfo_ipv4_address* address, qstp_root_certificate* root, qstp_server_certificate* cert)
 {

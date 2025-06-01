@@ -64,7 +64,7 @@ static bool root_extract_parameters(char* param1, char* param2, const char* comm
 	return res;
 }
 
-static void root_print_prompt()
+static void root_print_prompt(void)
 {
 	qsc_consoleutils_print_safe("root> ");
 }
@@ -102,7 +102,7 @@ static void root_print_message(const char* message)
 	}
 }
 
-static void root_print_banner()
+static void root_print_banner(void)
 {
 	qsc_consoleutils_print_line("QSTP: Root Server Example Project");
 	qsc_consoleutils_print_line("Quantum Secure Messaging Protocol root server.");
@@ -114,7 +114,7 @@ static void root_print_banner()
 	qsc_consoleutils_print_line("");
 }
 
-static void root_print_help()
+static void root_print_help(void)
 {
 	root_print_message("export [directory-path] -Export the public certificate.");
 	root_print_message("generate [number-days] -Create a new root certificate.");
@@ -183,7 +183,7 @@ static bool root_get_key_path(char* fpath, size_t pathlen)
 	return res;
 }
 
-static bool root_prikey_exists()
+static bool root_prikey_exists(void)
 {
 	char fpath[QSC_SYSTEM_MAX_PATH] = { 0 };
 	bool res;
@@ -282,7 +282,7 @@ static bool root_keyset_generate(const char* param, size_t plen)
 	return res;
 }
 
-static bool root_certificate_print()
+static bool root_certificate_print(void)
 {
 	qstp_root_certificate root = { 0 };
 	bool res;
@@ -341,7 +341,7 @@ static bool root_certificate_sign(const char* param)
 	return res;
 }
 
-static bool root_key_dialogue()
+static bool root_key_dialogue(void)
 {
 	char fpath[QSC_SYSTEM_MAX_PATH] = { 0 };
 	bool res;
@@ -475,7 +475,7 @@ static bool root_command_interpreter(const char* command)
 	return res;
 }
 
-static void root_command_loop()
+static void root_command_loop(void)
 {
 	char cmd[QSC_CONSOLE_MAX_LINE] = { 0 };
 	bool res;
