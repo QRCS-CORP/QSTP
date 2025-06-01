@@ -159,7 +159,7 @@ static bool client_root_certificate_path(char* fpath, size_t pathlen)
 	return res;
 }
 
-static bool client_root_certificate_exists()
+static bool client_root_certificate_exists(void)
 {
 	char fpath[QSC_SYSTEM_MAX_PATH] = { 0 };
 	bool res;
@@ -189,7 +189,7 @@ static bool client_server_certificate_path(char* fpath, size_t pathlen)
 	return res;
 }
 
-static bool client_server_certificate_exists()
+static bool client_server_certificate_exists(void)
 {
 	char fpath[QSC_SYSTEM_MAX_PATH] = { 0 };
 	bool res;
@@ -311,7 +311,7 @@ static bool client_ipv4_dialogue(qsc_ipinfo_ipv4_address* address, qstp_root_cer
 	return res;
 }
 
-static void client_receive_callback(const qstp_connection_state* cns, const char* pmsg, size_t msglen)
+static void client_receive_callback(qstp_connection_state* cns, const char* pmsg, size_t msglen)
 {
 	(void)cns;
 	client_print_string(pmsg, msglen);
