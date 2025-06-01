@@ -43,7 +43,7 @@ target_include_directories(qstp_server PRIVATE Source/Server)
 target_link_libraries(qstp_server PRIVATE qstp)
 
 # QSTP Root
-file(GLOB_RECURSE QSTP_ROOT_SOURCES "Source/*.c")
+file(GLOB_RECURSE QSTP_ROOT_SOURCES "Source/Root/*.c")
 
 add_executable(qstp_root ${QSTP_ROOT_SOURCES})
 target_include_directories(qstp_root PRIVATE Source/Root)
