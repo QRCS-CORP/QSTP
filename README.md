@@ -75,7 +75,7 @@ QSTP uses the QSC cryptographic library. QSC is a standalone, portable, and MISR
 
 Use the Visual Studio solution to create the library and the Server and Client projects: QSTP, Root, Server, and Client.
 Extract the files, and open the Server and Client projects. The QSTP library has a default location in a folder parallel to the Server, Root, and Client project folders.  
-The server, root, and client projects additional files folder are set to: **$(SolutionDir)..\QSTP\QSTP** and **$(SolutionDir)..\QSC\QSC**, if this is not the location of the library files, change it by going to server/client project properties **Configuration Properties->C/C++->General->Additional Include Directories** and set the library files location.  
+The server, root, and client projects additional files folder are set to: **$(SolutionDir)QSTP** and **$(SolutionDir)..\QSC\QSC**, if this is not the location of the library files, change it by going to server/client project properties **Configuration Properties->C/C++->General->Additional Include Directories** and set the library files location.  
 Ensure that the **[server/root/client]->References** property contains a reference to the QSTP library, and that the QSTP library contains a valid reference to the QSC library.  
 QSC and QSTP support every AVX instruction family (AVX/AVX2/AVX-512).  
 Set the QSC and QSTP libries and every server/client project to the same AVX family setting in **Configuration Properties->C/C++->All Options->Enable Enhanced Instruction Set**.  
