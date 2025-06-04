@@ -13,7 +13,7 @@
 
 qstp_configuration_sets qstp_configuration_from_string(const char* config)
 {
-	assert(config != NULL);
+	QSTP_ASSERT(config != NULL);
 
 	size_t i;
 	qstp_configuration_sets res;
@@ -22,11 +22,11 @@ qstp_configuration_sets qstp_configuration_from_string(const char* config)
 
 	if (config != NULL)
 	{
-		for (i = 0; i < QSTP_PROTOCOL_SET_DEPTH; ++i)
+		for (i = 0U; i < QSTP_PROTOCOL_SET_DEPTH; ++i)
 		{
 			if (qsc_stringutils_string_contains(config, QSTP_PARAMETER_STRINGS[i]) == true)
 			{
-				res = (qstp_configuration_sets)i + 1;
+				res = (qstp_configuration_sets)i + 1U;
 				break;
 			}
 		}
@@ -51,7 +51,7 @@ const char* qstp_configuration_to_string(qstp_configuration_sets cset)
 
 void qstp_connection_close(qstp_connection_state* cns, qstp_errors err, bool notify)
 {
-	assert(cns != NULL);
+	QSTP_ASSERT(cns != NULL);
 
 	if (cns != NULL)
 	{
@@ -62,13 +62,13 @@ void qstp_connection_close(qstp_connection_state* cns, qstp_errors err, bool not
 				if (err == qstp_error_none)
 				{
 					qstp_network_packet resp = { 0 };
-					uint8_t spct[QSTP_PACKET_HEADER_SIZE] = { 0 };
+					uint8_t spct[QSTP_PACKET_HEADER_SIZE] = { 0U };
 
 					/* send a disconnect message */
 					resp.pmessage = spct + QSTP_PACKET_HEADER_SIZE;
 					resp.flag = qstp_flag_connection_terminate;
 					resp.sequence = QSTP_PACKET_SEQUENCE_TERMINATOR;
-					resp.msglen = 0;
+					resp.msglen = 0U;
 					resp.pmessage = NULL;
 
 					qstp_packet_header_serialize(&resp, spct);
@@ -78,8 +78,7 @@ void qstp_connection_close(qstp_connection_state* cns, qstp_errors err, bool not
 				{
 					/* send an error message */
 					qstp_network_packet resp = { 0 };
-
-					uint8_t perr[QSTP_PACKET_ERROR_SIZE] = { 0 };
+					uint8_t perr[QSTP_PACKET_ERROR_SIZE] = { 0U };
 					uint8_t* spct;
 					size_t mlen;
 					qstp_errors qerr;
@@ -96,7 +95,7 @@ void qstp_connection_close(qstp_connection_state* cns, qstp_errors err, bool not
 						resp.sequence = QSTP_PACKET_SEQUENCE_TERMINATOR;
 						resp.msglen = QSTP_PACKET_ERROR_SIZE;
 						resp.pmessage = spct + QSTP_PACKET_HEADER_SIZE;
-						perr[0] = err;
+						perr[0U] = err;
 
 						qerr = qstp_encrypt_packet(cns, &resp, perr, QSTP_PACKET_ERROR_SIZE);
 
@@ -119,36 +118,36 @@ void qstp_connection_close(qstp_connection_state* cns, qstp_errors err, bool not
 
 void qstp_connection_state_dispose(qstp_connection_state* cns)
 {
-	assert(cns != NULL);
+	QSTP_ASSERT(cns != NULL);
 
 	if (cns != NULL)
 	{
 		qstp_cipher_dispose(&cns->rxcpr);
 		qstp_cipher_dispose(&cns->txcpr);
 		qsc_memutils_clear((uint8_t*)&cns->target, sizeof(qsc_socket));
-		cns->rxseq = 0;
-		cns->txseq = 0;
-		cns->cid = 0;
+		cns->rxseq = 0U;
+		cns->txseq = 0U;
+		cns->cid = 0U;
 		cns->exflag = qstp_flag_none;
 	}
 }
 
 qstp_errors qstp_decrypt_packet(qstp_connection_state* cns, uint8_t* message, size_t* msglen, const qstp_network_packet* packetin)
 {
-	assert(cns != NULL);
-	assert(packetin != NULL);
-	assert(message != NULL);
-	assert(msglen != NULL);
+	QSTP_ASSERT(cns != NULL);
+	QSTP_ASSERT(packetin != NULL);
+	QSTP_ASSERT(message != NULL);
+	QSTP_ASSERT(msglen != NULL);
 
-	uint8_t hdr[QSTP_PACKET_HEADER_SIZE] = { 0 };
+	uint8_t hdr[QSTP_PACKET_HEADER_SIZE] = { 0U };
 	qstp_errors qerr;
 
 	qerr = qstp_error_invalid_input;
-	*msglen = 0;
+	*msglen = 0U;
 
 	if (cns != NULL && message != NULL && msglen != NULL && packetin != NULL)
 	{
-		cns->rxseq += 1;
+		cns->rxseq += 1U;
 
 		if (packetin->sequence == cns->rxseq)
 		{
@@ -169,7 +168,7 @@ qstp_errors qstp_decrypt_packet(qstp_connection_state* cns, uint8_t* message, si
 					}
 					else
 					{
-						*msglen = 0;
+						*msglen = 0U;
 						qerr = qstp_error_authentication_failure;
 					}
 				}
@@ -194,9 +193,9 @@ qstp_errors qstp_decrypt_packet(qstp_connection_state* cns, uint8_t* message, si
 
 qstp_errors qstp_encrypt_packet(qstp_connection_state* cns, qstp_network_packet* packetout, const uint8_t* message, size_t msglen)
 {
-	assert(cns != NULL);
-	assert(message != NULL);
-	assert(packetout != NULL);
+	QSTP_ASSERT(cns != NULL);
+	QSTP_ASSERT(message != NULL);
+	QSTP_ASSERT(packetout != NULL);
 
 	qstp_errors qerr;
 
@@ -204,12 +203,12 @@ qstp_errors qstp_encrypt_packet(qstp_connection_state* cns, qstp_network_packet*
 
 	if (cns != NULL && message != NULL && packetout != NULL)
 	{
-		if (cns->exflag == qstp_flag_session_established && msglen != 0)
+		if (cns->exflag == qstp_flag_session_established && msglen != 0U)
 		{
-			uint8_t hdr[QSTP_PACKET_HEADER_SIZE] = { 0 };
+			uint8_t hdr[QSTP_PACKET_HEADER_SIZE] = { 0U };
 
 			/* assemble the encryption packet */
-			cns->txseq += 1;
+			cns->txseq += 1U;
 			qstp_header_create(packetout, qstp_flag_encrypted_message, cns->txseq, (uint32_t)msglen + QSTP_MACTAG_SIZE);
 
 			/* serialize the header and add it to the ciphers associated data */
@@ -245,7 +244,7 @@ const char* qstp_error_to_string(qstp_errors error)
 
 void qstp_header_create(qstp_network_packet* packetout, qstp_flags flag, uint64_t sequence, uint32_t msglen)
 {
-	assert(packetout != NULL);
+	QSTP_ASSERT(packetout != NULL);
 
 	if (packetout != NULL)
 	{
@@ -259,8 +258,8 @@ void qstp_header_create(qstp_network_packet* packetout, qstp_flags flag, uint64_
 
 qstp_errors qstp_header_validate(qstp_connection_state* cns, const qstp_network_packet* packetin, qstp_flags flag, uint64_t sequence, uint32_t msglen)
 {
-	assert(cns != NULL);
-	assert(packetin != NULL);
+	QSTP_ASSERT(cns != NULL);
+	QSTP_ASSERT(packetin != NULL);
 
 	qstp_errors merr;
 
@@ -270,7 +269,7 @@ qstp_errors qstp_header_validate(qstp_connection_state* cns, const qstp_network_
 	{
 		if (packetin->flag == qstp_flag_error_condition)
 		{
-			merr = (qstp_errors)packetin->pmessage[0];
+			merr = (qstp_errors)packetin->pmessage[0U];
 		}
 		else
 		{
@@ -282,7 +281,7 @@ qstp_errors qstp_header_validate(qstp_connection_state* cns, const qstp_network_
 					{
 						if (packetin->flag == flag)
 						{
-							cns->rxseq += 1;
+							cns->rxseq += 1U;
 							merr = qstp_error_none;
 						}
 						else
@@ -312,9 +311,9 @@ qstp_errors qstp_header_validate(qstp_connection_state* cns, const qstp_network_
 
 void qstp_log_error(qstp_messages emsg, qsc_socket_exceptions err, const char* msg)
 {
-	assert(msg != NULL);
+	QSTP_ASSERT(msg != NULL);
 
-	char mtmp[QSTP_ERROR_STRING_WIDTH * 2] = { 0 };
+	char mtmp[QSTP_ERROR_STRING_WIDTH * 2U] = { 0 };
 	const char* perr;
 	const char* phdr;
 	const char* pmsg;
@@ -359,7 +358,7 @@ void qstp_log_message(qstp_messages emsg)
 
 void qstp_log_write(qstp_messages emsg, const char* msg)
 {
-	assert(msg != NULL);
+	QSTP_ASSERT(msg != NULL);
 
 	const char* pmsg = qstp_get_error_description(emsg);
 
@@ -397,46 +396,46 @@ const char* qstp_get_error_description(qstp_messages message)
 
 void qstp_packet_clear(qstp_network_packet* packet)
 {
-	assert(packet != NULL);
+	QSTP_ASSERT(packet != NULL);
 
 	if (packet != NULL)
 	{
-		if (packet->msglen != 0)
+		if (packet->msglen != 0U)
 		{
 			qsc_memutils_clear(packet->pmessage, packet->msglen);
 		}
 
 		packet->flag = (uint8_t)qstp_flag_none;
-		packet->msglen = 0;
-		packet->sequence = 0;
-		packet->utctime = 0;
+		packet->msglen = 0U;
+		packet->sequence = 0U;
+		packet->utctime = 0U;
 	}
 }
 
 void qstp_packet_error_message(qstp_network_packet* packet, qstp_errors error)
 {
-	assert(packet != NULL);
+	QSTP_ASSERT(packet != NULL);
 
 	if (packet != NULL)
 	{
 		packet->flag = qstp_flag_error_condition;
 		packet->msglen = QSTP_PACKET_ERROR_SIZE;
 		packet->sequence = QSTP_PACKET_ERROR_SEQUENCE;
-		packet->pmessage[0] = (uint8_t)error;
+		packet->pmessage[0U] = (uint8_t)error;
 		qstp_packet_set_utc_time(packet);
 	}
 }
 
 void qstp_packet_header_deserialize(const uint8_t* header, qstp_network_packet* packet)
 {
-	assert(header != NULL);
-	assert(packet != NULL);
+	QSTP_ASSERT(header != NULL);
+	QSTP_ASSERT(packet != NULL);
 
 	if (header != NULL && packet != NULL)
 	{
 		size_t pos;
 
-		packet->flag = header[0];
+		packet->flag = header[0U];
 		pos = QSTP_PACKET_FLAG_SIZE;
 		packet->msglen = qsc_intutils_le8to32(header + pos);
 		pos += QSTP_PACKET_MESSAGE_LENGTH_SIZE;
@@ -448,14 +447,14 @@ void qstp_packet_header_deserialize(const uint8_t* header, qstp_network_packet* 
 
 void qstp_packet_header_serialize(const qstp_network_packet* packet, uint8_t* header)
 {
-	assert(header != NULL);
-	assert(packet != NULL);
+	QSTP_ASSERT(header != NULL);
+	QSTP_ASSERT(packet != NULL);
 
 	if (header != NULL && packet != NULL)
 	{
 		size_t pos;
 
-		header[0] = packet->flag;
+		header[0U] = packet->flag;
 		pos = QSTP_PACKET_FLAG_SIZE;
 		qsc_intutils_le32to8(header + pos, packet->msglen);
 		pos += QSTP_PACKET_MESSAGE_LENGTH_SIZE;
@@ -467,7 +466,7 @@ void qstp_packet_header_serialize(const qstp_network_packet* packet, uint8_t* he
 
 void qstp_packet_set_utc_time(qstp_network_packet* packet)
 {
-	assert(packet != NULL);
+	QSTP_ASSERT(packet != NULL);
 
 	if (packet != NULL)
 	{
@@ -477,7 +476,7 @@ void qstp_packet_set_utc_time(qstp_network_packet* packet)
 
 bool qstp_packet_time_valid(const qstp_network_packet* packet)
 {
-	assert(packet != NULL);
+	QSTP_ASSERT(packet != NULL);
 
 	uint64_t ltime;
 	bool res;
@@ -496,17 +495,17 @@ bool qstp_packet_time_valid(const qstp_network_packet* packet)
 
 size_t qstp_packet_to_stream(const qstp_network_packet* packet, uint8_t* pstream)
 {
-	assert(packet != NULL);
-	assert(pstream != NULL);
+	QSTP_ASSERT(packet != NULL);
+	QSTP_ASSERT(pstream != NULL);
 
 	size_t pos;
 	size_t res;
 
-	res = 0;
+	res = 0U;
 
 	if (packet != NULL && pstream != NULL)
 	{
-		pstream[0] = packet->flag;
+		pstream[0U] = packet->flag;
 		pos = QSTP_PACKET_FLAG_SIZE;
 		qsc_intutils_le32to8(pstream + pos, packet->msglen);
 		pos += QSTP_PACKET_MESSAGE_LENGTH_SIZE;
@@ -523,8 +522,8 @@ size_t qstp_packet_to_stream(const qstp_network_packet* packet, uint8_t* pstream
 
 bool qstp_root_certificate_compare(const qstp_root_certificate* a, const qstp_root_certificate* b)
 {
-	assert(a != NULL);
-	assert(b != NULL);
+	QSTP_ASSERT(a != NULL);
+	QSTP_ASSERT(b != NULL);
 
 	bool res;
 
@@ -552,8 +551,8 @@ bool qstp_root_certificate_compare(const qstp_root_certificate* a, const qstp_ro
 
 bool qstp_root_certificate_decode(qstp_root_certificate* root, const char* enck, size_t enclen)
 {
-	assert(root != NULL);
-	assert(enck != NULL);
+	QSTP_ASSERT(root != NULL);
+	QSTP_ASSERT(enck != NULL);
 
 	char dtm[QSC_TIMESTAMP_STRING_SIZE] = { 0 };
 	char prot[QSTP_PROTOCOL_SET_SIZE] = { 0 };
@@ -568,50 +567,50 @@ bool qstp_root_certificate_decode(qstp_root_certificate* root, const char* enck,
 
 	if (root != NULL && enck != NULL)
 	{
-		spos = sizeof(QSTP_ROOT_CERTIFICATE_HEADER) - 1;
+		spos = sizeof(QSTP_ROOT_CERTIFICATE_HEADER) - 1U;
 		++spos;
 
-		spos += sizeof(QSTP_ROOT_CERTIFICATE_ISSUER_PREFIX) - 1;
+		spos += sizeof(QSTP_ROOT_CERTIFICATE_ISSUER_PREFIX) - 1U;
 		slen = qsc_stringutils_find_char(enck + spos, '\n');
 		qsc_memutils_copy(root->issuer, enck + spos, slen);
 		spos += slen;
 		++spos;
 
-		spos += sizeof(QSTP_ROOT_CERTIFICATE_SERIAL_PREFIX) - 1;
-		slen = QSTP_CERTIFICATE_SERIAL_SIZE * 2;
+		spos += sizeof(QSTP_ROOT_CERTIFICATE_SERIAL_PREFIX) - 1U;
+		slen = QSTP_CERTIFICATE_SERIAL_SIZE * 2U;
 		qsc_intutils_hex_to_bin(enck + spos, root->serial, QSTP_CERTIFICATE_SERIAL_SIZE);
 		spos += slen;
 		++spos;
 
-		spos += sizeof(QSTP_ROOT_CERTIFICATE_VALID_FROM_PREFIX) - 1;
-		slen = QSC_TIMESTAMP_STRING_SIZE - 1;
+		spos += sizeof(QSTP_ROOT_CERTIFICATE_VALID_FROM_PREFIX) - 1U;
+		slen = QSC_TIMESTAMP_STRING_SIZE - 1U;
 		qsc_memutils_copy(dtm, enck + spos, slen);
 		root->expiration.from = qsc_timestamp_datetime_to_seconds(dtm);
 		spos += slen;
 		++spos;
 
-		spos += sizeof(QSTP_ROOT_CERTIFICATE_EXPIRATION_TO_PREFIX) - 1;
-		slen = QSC_TIMESTAMP_STRING_SIZE - 1;
+		spos += sizeof(QSTP_ROOT_CERTIFICATE_EXPIRATION_TO_PREFIX) - 1U;
+		slen = QSC_TIMESTAMP_STRING_SIZE - 1U;
 		qsc_memutils_copy(dtm, enck + spos, slen);
 		root->expiration.to = qsc_timestamp_datetime_to_seconds(dtm);
 		spos += slen;
 		++spos;
 
-		spos += sizeof(QSTP_ROOT_CERTIFICATE_PROTOCOL_PREFIX) - 1;
+		spos += sizeof(QSTP_ROOT_CERTIFICATE_PROTOCOL_PREFIX) - 1U;
 		slen = qsc_stringutils_find_char(enck + spos, '\n');
 		qsc_memutils_copy(prot, enck + spos, slen);
 		root->algorithm = qstp_configuration_from_string(prot);
 		spos += slen;
 		++spos;
 
-		spos += sizeof(QSTP_ROOT_CERTIFICATE_VERSION_PREFIX) - 1;
-		slen = sizeof(QSTP_ACTIVE_VERSION_STRING) - 1;
+		spos += sizeof(QSTP_ROOT_CERTIFICATE_VERSION_PREFIX) - 1U;
+		slen = sizeof(QSTP_ACTIVE_VERSION_STRING) - 1U;
 		qsc_memutils_copy(vers, enck + spos, slen);
 		root->version = qstp_version_from_string(vers + QSC_STRINGUTILS_HEX_EXTENSION_SIZE, QSC_STRINGUTILS_HEX_BYTE_SIZE);
 		spos += slen;
 		++spos;
 
-		spos += sizeof(QSTP_ROOT_CERTIFICATE_PUBLICKEY_PREFIX) - 1;
+		spos += sizeof(QSTP_ROOT_CERTIFICATE_PUBLICKEY_PREFIX) - 1U;
 		elen = qsc_encoding_base64_encoded_size(QSTP_ASYMMETRIC_VERIFICATION_KEY_SIZE);
 		pvk = qsc_memutils_malloc(elen);
 
@@ -629,7 +628,7 @@ bool qstp_root_certificate_decode(qstp_root_certificate* root, const char* enck,
 
 void qstp_root_certificate_deserialize(qstp_root_certificate* root, const uint8_t input[QSTP_ROOT_CERTIFICATE_SIZE])
 {
-	assert(root != NULL);
+	QSTP_ASSERT(root != NULL);
 
 	size_t pos;
 
@@ -655,30 +654,30 @@ size_t qstp_root_certificate_encoded_size(void)
 	size_t elen;
 	size_t klen;
 
-	elen = sizeof(QSTP_ROOT_CERTIFICATE_HEADER) - 1;
+	elen = sizeof(QSTP_ROOT_CERTIFICATE_HEADER) - 1U;
 	++elen;
-	elen += sizeof(QSTP_ROOT_CERTIFICATE_ISSUER_PREFIX) - 1;
+	elen += sizeof(QSTP_ROOT_CERTIFICATE_ISSUER_PREFIX) - 1U;
 	elen += QSTP_CERTIFICATE_ISSUER_SIZE;
 	++elen;
-	elen += sizeof(QSTP_ROOT_CERTIFICATE_SERIAL_PREFIX) - 1;
-	elen += (QSTP_CERTIFICATE_SERIAL_SIZE * 2);
+	elen += sizeof(QSTP_ROOT_CERTIFICATE_SERIAL_PREFIX) - 1U;
+	elen += (QSTP_CERTIFICATE_SERIAL_SIZE * 2U);
 	++elen;
-	elen += sizeof(QSTP_ROOT_CERTIFICATE_VALID_FROM_PREFIX) - 1;
+	elen += sizeof(QSTP_ROOT_CERTIFICATE_VALID_FROM_PREFIX) - 1U;
 	elen += QSC_TIMESTAMP_STRING_SIZE;
 	++elen;
-	elen += sizeof(QSTP_ROOT_CERTIFICATE_EXPIRATION_TO_PREFIX) - 1;
+	elen += sizeof(QSTP_ROOT_CERTIFICATE_EXPIRATION_TO_PREFIX) - 1U;
 	elen += QSC_TIMESTAMP_STRING_SIZE;
 	++elen;
-	elen += sizeof(QSTP_ROOT_CERTIFICATE_PROTOCOL_PREFIX) - 1;
+	elen += sizeof(QSTP_ROOT_CERTIFICATE_PROTOCOL_PREFIX) - 1U;
 	elen += sizeof(QSTP_PROTOCOL_SET_STRING);
 	++elen;
-	elen += sizeof(QSTP_ROOT_CERTIFICATE_VERSION_PREFIX) - 1;
+	elen += sizeof(QSTP_ROOT_CERTIFICATE_VERSION_PREFIX) - 1U;
 	elen += sizeof(QSTP_ACTIVE_VERSION_STRING);
 	++elen;
-	elen += sizeof(QSTP_ROOT_CERTIFICATE_PUBLICKEY_PREFIX) - 1;
+	elen += sizeof(QSTP_ROOT_CERTIFICATE_PUBLICKEY_PREFIX) - 1U;
 	++elen;
 	klen = qsc_encoding_base64_encoded_size(QSTP_ASYMMETRIC_VERIFICATION_KEY_SIZE);
-	elen += klen + (klen / QSTP_CERTIFICATE_LINE_LENGTH) + 1;
+	elen += klen + (klen / QSTP_CERTIFICATE_LINE_LENGTH) + 1U;
 	++elen;
 	elen += sizeof(QSTP_ROOT_CERTIFICATE_FOOTER);
 	++elen;
@@ -689,28 +688,28 @@ size_t qstp_root_certificate_encoded_size(void)
 
 size_t qstp_root_certificate_encode(char* enck, size_t enclen, const qstp_root_certificate* root)
 {
-	assert(enck != NULL);
-	assert(root != NULL);
+	QSTP_ASSERT(enck != NULL);
+	QSTP_ASSERT(root != NULL);
 
 	char* prvs;
 	size_t elen;
 	size_t slen;
 	size_t spos;
 
-	spos = 0;
+	spos = 0U;
 
 	if (enck != NULL && root != NULL)
 	{
 		char dtm[QSC_TIMESTAMP_STRING_SIZE] = { 0 };
-		char hex[(QSTP_CERTIFICATE_SERIAL_SIZE * 2) + 1] = { 0 };
+		char hex[(QSTP_CERTIFICATE_SERIAL_SIZE * 2U) + 1U] = { 0 };
 
-		slen = sizeof(QSTP_ROOT_CERTIFICATE_HEADER) - 1;
+		slen = sizeof(QSTP_ROOT_CERTIFICATE_HEADER) - 1U;
 		qsc_memutils_copy(enck, QSTP_ROOT_CERTIFICATE_HEADER, slen);
 		spos = slen;
 		enck[spos] = '\n';
 		++spos;
 
-		slen = sizeof(QSTP_ROOT_CERTIFICATE_ISSUER_PREFIX) - 1;
+		slen = sizeof(QSTP_ROOT_CERTIFICATE_ISSUER_PREFIX) - 1U;
 		qsc_memutils_copy(enck + spos, QSTP_ROOT_CERTIFICATE_ISSUER_PREFIX, slen);
 		spos += slen;
 		slen = qsc_stringutils_string_size(root->issuer);
@@ -719,7 +718,7 @@ size_t qstp_root_certificate_encode(char* enck, size_t enclen, const qstp_root_c
 		enck[spos] = '\n';
 		++spos;
 
-		slen = sizeof(QSTP_ROOT_CERTIFICATE_SERIAL_PREFIX) - 1;
+		slen = sizeof(QSTP_ROOT_CERTIFICATE_SERIAL_PREFIX) - 1U;
 		qsc_memutils_copy(enck + spos, QSTP_ROOT_CERTIFICATE_SERIAL_PREFIX, slen);
 		spos += slen;
 		qsc_intutils_bin_to_hex(root->serial, hex, QSTP_CERTIFICATE_SERIAL_SIZE);
@@ -730,27 +729,27 @@ size_t qstp_root_certificate_encode(char* enck, size_t enclen, const qstp_root_c
 		enck[spos] = '\n';
 		++spos;
 
-		slen = sizeof(QSTP_ROOT_CERTIFICATE_VALID_FROM_PREFIX) - 1;
+		slen = sizeof(QSTP_ROOT_CERTIFICATE_VALID_FROM_PREFIX) - 1U;
 		qsc_memutils_copy(enck + spos, QSTP_ROOT_CERTIFICATE_VALID_FROM_PREFIX, slen);
 		spos += slen;
 		qsc_timestamp_seconds_to_datetime(root->expiration.from, dtm);
-		slen = QSC_TIMESTAMP_STRING_SIZE - 1;
+		slen = QSC_TIMESTAMP_STRING_SIZE - 1U;
 		qsc_memutils_copy(enck + spos, dtm, slen);
 		spos += slen;
 		enck[spos] = '\n';
 		++spos;
 
-		slen = sizeof(QSTP_ROOT_CERTIFICATE_EXPIRATION_TO_PREFIX) - 1;
+		slen = sizeof(QSTP_ROOT_CERTIFICATE_EXPIRATION_TO_PREFIX) - 1U;
 		qsc_memutils_copy(enck + spos, QSTP_ROOT_CERTIFICATE_EXPIRATION_TO_PREFIX, slen);
 		spos += slen;
 		qsc_timestamp_seconds_to_datetime(root->expiration.to, dtm);
-		slen = QSC_TIMESTAMP_STRING_SIZE - 1;
+		slen = QSC_TIMESTAMP_STRING_SIZE - 1U;
 		qsc_memutils_copy(enck + spos, dtm, slen);
 		spos += slen;
 		enck[spos] = '\n';
 		++spos;
 
-		slen = sizeof(QSTP_ROOT_CERTIFICATE_PROTOCOL_PREFIX) - 1;
+		slen = sizeof(QSTP_ROOT_CERTIFICATE_PROTOCOL_PREFIX) - 1U;
 		qsc_memutils_copy(enck + spos, QSTP_ROOT_CERTIFICATE_PROTOCOL_PREFIX, slen);
 		spos += slen;
 		slen = qsc_stringutils_string_size(QSTP_PROTOCOL_SET_STRING);
@@ -759,16 +758,16 @@ size_t qstp_root_certificate_encode(char* enck, size_t enclen, const qstp_root_c
 		enck[spos] = '\n';
 		++spos;
 
-		slen = sizeof(QSTP_ROOT_CERTIFICATE_VERSION_PREFIX) - 1;
+		slen = sizeof(QSTP_ROOT_CERTIFICATE_VERSION_PREFIX) - 1U;
 		qsc_memutils_copy(enck + spos, QSTP_ROOT_CERTIFICATE_VERSION_PREFIX, slen);
 		spos += slen;
-		slen = sizeof(QSTP_ACTIVE_VERSION_STRING) - 1;
+		slen = sizeof(QSTP_ACTIVE_VERSION_STRING) - 1U;
 		qsc_memutils_copy(enck + spos, QSTP_ACTIVE_VERSION_STRING, slen);
 		spos += slen;
 		enck[spos] = '\n';
 		++spos;
 
-		slen = sizeof(QSTP_ROOT_CERTIFICATE_PUBLICKEY_PREFIX) - 1;
+		slen = sizeof(QSTP_ROOT_CERTIFICATE_PUBLICKEY_PREFIX) - 1U;
 		qsc_memutils_copy(enck + spos, QSTP_ROOT_CERTIFICATE_PUBLICKEY_PREFIX, slen);
 		spos += slen;
 		enck[spos] = '\n';
@@ -786,12 +785,12 @@ size_t qstp_root_certificate_encode(char* enck, size_t enclen, const qstp_root_c
 			qsc_memutils_alloc_free(prvs);
 		}
 
-		slen = sizeof(QSTP_ROOT_CERTIFICATE_FOOTER) - 1;
+		slen = sizeof(QSTP_ROOT_CERTIFICATE_FOOTER) - 1U;
 		qsc_memutils_copy(enck + spos, QSTP_ROOT_CERTIFICATE_FOOTER, slen);
 		spos += slen;
 		enck[spos] = '\n';
 		++spos;
-		enck[spos] = 0;
+		enck[spos] = 0U;
 		++spos;
 	}
 
@@ -800,8 +799,8 @@ size_t qstp_root_certificate_encode(char* enck, size_t enclen, const qstp_root_c
 
 void qstp_root_certificate_extract(qstp_root_certificate* root, const qstp_root_signature_key* kset)
 {
-	assert(root != NULL);
-	assert(kset != NULL);
+	QSTP_ASSERT(root != NULL);
+	QSTP_ASSERT(kset != NULL);
 
 	if (root != NULL && kset != NULL)
 	{
@@ -817,17 +816,17 @@ void qstp_root_certificate_extract(qstp_root_certificate* root, const qstp_root_
 
 void qstp_root_certificate_hash(uint8_t output[QSTP_CERTIFICATE_HASH_SIZE], const qstp_root_certificate* root)
 {
-	assert(root != NULL);
+	QSTP_ASSERT(root != NULL);
 
 	qsc_keccak_state kstate = { 0 };
-	uint8_t nbuf[sizeof(uint64_t)] = { 0 };
+	uint8_t nbuf[sizeof(uint64_t)] = { 0U };
 
 	if (root != NULL)
 	{
 		qsc_sha3_initialize(&kstate);
-		nbuf[0] = root->algorithm;
+		nbuf[0U] = root->algorithm;
 		qsc_sha3_update(&kstate, qsc_keccak_rate_256, nbuf, sizeof(uint8_t));
-		nbuf[0] = root->version;
+		nbuf[0U] = root->version;
 		qsc_sha3_update(&kstate, qsc_keccak_rate_256, nbuf, sizeof(uint8_t));
 		qsc_intutils_le64to8(nbuf, root->expiration.from);
 		qsc_sha3_update(&kstate, qsc_keccak_rate_256, nbuf, sizeof(uint64_t));
@@ -842,7 +841,7 @@ void qstp_root_certificate_hash(uint8_t output[QSTP_CERTIFICATE_HASH_SIZE], cons
 
 void qstp_root_certificate_serialize(uint8_t output[QSTP_ROOT_CERTIFICATE_SIZE], const qstp_root_certificate* root)
 {
-	assert(root != NULL);
+	QSTP_ASSERT(root != NULL);
 
 	size_t pos;
 
@@ -865,11 +864,11 @@ void qstp_root_certificate_serialize(uint8_t output[QSTP_ROOT_CERTIFICATE_SIZE],
 
 size_t qstp_root_certificate_sign(qstp_server_certificate* cert, const qstp_root_certificate* root, const uint8_t* rsigkey)
 {
-	assert(cert != NULL);
-	assert(root != NULL);
-	assert(rsigkey != NULL);
+	QSTP_ASSERT(cert != NULL);
+	QSTP_ASSERT(root != NULL);
+	QSTP_ASSERT(rsigkey != NULL);
 
-	uint8_t hash[QSTP_CERTIFICATE_HASH_SIZE] = { 0 };
+	uint8_t hash[QSTP_CERTIFICATE_HASH_SIZE] = { 0U };
 	size_t slen;
 
 	slen = 0;
@@ -891,24 +890,24 @@ size_t qstp_root_certificate_sign(qstp_server_certificate* cert, const qstp_root
 
 bool qstp_root_certificate_verify(const qstp_root_certificate* root, const qstp_server_certificate* cert)
 {
-	assert(cert != NULL);
-	assert(root != NULL);
+	QSTP_ASSERT(cert != NULL);
+	QSTP_ASSERT(root != NULL);
 
 	size_t mlen;
 	bool res;
 
 	res = false;
-	mlen = 0;
+	mlen = 0U;
 
 	if (cert != NULL && root != NULL)
 	{
-		uint8_t msg[QSTP_CERTIFICATE_HASH_SIZE] = { 0 };
+		uint8_t msg[QSTP_CERTIFICATE_HASH_SIZE] = { 0U };
 
 		res = qstp_signature_verify(msg, &mlen, cert->csig, QSTP_CERTIFICATE_SIGNED_HASH_SIZE, root->verkey);
 
 		if (res == true)
 		{
-			uint8_t hash[QSTP_CERTIFICATE_HASH_SIZE] = { 0 };
+			uint8_t hash[QSTP_CERTIFICATE_HASH_SIZE] = { 0U };
 
 			qstp_server_certificate_hash(hash, cert);
 
@@ -921,10 +920,10 @@ bool qstp_root_certificate_verify(const qstp_root_certificate* root, const qstp_
 
 bool qstp_root_certificate_to_file(const qstp_root_certificate* root, const char* fpath)
 {
-	assert(fpath != NULL);
-	assert(root != NULL);
+	QSTP_ASSERT(fpath != NULL);
+	QSTP_ASSERT(root != NULL);
 
-	uint8_t sroot[QSTP_ROOT_CERTIFICATE_SIZE] = { 0 };
+	uint8_t sroot[QSTP_ROOT_CERTIFICATE_SIZE] = { 0U };
 	bool res;
 
 	res = false;
@@ -945,8 +944,8 @@ bool qstp_root_certificate_to_file(const qstp_root_certificate* root, const char
 
 bool qstp_root_file_to_certificate(qstp_root_certificate* root, const char* fpath)
 {
-	assert(fpath != NULL);
-	assert(root != NULL);
+	QSTP_ASSERT(fpath != NULL);
+	QSTP_ASSERT(root != NULL);
 
 	bool res;
 
@@ -956,7 +955,7 @@ bool qstp_root_file_to_certificate(qstp_root_certificate* root, const char* fpat
 	{
 		if (qsc_fileutils_exists(fpath) == true)
 		{
-			uint8_t sroot[QSTP_ROOT_CERTIFICATE_SIZE] = { 0 };
+			uint8_t sroot[QSTP_ROOT_CERTIFICATE_SIZE] = { 0U };
 
 			if (qsc_fileutils_copy_file_to_stream(fpath, (char*)sroot, QSTP_ROOT_CERTIFICATE_SIZE) == QSTP_ROOT_CERTIFICATE_SIZE)
 			{
@@ -971,8 +970,8 @@ bool qstp_root_file_to_certificate(qstp_root_certificate* root, const char* fpat
 
 bool qstp_root_file_to_key(qstp_root_signature_key* kset, const char* fpath)
 {
-	assert(fpath != NULL);
-	assert(kset != NULL);
+	QSTP_ASSERT(fpath != NULL);
+	QSTP_ASSERT(kset != NULL);
 
 	bool res;
 
@@ -982,7 +981,7 @@ bool qstp_root_file_to_key(qstp_root_signature_key* kset, const char* fpath)
 	{
 		if (qsc_fileutils_exists(fpath) == true)
 		{
-			uint8_t skset[QSTP_ROOT_SIGNATURE_KEY_SIZE] = { 0 };
+			uint8_t skset[QSTP_ROOT_SIGNATURE_KEY_SIZE] = { 0U };
 
 			if (qsc_fileutils_copy_file_to_stream(fpath, (char*)skset, QSTP_ROOT_SIGNATURE_KEY_SIZE) == QSTP_ROOT_SIGNATURE_KEY_SIZE)
 			{
@@ -1019,7 +1018,7 @@ void qstp_root_get_issuer(char issuer[QSTP_CERTIFICATE_ISSUER_SIZE])
 
 void qstp_root_key_deserialize(qstp_root_signature_key* kset, const uint8_t input[QSTP_ROOT_SIGNATURE_KEY_SIZE])
 {
-	assert(kset != NULL);
+	QSTP_ASSERT(kset != NULL);
 
 	size_t pos;
 
@@ -1043,10 +1042,10 @@ void qstp_root_key_deserialize(qstp_root_signature_key* kset, const uint8_t inpu
 
 bool qstp_root_key_to_file(const qstp_root_signature_key* kset, const char* fpath)
 {
-	assert(fpath != NULL);
-	assert(kset != NULL);
+	QSTP_ASSERT(fpath != NULL);
+	QSTP_ASSERT(kset != NULL);
 
-	uint8_t skset[QSTP_ROOT_SIGNATURE_KEY_SIZE] = { 0 };
+	uint8_t skset[QSTP_ROOT_SIGNATURE_KEY_SIZE] = { 0U };
 	bool res;
 
 	res = false;
@@ -1067,7 +1066,7 @@ bool qstp_root_key_to_file(const qstp_root_signature_key* kset, const char* fpat
 
 void qstp_root_key_serialize(uint8_t output[QSTP_ROOT_SIGNATURE_KEY_SIZE], const qstp_root_signature_key* kset)
 {
-	assert(kset != NULL);
+	QSTP_ASSERT(kset != NULL);
 
 	size_t pos;
 
@@ -1092,8 +1091,8 @@ void qstp_root_key_serialize(uint8_t output[QSTP_ROOT_SIGNATURE_KEY_SIZE], const
 
 bool qstp_server_certificate_compare(const qstp_server_certificate* a, const qstp_server_certificate* b)
 {
-	assert(a != NULL);
-	assert(b != NULL);
+	QSTP_ASSERT(a != NULL);
+	QSTP_ASSERT(b != NULL);
 
 	bool res;
 
@@ -1127,8 +1126,8 @@ bool qstp_server_certificate_compare(const qstp_server_certificate* a, const qst
 
 bool qstp_server_certificate_decode(qstp_server_certificate* cert, const char* enck, size_t enclen)
 {
-	assert(cert != NULL);
-	assert(enck != NULL);
+	QSTP_ASSERT(cert != NULL);
+	QSTP_ASSERT(enck != NULL);
 
 	char dtm[QSC_TIMESTAMP_STRING_SIZE] = { 0 };
 	char prot[QSTP_PROTOCOL_SET_SIZE] = { 0 };
@@ -1144,56 +1143,56 @@ bool qstp_server_certificate_decode(qstp_server_certificate* cert, const char* e
 
 	if (cert != NULL && enck != NULL)
 	{
-		spos = sizeof(QSTP_CHILD_CERTIFICATE_HEADER) - 1;
+		spos = sizeof(QSTP_CHILD_CERTIFICATE_HEADER) - 1U;
 		++spos;
 
-		spos += sizeof(QSTP_CHILD_CERTIFICATE_ISSUER_PREFIX) - 1;
+		spos += sizeof(QSTP_CHILD_CERTIFICATE_ISSUER_PREFIX) - 1U;
 		slen = qsc_stringutils_find_char(enck + spos, '\n');
 		qsc_memutils_copy(cert->issuer, enck + spos, slen);
 		spos += slen;
 		++spos;
 
-		spos += sizeof(QSTP_CHILD_CERTIFICATE_SERIAL_PREFIX) - 1;
-		slen = QSTP_CERTIFICATE_SERIAL_SIZE * 2;
+		spos += sizeof(QSTP_CHILD_CERTIFICATE_SERIAL_PREFIX) - 1U;
+		slen = QSTP_CERTIFICATE_SERIAL_SIZE * 2U;
 		qsc_intutils_hex_to_bin(enck + spos, cert->serial, QSTP_CERTIFICATE_SERIAL_SIZE);
 		spos += slen;
 		++spos;
 
-		spos += sizeof(QSTP_CHILD_CERTIFICATE_VALID_FROM_PREFIX) - 1;
-		slen = QSC_TIMESTAMP_STRING_SIZE - 1;
+		spos += sizeof(QSTP_CHILD_CERTIFICATE_VALID_FROM_PREFIX) - 1U;
+		slen = QSC_TIMESTAMP_STRING_SIZE - 1U;
 		qsc_memutils_copy(dtm, enck + spos, slen);
 		cert->expiration.from = qsc_timestamp_datetime_to_seconds(dtm);
 		spos += slen;
 		++spos;
 
-		spos += sizeof(QSTP_CHILD_CERTIFICATE_EXPIRATION_TO_PREFIX) - 1;
-		slen = QSC_TIMESTAMP_STRING_SIZE - 1;
+		spos += sizeof(QSTP_CHILD_CERTIFICATE_EXPIRATION_TO_PREFIX) - 1U;
+		slen = QSC_TIMESTAMP_STRING_SIZE - 1U;
 		qsc_memutils_copy(dtm, enck + spos, slen);
 		cert->expiration.to = qsc_timestamp_datetime_to_seconds(dtm);
 		spos += slen;
 		++spos;
 
-		spos += sizeof(QSTP_CHILD_CERTIFICATE_PROTOCOL_PREFIX) - 1;
+		spos += sizeof(QSTP_CHILD_CERTIFICATE_PROTOCOL_PREFIX) - 1U;
 		slen = qsc_stringutils_find_char(enck + spos, '\n');
 		qsc_memutils_copy(prot, enck + spos, slen);
 		cert->algorithm = qstp_configuration_from_string(prot);
 		spos += slen;
 		++spos;
 
-		spos += sizeof(QSTP_CHILD_CERTIFICATE_VERSION_PREFIX) - 1;
-		slen = sizeof(QSTP_ACTIVE_VERSION_STRING) - 1;
+		spos += sizeof(QSTP_CHILD_CERTIFICATE_VERSION_PREFIX) - 1U;
+		slen = sizeof(QSTP_ACTIVE_VERSION_STRING) - 1U;
 		qsc_memutils_copy(vers, enck + spos, slen);
 		cert->version = qstp_version_from_string(vers + QSC_STRINGUTILS_HEX_EXTENSION_SIZE, QSC_STRINGUTILS_HEX_BYTE_SIZE);
 		spos += slen;
 		++spos;
 
-		spos += sizeof(QSTP_CHILD_CERTIFICATE_ROOT_SERIAL_PREFIX) - 1;
-		slen = QSTP_CERTIFICATE_SERIAL_SIZE * 2;
+		spos += sizeof(QSTP_CHILD_CERTIFICATE_ROOT_SERIAL_PREFIX) - 1U;
+		slen = QSTP_CERTIFICATE_SERIAL_SIZE * 2U;
 		qsc_intutils_hex_to_bin(enck + spos, cert->rootser, QSTP_CERTIFICATE_SERIAL_SIZE);
 		spos += slen;
 		++spos;
 
-		spos += sizeof(QSTP_CHILD_CERTIFICATE_ROOT_HASH_PREFIX) - 1;
+		spos += sizeof(QSTP_CHILD_CERTIFICATE_ROOT_HASH_PREFIX) - 1U;
 		++spos;
 		elen = qsc_encoding_base64_encoded_size(QSTP_CERTIFICATE_SIGNED_HASH_SIZE);
 		pcs = qsc_memutils_malloc(elen);
@@ -1203,14 +1202,14 @@ bool qstp_server_certificate_decode(qstp_server_certificate* cert, const char* e
 			qsc_memutils_clear(pcs, elen);
 			qsc_stringutils_remove_line_breaks(pcs, elen, enck + spos, enclen - spos);
 			spos += elen;
-			spos += (elen / QSTP_CERTIFICATE_LINE_LENGTH) + 1;
+			spos += (elen / QSTP_CERTIFICATE_LINE_LENGTH) + 1U;
 			res = qsc_encoding_base64_decode(cert->csig, QSTP_CERTIFICATE_SIGNED_HASH_SIZE, pcs, elen);
 			qsc_memutils_alloc_free(pcs);
 		}
 
 		if (res == true)
 		{
-			spos += sizeof(QSTP_CHILD_CERTIFICATE_SIGNATURE_KEY_PREFIX) - 1;
+			spos += sizeof(QSTP_CHILD_CERTIFICATE_SIGNATURE_KEY_PREFIX) - 1U;
 			++spos;
 			elen = qsc_encoding_base64_encoded_size(QSTP_ASYMMETRIC_VERIFICATION_KEY_SIZE);
 			pvk = qsc_memutils_malloc(elen);
@@ -1230,7 +1229,7 @@ bool qstp_server_certificate_decode(qstp_server_certificate* cert, const char* e
 
 void qstp_server_certificate_deserialize(qstp_server_certificate* cert, const uint8_t input[QSTP_SERVER_CERTIFICATE_SIZE])
 {
-	assert(cert != NULL);
+	QSTP_ASSERT(cert != NULL);
 
 	size_t pos;
 
@@ -1266,13 +1265,13 @@ size_t qstp_server_certificate_encoded_size(void)
 	elen += QSTP_CERTIFICATE_ISSUER_SIZE;
 	++elen;
 	elen += sizeof(QSTP_CHILD_CERTIFICATE_SERIAL_PREFIX);
-	elen += (QSTP_CERTIFICATE_SERIAL_SIZE * 2);
+	elen += (QSTP_CERTIFICATE_SERIAL_SIZE * 2U);
 	++elen;
 	elen += sizeof(QSTP_CHILD_CERTIFICATE_VALID_FROM_PREFIX);
-	elen += QSC_TIMESTAMP_STRING_SIZE - 1;
+	elen += QSC_TIMESTAMP_STRING_SIZE - 1U;
 	++elen;
 	elen += sizeof(QSTP_CHILD_CERTIFICATE_EXPIRATION_TO_PREFIX);
-	elen += QSC_TIMESTAMP_STRING_SIZE - 1;
+	elen += QSC_TIMESTAMP_STRING_SIZE - 1U;
 	++elen;
 	elen += sizeof(QSTP_CHILD_CERTIFICATE_PROTOCOL_PREFIX);
 	elen += sizeof(QSTP_PROTOCOL_SET_STRING);
@@ -1281,16 +1280,16 @@ size_t qstp_server_certificate_encoded_size(void)
 	elen += sizeof(QSTP_ACTIVE_VERSION_STRING);
 	++elen;
 	elen += sizeof(QSTP_CHILD_CERTIFICATE_ROOT_SERIAL_PREFIX);
-	elen += (QSTP_CERTIFICATE_SERIAL_SIZE * 2);
+	elen += (QSTP_CERTIFICATE_SERIAL_SIZE * 2U);
 	++elen;
 	elen += sizeof(QSTP_CHILD_CERTIFICATE_ROOT_HASH_PREFIX);
 	++elen;
 	klen = qsc_encoding_base64_encoded_size(QSTP_CERTIFICATE_SIGNED_HASH_SIZE);
-	elen += klen + (klen / QSTP_CERTIFICATE_LINE_LENGTH) + 1;
+	elen += klen + (klen / QSTP_CERTIFICATE_LINE_LENGTH) + 1U;
 	++elen;
 	elen += sizeof(QSTP_CHILD_CERTIFICATE_SIGNATURE_KEY_PREFIX);
 	klen = qsc_encoding_base64_encoded_size(QSTP_ASYMMETRIC_VERIFICATION_KEY_SIZE);
-	elen += klen + (klen / QSTP_CERTIFICATE_LINE_LENGTH) + 1;
+	elen += klen + (klen / QSTP_CERTIFICATE_LINE_LENGTH) + 1U;
 	++elen;
 	elen += sizeof(QSTP_CHILD_CERTIFICATE_FOOTER);
 	++elen;
@@ -1301,11 +1300,11 @@ size_t qstp_server_certificate_encoded_size(void)
 
 size_t qstp_server_certificate_encode(char* enck, size_t enclen, const qstp_server_certificate* cert)
 {
-	assert(enck != NULL);
-	assert(cert != NULL);
+	QSTP_ASSERT(enck != NULL);
+	QSTP_ASSERT(cert != NULL);
 
 	char dtm[QSC_TIMESTAMP_STRING_SIZE] = { 0 };
-	char hex[(QSTP_CERTIFICATE_SERIAL_SIZE * 2) + 1] = { 0 };
+	char hex[(QSTP_CERTIFICATE_SERIAL_SIZE * 2U) + 1U] = { 0 };
 	char* psig;
 	char* pver;
 	size_t elen;
@@ -1316,13 +1315,13 @@ size_t qstp_server_certificate_encode(char* enck, size_t enclen, const qstp_serv
 
 	if (enck != NULL && cert != NULL)
 	{
-		slen = sizeof(QSTP_CHILD_CERTIFICATE_HEADER) - 1;
+		slen = sizeof(QSTP_CHILD_CERTIFICATE_HEADER) - 1U;
 		qsc_memutils_copy(enck, QSTP_CHILD_CERTIFICATE_HEADER, slen);
 		spos = slen;
 		enck[spos] = '\n';
 		++spos;
 
-		slen = sizeof(QSTP_CHILD_CERTIFICATE_ISSUER_PREFIX) - 1;
+		slen = sizeof(QSTP_CHILD_CERTIFICATE_ISSUER_PREFIX) - 1U;
 		qsc_memutils_copy(enck + spos, QSTP_CHILD_CERTIFICATE_ISSUER_PREFIX, slen);
 		spos += slen;
 		slen = qsc_stringutils_string_size(cert->issuer);
@@ -1331,7 +1330,7 @@ size_t qstp_server_certificate_encode(char* enck, size_t enclen, const qstp_serv
 		enck[spos] = '\n';
 		++spos;
 
-		slen = sizeof(QSTP_CHILD_CERTIFICATE_SERIAL_PREFIX) - 1;
+		slen = sizeof(QSTP_CHILD_CERTIFICATE_SERIAL_PREFIX) - 1U;
 		qsc_memutils_copy(enck + spos, QSTP_CHILD_CERTIFICATE_SERIAL_PREFIX, slen);
 		spos += slen;
 		qsc_intutils_bin_to_hex(cert->serial, hex, QSTP_CERTIFICATE_SERIAL_SIZE);
@@ -1342,27 +1341,27 @@ size_t qstp_server_certificate_encode(char* enck, size_t enclen, const qstp_serv
 		enck[spos] = '\n';
 		++spos;
 
-		slen = sizeof(QSTP_CHILD_CERTIFICATE_VALID_FROM_PREFIX) - 1;
+		slen = sizeof(QSTP_CHILD_CERTIFICATE_VALID_FROM_PREFIX) - 1U;
 		qsc_memutils_copy(enck + spos, QSTP_CHILD_CERTIFICATE_VALID_FROM_PREFIX, slen);
 		spos += slen;
 		qsc_timestamp_seconds_to_datetime(cert->expiration.from, dtm);
-		slen = QSC_TIMESTAMP_STRING_SIZE - 1;
+		slen = QSC_TIMESTAMP_STRING_SIZE - 1U;
 		qsc_memutils_copy(enck + spos, dtm, slen);
 		spos += slen;
 		enck[spos] = '\n';
 		++spos;
 
-		slen = sizeof(QSTP_CHILD_CERTIFICATE_EXPIRATION_TO_PREFIX) - 1;
+		slen = sizeof(QSTP_CHILD_CERTIFICATE_EXPIRATION_TO_PREFIX) - 1U;
 		qsc_memutils_copy(enck + spos, QSTP_CHILD_CERTIFICATE_EXPIRATION_TO_PREFIX, slen);
 		spos += slen;
 		qsc_timestamp_seconds_to_datetime(cert->expiration.to, dtm);
-		slen = QSC_TIMESTAMP_STRING_SIZE - 1;
+		slen = QSC_TIMESTAMP_STRING_SIZE - 1U;
 		qsc_memutils_copy(enck + spos, dtm, slen);
 		spos += slen;
 		enck[spos] = '\n';
 		++spos;
 
-		slen = sizeof(QSTP_CHILD_CERTIFICATE_PROTOCOL_PREFIX) - 1;
+		slen = sizeof(QSTP_CHILD_CERTIFICATE_PROTOCOL_PREFIX) - 1U;
 		qsc_memutils_copy(enck + spos, QSTP_CHILD_CERTIFICATE_PROTOCOL_PREFIX, slen);
 		spos += slen;
 		slen = qsc_stringutils_string_size(QSTP_PROTOCOL_SET_STRING);
@@ -1371,16 +1370,16 @@ size_t qstp_server_certificate_encode(char* enck, size_t enclen, const qstp_serv
 		enck[spos] = '\n';
 		++spos;
 
-		slen = sizeof(QSTP_CHILD_CERTIFICATE_VERSION_PREFIX) - 1;
+		slen = sizeof(QSTP_CHILD_CERTIFICATE_VERSION_PREFIX) - 1U;
 		qsc_memutils_copy(enck + spos, QSTP_CHILD_CERTIFICATE_VERSION_PREFIX, slen);
 		spos += slen;
-		slen = sizeof(QSTP_ACTIVE_VERSION_STRING) - 1;
+		slen = sizeof(QSTP_ACTIVE_VERSION_STRING) - 1U;
 		qsc_memutils_copy(enck + spos, QSTP_ACTIVE_VERSION_STRING, slen);
 		spos += slen;
 		enck[spos] = '\n';
 		++spos;
 
-		slen = sizeof(QSTP_CHILD_CERTIFICATE_ROOT_SERIAL_PREFIX) - 1;
+		slen = sizeof(QSTP_CHILD_CERTIFICATE_ROOT_SERIAL_PREFIX) - 1U;
 		qsc_memutils_copy(enck + spos, QSTP_CHILD_CERTIFICATE_ROOT_SERIAL_PREFIX, slen);
 		spos += slen;
 		qsc_intutils_bin_to_hex(cert->rootser, hex, QSTP_CERTIFICATE_SERIAL_SIZE);
@@ -1391,7 +1390,7 @@ size_t qstp_server_certificate_encode(char* enck, size_t enclen, const qstp_serv
 		enck[spos] = '\n';
 		++spos;
 
-		slen = sizeof(QSTP_CHILD_CERTIFICATE_ROOT_HASH_PREFIX) - 1;
+		slen = sizeof(QSTP_CHILD_CERTIFICATE_ROOT_HASH_PREFIX) - 1U;
 		qsc_memutils_copy(enck + spos, QSTP_CHILD_CERTIFICATE_ROOT_HASH_PREFIX, slen);
 		spos += slen;
 		enck[spos] = '\n';
@@ -1411,7 +1410,7 @@ size_t qstp_server_certificate_encode(char* enck, size_t enclen, const qstp_serv
 			++spos;
 		}
 
-		slen = sizeof(QSTP_CHILD_CERTIFICATE_SIGNATURE_KEY_PREFIX) - 1;
+		slen = sizeof(QSTP_CHILD_CERTIFICATE_SIGNATURE_KEY_PREFIX) - 1U;
 		qsc_memutils_copy(enck + spos, QSTP_CHILD_CERTIFICATE_SIGNATURE_KEY_PREFIX, slen);
 		spos += slen;
 		enck[spos] = '\n';
@@ -1429,7 +1428,7 @@ size_t qstp_server_certificate_encode(char* enck, size_t enclen, const qstp_serv
 			qsc_memutils_alloc_free(pver);
 		}
 
-		slen = sizeof(QSTP_CHILD_CERTIFICATE_FOOTER) - 1;
+		slen = sizeof(QSTP_CHILD_CERTIFICATE_FOOTER) - 1U;
 		qsc_memutils_copy(enck + spos, QSTP_CHILD_CERTIFICATE_FOOTER, slen);
 		spos += slen;
 		enck[spos] = '\n';
@@ -1443,8 +1442,8 @@ size_t qstp_server_certificate_encode(char* enck, size_t enclen, const qstp_serv
 
 void qstp_server_certificate_extract(qstp_server_certificate* cert, const qstp_server_signature_key* kset)
 {
-	assert(cert != NULL);
-	assert(kset != NULL);
+	QSTP_ASSERT(cert != NULL);
+	QSTP_ASSERT(kset != NULL);
 
 	if (cert != NULL && kset != NULL)
 	{
@@ -1460,17 +1459,17 @@ void qstp_server_certificate_extract(qstp_server_certificate* cert, const qstp_s
 
 void qstp_server_certificate_hash(uint8_t output[QSTP_CERTIFICATE_HASH_SIZE], const qstp_server_certificate* cert)
 {
-	assert(cert != NULL);
+	QSTP_ASSERT(cert != NULL);
 
 	qsc_keccak_state kstate = { 0 };
-	uint8_t nbuf[sizeof(uint64_t)] = { 0 };
+	uint8_t nbuf[sizeof(uint64_t)] = { 0U };
 
 	if (cert != NULL)
 	{
 		qsc_sha3_initialize(&kstate);
-		nbuf[0] = cert->algorithm;
+		nbuf[0U] = cert->algorithm;
 		qsc_sha3_update(&kstate, qsc_keccak_rate_256, nbuf, sizeof(uint8_t));
-		nbuf[0] = cert->version;
+		nbuf[0U] = cert->version;
 		qsc_sha3_update(&kstate, qsc_keccak_rate_256, nbuf, sizeof(uint8_t));
 		qsc_intutils_le64to8(nbuf, cert->expiration.from);
 		qsc_sha3_update(&kstate, qsc_keccak_rate_256, nbuf, sizeof(uint64_t));
@@ -1486,8 +1485,8 @@ void qstp_server_certificate_hash(uint8_t output[QSTP_CERTIFICATE_HASH_SIZE], co
 void qstp_server_root_certificate_hash(uint8_t rshash[QSTP_CERTIFICATE_HASH_SIZE], const qstp_root_certificate* root, const qstp_server_certificate* cert)
 {
 	qsc_keccak_state kstate = { 0 };
-	uint8_t rhash[QSTP_CERTIFICATE_HASH_SIZE] = { 0 };
-	uint8_t shash[QSTP_CERTIFICATE_HASH_SIZE] = { 0 };
+	uint8_t rhash[QSTP_CERTIFICATE_HASH_SIZE] = { 0U };
+	uint8_t shash[QSTP_CERTIFICATE_HASH_SIZE] = { 0U };
 
 	qstp_root_certificate_hash(rhash, root);
 	qstp_server_certificate_hash(shash, cert);
@@ -1502,7 +1501,7 @@ void qstp_server_root_certificate_hash(uint8_t rshash[QSTP_CERTIFICATE_HASH_SIZE
 
 void qstp_server_certificate_serialize(uint8_t output[QSTP_SERVER_CERTIFICATE_SIZE], const qstp_server_certificate* cert)
 {
-	assert(cert != NULL);
+	QSTP_ASSERT(cert != NULL);
 
 	size_t pos;
 
@@ -1530,10 +1529,10 @@ void qstp_server_certificate_serialize(uint8_t output[QSTP_SERVER_CERTIFICATE_SI
 
 bool qstp_server_certificate_to_file(const qstp_server_certificate* cert, const char* fpath)
 {
-	assert(fpath != NULL);
-	assert(cert != NULL);
+	QSTP_ASSERT(fpath != NULL);
+	QSTP_ASSERT(cert != NULL);
 
-	uint8_t scert[QSTP_SERVER_CERTIFICATE_SIZE] = { 0 };
+	uint8_t scert[QSTP_SERVER_CERTIFICATE_SIZE] = { 0U };
 	bool res;
 
 	res = false;
@@ -1554,8 +1553,8 @@ bool qstp_server_certificate_to_file(const qstp_server_certificate* cert, const 
 
 bool qstp_server_file_to_certificate(qstp_server_certificate* cert, const char* fpath)
 {
-	assert(fpath != NULL);
-	assert(cert != NULL);
+	QSTP_ASSERT(fpath != NULL);
+	QSTP_ASSERT(cert != NULL);
 
 	bool res;
 
@@ -1565,7 +1564,7 @@ bool qstp_server_file_to_certificate(qstp_server_certificate* cert, const char* 
 	{
 		if (qsc_fileutils_exists(fpath) == true)
 		{
-			uint8_t scert[QSTP_SERVER_CERTIFICATE_SIZE] = { 0 };
+			uint8_t scert[QSTP_SERVER_CERTIFICATE_SIZE] = { 0U };
 
 			if (qsc_fileutils_copy_file_to_stream(fpath, (char*)scert, QSTP_SERVER_CERTIFICATE_SIZE) == QSTP_SERVER_CERTIFICATE_SIZE)
 			{
@@ -1580,8 +1579,8 @@ bool qstp_server_file_to_certificate(qstp_server_certificate* cert, const char* 
 
 bool qstp_server_file_to_key(qstp_server_signature_key* kset, const char* fpath)
 {
-	assert(fpath != NULL);
-	assert(kset != NULL);
+	QSTP_ASSERT(fpath != NULL);
+	QSTP_ASSERT(kset != NULL);
 
 	bool res;
 
@@ -1591,7 +1590,7 @@ bool qstp_server_file_to_key(qstp_server_signature_key* kset, const char* fpath)
 	{
 		if (qsc_fileutils_exists(fpath) == true)
 		{
-			uint8_t skset[QSTP_SERVER_SIGNATURE_KEY_SIZE] = { 0 };
+			uint8_t skset[QSTP_SERVER_SIGNATURE_KEY_SIZE] = { 0U };
 
 			if (qsc_fileutils_copy_file_to_stream(fpath, (char*)skset, QSTP_SERVER_SIGNATURE_KEY_SIZE) == QSTP_SERVER_SIGNATURE_KEY_SIZE)
 			{
@@ -1628,7 +1627,7 @@ void qstp_server_get_issuer(char issuer[QSTP_CERTIFICATE_ISSUER_SIZE])
 
 void qstp_server_key_deserialize(qstp_server_signature_key* kset, const uint8_t input[QSTP_SERVER_SIGNATURE_KEY_SIZE])
 {
-	assert(kset != NULL);
+	QSTP_ASSERT(kset != NULL);
 
 	size_t pos;
 
@@ -1654,10 +1653,10 @@ void qstp_server_key_deserialize(qstp_server_signature_key* kset, const uint8_t 
 
 bool qstp_server_key_to_file(const qstp_server_signature_key* kset, const char* fpath)
 {
-	assert(fpath != NULL);
-	assert(kset != NULL);
+	QSTP_ASSERT(fpath != NULL);
+	QSTP_ASSERT(kset != NULL);
 
-	uint8_t skset[QSTP_SERVER_SIGNATURE_KEY_SIZE] = { 0 };
+	uint8_t skset[QSTP_SERVER_SIGNATURE_KEY_SIZE] = { 0U };
 	bool res;
 
 	res = false;
@@ -1678,7 +1677,7 @@ bool qstp_server_key_to_file(const qstp_server_signature_key* kset, const char* 
 
 void qstp_server_key_serialize(uint8_t output[QSTP_SERVER_SIGNATURE_KEY_SIZE], const qstp_server_signature_key* kset)
 {
-	assert(kset != NULL);
+	QSTP_ASSERT(kset != NULL);
 
 	size_t pos;
 
@@ -1705,15 +1704,15 @@ void qstp_server_key_serialize(uint8_t output[QSTP_SERVER_SIGNATURE_KEY_SIZE], c
 
 uint8_t qstp_version_from_string(const char* sver, size_t sverlen)
 {
-	assert(sver != NULL);
+	QSTP_ASSERT(sver != NULL);
 
 	uint8_t res;
 
-	res = 0;
+	res = 0U;
 
 	if (sver != NULL)
 	{
-		if (sver != NULL && sverlen > 0)
+		if (sver != NULL && sverlen > 0U)
 		{
 			if (qsc_stringutils_is_hex(sver, sverlen) == true)
 			{
@@ -1727,7 +1726,7 @@ uint8_t qstp_version_from_string(const char* sver, size_t sverlen)
 
 void qstp_version_to_string(char* sver, uint8_t version)
 {
-	assert(sver != NULL);
+	QSTP_ASSERT(sver != NULL);
 
 	if (sver != NULL)
 	{
@@ -1738,7 +1737,7 @@ void qstp_version_to_string(char* sver, uint8_t version)
 #if defined(QSTP_DEBUG_MODE)
 bool qstp_test_root_certificate_encoding(const qstp_root_certificate* root)
 {
-	assert(root != NULL);
+	QSTP_ASSERT(root != NULL);
 
 	qstp_root_certificate rcpy = { 0 };
 	char* enck;
@@ -1756,7 +1755,6 @@ bool qstp_test_root_certificate_encoding(const qstp_root_certificate* root)
 		if (enck != NULL)
 		{
 			slen = qstp_root_certificate_encode(enck, elen, root);
-			printf_s(enck);
 
 			if (slen <= elen)
 			{
@@ -1775,7 +1773,7 @@ bool qstp_test_root_certificate_encoding(const qstp_root_certificate* root)
 
 bool qstp_test_server_certificate_encoding(const qstp_server_certificate* cert)
 {
-	assert(cert != NULL);
+	QSTP_ASSERT(cert != NULL);
 
 	qstp_server_certificate ccpy = { 0 };
 	char* enck;
@@ -1793,7 +1791,6 @@ bool qstp_test_server_certificate_encoding(const qstp_server_certificate* cert)
 		if (enck != NULL)
 		{
 			slen = qstp_server_certificate_encode(enck, elen, cert);
-			printf_s(enck);
 
 			if (slen <= elen)
 			{
