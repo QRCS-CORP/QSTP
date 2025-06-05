@@ -10,7 +10,6 @@
 [![Security Policy](https://img.shields.io/badge/security-policy-blue)](https://github.com/QRCS-CORP/QSTP/security/policy)
 [![License: Private](https://img.shields.io/badge/License-Private-blue.svg)](https://github.com/QRCS-CORP/QSTP/blob/main/QRCS-PL%20License.txt)  
 [![Language](https://img.shields.io/static/v1?label=Language&message=C%2023&color=blue)](https://www.open-std.org/jtc1/sc22/wg14/www/docs/n3220.pdf)
-[![docs](https://img.shields.io/badge/docs-online-brightgreen)](https://qrcs-corp.github.io/QSTP/)
 [![GitHub release](https://img.shields.io/github/v/release/QRCS-CORP/QSTP)](https://github.com/QRCS-CORP/QSTP/releases/tag/2025-06-04)
 [![GitHub Last Commit](https://img.shields.io/github/last-commit/QRCS-CORP/QSTP.svg)](https://github.com/QRCS-CORP/QSTP/commits/main)
 [![Custom: Standard](https://img.shields.io/static/v1?label=Security%20Standard&message=MISRA&color=blue)](https://misra.org.uk/)
