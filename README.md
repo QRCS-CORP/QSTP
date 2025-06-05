@@ -15,6 +15,10 @@
 [![Custom: Standard](https://img.shields.io/static/v1?label=Security%20Standard&message=MISRA&color=blue)](https://misra.org.uk/)
 [![Custom: Target](https://img.shields.io/static/v1?label=Target%20Industry&message=Financial/Defense&color=brightgreen)](#)
 
+**QSTP: A Post-Quantum Secure root-anchored Tunnel Protocol with Integrated Key Exchange and Authentication**
+
+## Overview
+
 QSTP is a next-generation cryptographic protocol designed to enable secure communication between clients and servers by establishing an encrypted tunnel using a root trust anchor. Unlike traditional key exchange protocols (e.g., TLS, PGP, SSH) that are components of larger systems, QSTP provides a complete specification that integrates a key exchange function, robust authentication mechanisms, and an encrypted tunnel within a single protocol.
 
 Engineered to address the challenges posed by quantum computing threats, QSTP introduces entirely new mechanisms—designed from the ground up for both security and performance in a post-quantum context. This design avoids the legacy issues of backward compatibility, complex versioning, and outdated APIs.
