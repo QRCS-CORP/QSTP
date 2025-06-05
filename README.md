@@ -4,10 +4,17 @@
 
 [![Build](https://github.com/QRCS-CORP/QSTP/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/QRCS-CORP/QSTP/actions/workflows/build.yml)
 [![CodeQL](https://github.com/QRCS-CORP/QSTP/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/QRCS-CORP/QSTP/actions/workflows/codeql-analysis.yml)
+[![CodeFactor](https://www.codefactor.io/repository/github/qrcs-corp/qstp/badge)](https://www.codefactor.io/repository/github/qrcs-corp/qstp)
 [![Platforms](https://img.shields.io/badge/platforms-Linux%20|%20macOS%20|%20Windows-blue)](#)
 [![docs](https://img.shields.io/badge/docs-online-brightgreen)](https://qrcs-corp.github.io/QSTP/)
 [![Security Policy](https://img.shields.io/badge/security-policy-blue)](https://github.com/QRCS-CORP/QSTP/security/policy)
 [![License: Private](https://img.shields.io/badge/License-Private-blue.svg)](https://github.com/QRCS-CORP/QSTP/blob/main/QRCS-PL%20License.txt)  
+[![Language](https://img.shields.io/static/v1?label=Language&message=C%2023&color=blue)](https://www.open-std.org/jtc1/sc22/wg14/www/docs/n3220.pdf)
+[![docs](https://img.shields.io/badge/docs-online-brightgreen)](https://qrcs-corp.github.io/QSTP/)
+[![GitHub release](https://img.shields.io/github/v/release/QRCS-CORP/QSTP)](https://github.com/QRCS-CORP/QSTP/releases/tag/2025-05-25)
+[![GitHub Last Commit](https://img.shields.io/github/last-commit/QRCS-CORP/QSTP.svg)](https://github.com/QRCS-CORP/QSTP/commits/main)
+[![Custom: Standard](https://img.shields.io/static/v1?label=Security%20Standard&message=MISRA&color=blue)](https://misra.org.uk/)
+[![Custom: Target](https://img.shields.io/static/v1?label=Target%20Industry&message=Financial/Defense&color=brightgreen)](#)
 
 QSTP is a next-generation cryptographic protocol designed to enable secure communication between clients and servers by establishing an encrypted tunnel using a root trust anchor. Unlike traditional key exchange protocols (e.g., TLS, PGP, SSH) that are components of larger systems, QSTP provides a complete specification that integrates a key exchange function, robust authentication mechanisms, and an encrypted tunnel within a single protocol.
 
