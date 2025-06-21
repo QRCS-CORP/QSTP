@@ -44,7 +44,7 @@ static void server_poll_sockets(void)
 
 	clen = qstp_connections_size();
 
-	for (size_t i = 0; i < clen; ++i)
+	for (size_t i = 0U; i < clen; ++i)
 	{
 		const qstp_connection_state* cns = qstp_connections_index(i);
 
@@ -64,7 +64,7 @@ static void server_poll_sockets(void)
 
 static void server_receive_loop(void* prcv)
 {
-	assert(prcv != NULL);
+	QSTP_ASSERT(prcv != NULL);
 
 	qstp_network_packet pkt = { 0 };
 	char cadd[QSC_SOCKET_ADDRESS_MAX_SIZE] = { 0 };
@@ -95,8 +95,8 @@ static void server_receive_loop(void* prcv)
 			{
 				while (pprcv->pcns->target.connection_status == qsc_socket_state_connected)
 				{
-					mlen = 0;
-					slen = 0;
+					mlen = 0U;
+					slen = 0U;
 
 					plen = qsc_socket_peek(&pprcv->pcns->target, rbuf, QSTP_PACKET_HEADER_SIZE);
 
@@ -104,7 +104,7 @@ static void server_receive_loop(void* prcv)
 					{
 						qstp_packet_header_deserialize(rbuf, &pkt);
 
-						if (pkt.msglen > 0 && pkt.msglen <= QSTP_PACKET_MESSAGE_MAX)
+						if (pkt.msglen > 0U && pkt.msglen <= QSTP_PACKET_MESSAGE_MAX)
 						{
 							plen = pkt.msglen + QSTP_PACKET_HEADER_SIZE;
 							rbuf = (uint8_t*)qsc_memutils_realloc(rbuf, plen);
@@ -115,7 +115,7 @@ static void server_receive_loop(void* prcv)
 							qsc_memutils_clear(rbuf, plen);
 							mlen = qsc_socket_receive(&pprcv->pcns->target, rbuf, plen, qsc_socket_receive_flag_wait_all);
 							
-							if (mlen != 0)
+							if (mlen != 0U)
 							{
 								pkt.pmessage = rbuf + QSTP_PACKET_HEADER_SIZE;
 
@@ -164,7 +164,7 @@ static void server_receive_loop(void* prcv)
 
 										if (pprcv->pkpa->etime == tme)
 										{
-											pprcv->pkpa->seqctr += 1;
+											pprcv->pkpa->seqctr += 1U;
 											pprcv->pkpa->recd = true;
 										}
 										else
@@ -258,9 +258,9 @@ static qstp_errors server_start(const qstp_server_signature_key* kset,
 	void (*receive_callback)(qstp_connection_state*, const char*, size_t),
 	void (*disconnect_callback)(qstp_connection_state*))
 {
-	assert(kset != NULL);
-	assert(source != NULL);
-	assert(receive_callback != NULL);
+	QSTP_ASSERT(kset != NULL);
+	QSTP_ASSERT(source != NULL);
+	QSTP_ASSERT(receive_callback != NULL);
 
 	qsc_socket_exceptions res;
 	qstp_errors qerr;
@@ -339,10 +339,10 @@ bool qstp_server_expiration_check(const qstp_server_signature_key* kset)
 
 void qstp_server_key_generate(qstp_server_signature_key* kset, const char issuer[QSTP_CERTIFICATE_ISSUER_SIZE], uint32_t exp)
 {
-	assert(kset != NULL);
-	assert(exp != 0);
+	QSTP_ASSERT(kset != NULL);
+	QSTP_ASSERT(exp != 0U);
 
-	if (kset != NULL && exp != 0)
+	if (kset != NULL && exp != 0U)
 	{
 		uint64_t period;
 
@@ -373,7 +373,7 @@ void qstp_server_quit(void)
 
 	clen = qstp_connections_size();
 
-	for (size_t i = 0; i < clen; ++i)
+	for (size_t i = 0U; i < clen; ++i)
 	{
 		qstp_connection_state* cns = qstp_connections_index(i);
 
@@ -406,8 +406,8 @@ qstp_errors qstp_server_start_ipv4(qsc_socket* source,
 	void (*receive_callback)(qstp_connection_state*, const char*, size_t),
 	void (*disconnect_callback)(qstp_connection_state*))
 {
-	assert(kset != NULL);
-	assert(receive_callback != NULL);
+	QSTP_ASSERT(kset != NULL);
+	QSTP_ASSERT(receive_callback != NULL);
 
 	qsc_ipinfo_ipv4_address addt = { 0 };
 	qsc_socket_exceptions res;
@@ -455,8 +455,8 @@ qstp_errors qstp_server_start_ipv6(qsc_socket* source,
 	void (*receive_callback)(qstp_connection_state*, const char*, size_t),
 	void (*disconnect_callback)(qstp_connection_state*))
 {
-	assert(kset != NULL);
-	assert(receive_callback != NULL);
+	QSTP_ASSERT(kset != NULL);
+	QSTP_ASSERT(receive_callback != NULL);
 
 	qsc_ipinfo_ipv6_address addt = { 0 };
 	qsc_socket_exceptions res;

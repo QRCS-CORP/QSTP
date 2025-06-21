@@ -15,7 +15,7 @@
 #define KEX_CONNECT_RESPONSE_PACKET_SIZE (QSTP_PACKET_HEADER_SIZE + KEX_CONNECT_RESPONSE_MESSAGE_SIZE)
 #define KEX_EXCHANGE_REQUEST_MESSAGE_SIZE (QSTP_ASYMMETRIC_CIPHER_TEXT_SIZE)
 #define KEX_EXCHANGE_REQUEST_PACKET_SIZE (QSTP_PACKET_HEADER_SIZE + KEX_EXCHANGE_REQUEST_MESSAGE_SIZE)
-#define KEX_EXCHANGE_RESPONSE_MESSAGE_SIZE (0)
+#define KEX_EXCHANGE_RESPONSE_MESSAGE_SIZE 0U
 #define KEX_EXCHANGE_RESPONSE_PACKET_SIZE (QSTP_PACKET_HEADER_SIZE + KEX_EXCHANGE_RESPONSE_MESSAGE_SIZE)
 
 #if defined(QSTP_FUTURE_FEATURE)
@@ -28,12 +28,12 @@ static void kex_subheader_serialize(uint8_t* pstream, const qstp_network_packet*
 
 static void kex_send_network_error(const qsc_socket* sock, qstp_errors error)
 {
-	assert(sock != NULL);
+	QSTP_ASSERT(sock != NULL);
 
 	if (qsc_socket_is_connected(sock) == true)
 	{
 		qstp_network_packet resp = { 0 };
-		uint8_t spct[QSTP_PACKET_HEADER_SIZE + QSTP_PACKET_ERROR_SIZE] = { 0 };
+		uint8_t spct[QSTP_PACKET_HEADER_SIZE + QSTP_PACKET_ERROR_SIZE] = { 0U };
 
 		resp.pmessage = spct + QSTP_PACKET_HEADER_SIZE;
 		qstp_packet_error_message(&resp, error);
@@ -44,14 +44,14 @@ static void kex_send_network_error(const qsc_socket* sock, qstp_errors error)
 
 static void kex_client_reset(qstp_kex_client_state* kcs)
 {
-	assert(kcs != NULL);
+	QSTP_ASSERT(kcs != NULL);
 
 	if (kcs != NULL)
 	{
 		qsc_memutils_clear(kcs->serial, QSTP_CERTIFICATE_SERIAL_SIZE);
 		qsc_memutils_clear(kcs->schash, QSTP_CERTIFICATE_HASH_SIZE);
 		qsc_memutils_clear(kcs->verkey, QSTP_ASYMMETRIC_VERIFICATION_KEY_SIZE);
-		kcs->expiration = 0;
+		kcs->expiration = 0U;
 	}
 }
 
@@ -66,7 +66,7 @@ static bool kex_server_serial_verify(const uint8_t* keyid, const uint8_t* messag
 
 static void kex_server_reset(qstp_kex_server_state* kss)
 {
-	assert(kss != NULL);
+	QSTP_ASSERT(kss != NULL);
 
 	if (kss != NULL)
 	{
@@ -74,13 +74,13 @@ static void kex_server_reset(qstp_kex_server_state* kss)
 		qsc_memutils_clear(kss->serial, QSTP_CERTIFICATE_SERIAL_SIZE);
 		qsc_memutils_clear(kss->sigkey, QSTP_ASYMMETRIC_SIGNING_KEY_SIZE);
 		qsc_memutils_clear(kss->verkey, QSTP_ASYMMETRIC_VERIFICATION_KEY_SIZE);
-		kss->expiration = 0;
+		kss->expiration = 0U;
 	}
 }
 
 static void kex_dispose_private_key(qstp_kex_server_state* kss)
 {
-	assert(kss != NULL);
+	QSTP_ASSERT(kss != NULL);
 
 	if (kss != NULL)
 	{
@@ -94,7 +94,7 @@ static void kex_dispose_private_key(qstp_kex_server_state* kss)
 
 static void kex_dispose_public_key(qstp_kex_server_state* kss)
 {
-	assert(kss != NULL);
+	QSTP_ASSERT(kss != NULL);
 
 	if (kss != NULL)
 	{
@@ -108,7 +108,7 @@ static void kex_dispose_public_key(qstp_kex_server_state* kss)
 
 static void kex_initialize_cipher_keys(qstp_kex_server_state* kss)
 {
-	assert(kss != NULL);
+	QSTP_ASSERT(kss != NULL);
 
 	if (kss != NULL)
 	{
@@ -171,9 +171,9 @@ C{ serial, cfg } -> S
 */
 static qstp_errors kex_client_connect_request(qstp_kex_client_state* kcs, qstp_connection_state* cns, qstp_network_packet* packetout)
 {
-	assert(kcs != NULL);
-	assert(cns != NULL);
-	assert(packetout != NULL);
+	QSTP_ASSERT(kcs != NULL);
+	QSTP_ASSERT(cns != NULL);
+	QSTP_ASSERT(packetout != NULL);
 
 	qstp_errors qerr;
 	uint64_t tm;
@@ -223,12 +223,12 @@ cprtx(k1,n1)
 */
 static qstp_errors kex_client_exchange_request(const qstp_kex_client_state* kcs, qstp_connection_state* cns, const qstp_network_packet* packetin, qstp_network_packet* packetout)
 {
-	assert(kcs != NULL);
-	assert(cns != NULL);
-	assert(packetin != NULL);
-	assert(packetout != NULL);
+	QSTP_ASSERT(kcs != NULL);
+	QSTP_ASSERT(cns != NULL);
+	QSTP_ASSERT(packetin != NULL);
+	QSTP_ASSERT(packetout != NULL);
 
-	uint8_t khash[QSTP_CERTIFICATE_HASH_SIZE] = { 0 };
+	uint8_t khash[QSTP_CERTIFICATE_HASH_SIZE] = { 0U };
 	size_t mlen;
 	size_t slen;
 	qstp_errors qerr;
@@ -237,16 +237,16 @@ static qstp_errors kex_client_exchange_request(const qstp_kex_client_state* kcs,
 	{
 		if (cns->exflag == qstp_flag_connect_request && packetin->flag == qstp_flag_connect_response)
 		{
-			slen = 0;
+			slen = 0U;
 			mlen = QSTP_ASYMMETRIC_SIGNATURE_SIZE + QSTP_CERTIFICATE_HASH_SIZE;
 
 			/* verify the asymmetric signature */
 			if (qstp_signature_verify(khash, &slen, packetin->pmessage, mlen, kcs->verkey) == true)
 			{
 				qsc_keccak_state kstate = { 0 };
-				uint8_t phash[QSTP_CERTIFICATE_HASH_SIZE] = { 0 };
-				uint8_t phdr[QSTP_PACKET_HEADER_SIZE] = { 0 };
-				uint8_t ssec[QSTP_SECRET_SIZE] = { 0 };
+				uint8_t phash[QSTP_CERTIFICATE_HASH_SIZE] = { 0U };
+				uint8_t phdr[QSTP_PACKET_HEADER_SIZE] = { 0U };
+				uint8_t ssec[QSTP_SECRET_SIZE] = { 0U };
 				uint8_t* pubk;
 
 				pubk = packetin->pmessage + mlen;
@@ -263,7 +263,7 @@ static qstp_errors kex_client_exchange_request(const qstp_kex_client_state* kcs,
 				/* compare hashes */
 				if (qsc_intutils_verify(phash, khash, QSTP_CERTIFICATE_HASH_SIZE) == 0)
 				{
-					uint8_t prnd[QSC_KECCAK_256_RATE] = { 0 };
+					uint8_t prnd[QSC_KECCAK_256_RATE] = { 0U };
 
 					/* generate, and encapsulate the secret */
 
@@ -274,8 +274,8 @@ static qstp_errors kex_client_exchange_request(const qstp_kex_client_state* kcs,
 					qstp_header_create(packetout, qstp_flag_exchange_request, cns->txseq, KEX_EXCHANGE_REQUEST_MESSAGE_SIZE);
 
 					/* initialize cSHAKE k = H(sec, sch) */
-					qsc_cshake_initialize(&kstate, qsc_keccak_rate_256, ssec, QSTP_SECRET_SIZE, kcs->schash, QSTP_CERTIFICATE_HASH_SIZE, NULL, 0);
-					qsc_cshake_squeezeblocks(&kstate, qsc_keccak_rate_256, prnd, 1);
+					qsc_cshake_initialize(&kstate, qsc_keccak_rate_256, ssec, QSTP_SECRET_SIZE, kcs->schash, QSTP_CERTIFICATE_HASH_SIZE, NULL, 0U);
+					qsc_cshake_squeezeblocks(&kstate, qsc_keccak_rate_256, prnd, 1U);
 					/* permute the state so we are not storing the current key */
 					qsc_keccak_permute(&kstate, QSC_KECCAK_PERMUTATION_ROUNDS);
 
@@ -288,7 +288,7 @@ static qstp_errors kex_client_exchange_request(const qstp_kex_client_state* kcs,
 					kp1.noncelen = QSTP_NONCE_SIZE;
 #endif
 					kp1.info = NULL;
-					kp1.infolen = 0;
+					kp1.infolen = 0U;
 					qstp_cipher_initialize(&cns->txcpr, &kp1, true);
 
 					/* initialize the symmetric cipher, and raise client channel-1 rx */
@@ -300,7 +300,7 @@ static qstp_errors kex_client_exchange_request(const qstp_kex_client_state* kcs,
 					kp2.noncelen = QSTP_NONCE_SIZE;
 #endif
 					kp2.info = NULL;
-					kp2.infolen = 0;
+					kp2.infolen = 0U;
 					qstp_cipher_initialize(&cns->rxcpr, &kp2, false);
 
 					cns->exflag = qstp_flag_exchange_request;
@@ -341,9 +341,9 @@ The client sets the operational state to session established, and is now ready t
 */
 static qstp_errors kex_client_establish_verify(const qstp_kex_client_state* kcs, qstp_connection_state* cns, const qstp_network_packet* packetin)
 {
-	assert(kcs != NULL);
-	assert(cns != NULL);
-	assert(packetin != NULL);
+	QSTP_ASSERT(kcs != NULL);
+	QSTP_ASSERT(cns != NULL);
+	QSTP_ASSERT(packetin != NULL);
 
 	qstp_errors qerr;
 
@@ -389,13 +389,13 @@ S{ spkh, pk } -> C
 */
 static qstp_errors kex_server_connect_response(qstp_kex_server_state* kss, qstp_connection_state* cns, const qstp_network_packet* packetin, qstp_network_packet* packetout)
 {
-	assert(kss != NULL);
-	assert(cns != NULL);
-	assert(packetin != NULL);
-	assert(packetout != NULL);
+	QSTP_ASSERT(kss != NULL);
+	QSTP_ASSERT(cns != NULL);
+	QSTP_ASSERT(packetin != NULL);
+	QSTP_ASSERT(packetout != NULL);
 
-	uint8_t phash[QSTP_CERTIFICATE_HASH_SIZE] = { 0 };
 	qsc_keccak_state kstate = { 0 };
+	uint8_t phash[QSTP_CERTIFICATE_HASH_SIZE] = { 0U };
 	const uint8_t* pconf;
 	qstp_errors qerr;
 	uint64_t tm;
@@ -419,7 +419,7 @@ static qstp_errors kex_server_connect_response(qstp_kex_server_state* kss, qstp_
 				/* compare the state configuration string to the message configuration string */
 				if (qsc_memutils_are_equal(pconf, (const uint8_t*)QSTP_PROTOCOL_SET_STRING, QSTP_PROTOCOL_SET_SIZE - 1U) == true)
 				{
-					uint8_t phdr[QSTP_PACKET_HEADER_SIZE] = { 0 };
+					uint8_t phdr[QSTP_PACKET_HEADER_SIZE] = { 0U };
 
 					/* initialize the packet and asymmetric encryption keys */
 					kex_initialize_cipher_keys(kss);
@@ -440,7 +440,7 @@ static qstp_errors kex_server_connect_response(qstp_kex_server_state* kss, qstp_
 					qsc_keccak_dispose(&kstate);
 
 					/* sign the hash and add it to the message */
-					mlen = 0;
+					mlen = 0U;
 					qstp_signature_sign(packetout->pmessage, &mlen, phash, QSTP_CERTIFICATE_HASH_SIZE, kss->sigkey, qsc_acp_generate);
 
 					/* copy the public key to the message */
@@ -487,10 +487,10 @@ S{ f } -> C
 */
 static qstp_errors kex_server_exchange_response(qstp_kex_server_state* kss, qstp_connection_state* cns, const qstp_network_packet* packetin, qstp_network_packet* packetout)
 {
-	assert(kss != NULL);
-	assert(cns != NULL);
-	assert(packetin != NULL);
-	assert(packetout != NULL);
+	QSTP_ASSERT(kss != NULL);
+	QSTP_ASSERT(cns != NULL);
+	QSTP_ASSERT(packetin != NULL);
+	QSTP_ASSERT(packetout != NULL);
 
 	qstp_errors qerr;
 
@@ -504,13 +504,13 @@ static qstp_errors kex_server_exchange_response(qstp_kex_server_state* kss, qstp
 			if (qstp_cipher_decapsulate(ssec, packetin->pmessage, kss->prikey) == true)
 			{
 				qsc_keccak_state kstate = { 0 };
-				uint8_t prnd[QSC_KECCAK_256_RATE] = { 0 };
+				uint8_t prnd[QSC_KECCAK_256_RATE] = { 0U };
 
 				/* dispose of the private asymmetric key */
 				kex_dispose_private_key(kss);
 				/* initialize cSHAKE k = H(ssec, sch) */
-				qsc_cshake_initialize(&kstate, qsc_keccak_rate_256, ssec, sizeof(ssec), kss->schash, QSTP_CERTIFICATE_HASH_SIZE, NULL, 0);
-				qsc_cshake_squeezeblocks(&kstate, qsc_keccak_rate_256, prnd, 1);
+				qsc_cshake_initialize(&kstate, qsc_keccak_rate_256, ssec, sizeof(ssec), kss->schash, QSTP_CERTIFICATE_HASH_SIZE, NULL, 0U);
+				qsc_cshake_squeezeblocks(&kstate, qsc_keccak_rate_256, prnd, 1U);
 				/* permute the state so we are not storing the current key */
 				qsc_keccak_permute(&kstate, QSC_KECCAK_PERMUTATION_ROUNDS);
 
@@ -523,7 +523,7 @@ static qstp_errors kex_server_exchange_response(qstp_kex_server_state* kss, qstp
 				kp1.noncelen = QSTP_NONCE_SIZE;
 #endif
 				kp1.info = NULL;
-				kp1.infolen = 0;
+				kp1.infolen = 0U;
 				qstp_cipher_initialize(&cns->rxcpr, &kp1, false);
 
 				/* initialize the symmetric cipher, and raise client channel-1 rx */
@@ -535,7 +535,7 @@ static qstp_errors kex_server_exchange_response(qstp_kex_server_state* kss, qstp
 				kp2.noncelen = QSTP_NONCE_SIZE;
 #endif
 				kp2.info = NULL;
-				kp2.infolen = 0;
+				kp2.infolen = 0U;
 				qstp_cipher_initialize(&cns->txcpr, &kp2, true);
 
 				/* assemble the exchange-response packet */
@@ -566,8 +566,8 @@ static qstp_errors kex_server_exchange_response(qstp_kex_server_state* kss, qstp
 
 qstp_errors qstp_kex_client_key_exchange(qstp_kex_client_state* kcs, qstp_connection_state* cns)
 {
-	assert(kcs != NULL);
-	assert(cns != NULL);
+	QSTP_ASSERT(kcs != NULL);
+	QSTP_ASSERT(cns != NULL);
 
 	qstp_network_packet reqt = { 0 };
 	qstp_network_packet resp = { 0 };
@@ -632,7 +632,7 @@ qstp_errors qstp_kex_client_key_exchange(qstp_kex_client_state* kcs, qstp_connec
 
 										if (slen == KEX_EXCHANGE_REQUEST_PACKET_SIZE)
 										{
-											cns->txseq += 1;
+											cns->txseq += 1U;
 											rbuf = qsc_memutils_realloc(rbuf, KEX_EXCHANGE_RESPONSE_PACKET_SIZE);
 
 											if (rbuf != NULL)
@@ -728,8 +728,8 @@ qstp_errors qstp_kex_client_key_exchange(qstp_kex_client_state* kcs, qstp_connec
 
 qstp_errors qstp_kex_server_key_exchange(qstp_kex_server_state* kss, qstp_connection_state* cns)
 {
-	assert(kss != NULL);
-	assert(cns != NULL);
+	QSTP_ASSERT(kss != NULL);
+	QSTP_ASSERT(cns != NULL);
 
 	qstp_network_packet reqt = { 0 };
 	qstp_network_packet resp = { 0 };
@@ -777,7 +777,7 @@ qstp_errors qstp_kex_server_key_exchange(qstp_kex_server_state* kss, qstp_connec
 
 						if (slen == KEX_CONNECT_RESPONSE_PACKET_SIZE)
 						{
-							cns->txseq += 1;
+							cns->txseq += 1U;
 
 							rbuf = qsc_memutils_realloc(rbuf, KEX_EXCHANGE_REQUEST_PACKET_SIZE);
 
@@ -809,7 +809,7 @@ qstp_errors qstp_kex_server_key_exchange(qstp_kex_server_state* kss, qstp_connec
 		
 											if (slen == KEX_EXCHANGE_RESPONSE_PACKET_SIZE)
 											{
-												cns->txseq += 1;
+												cns->txseq += 1U;
 											}
 											else
 											{

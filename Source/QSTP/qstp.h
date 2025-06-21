@@ -34,7 +34,7 @@
  * in the LICENSE.txt file distributed with this software.
  *
  * Written by: John G. Underhill
- * Contact: john.underhill@protonmail.com
+ * Contact: contact@qrcscorp.ca
  */
 
 #ifndef QSTP_H
@@ -159,7 +159,7 @@
  * \def QSTP_PROTOCOL_SET_SIZE
  * \brief The size of the protocol configuration string.
  */
-#define QSTP_PROTOCOL_SET_SIZE 42
+#define QSTP_PROTOCOL_SET_SIZE 42U
 
 /*!
  * \enum qstp_configuration_sets
@@ -167,26 +167,26 @@
  */
 QSTP_EXPORT_API typedef enum qstp_configuration_sets
 {
-	qstp_configuration_set_none = 0x00,											/*!< No algorithm identifier is set */
-	qstp_configuration_set_dilithium1_kyber1_rcs256_shake256 = 0x01,			/*!< The Dilithium-S1/Kyber-S1/RCS-256/SHAKE-256 algorithm set */
-	qstp_configuration_set_dilithium3_kyber3_rcs256_shake256 = 0x02,			/*!< The Dilithium-S3/Kyber-S3/RCS-256/SHAKE-256 algorithm set */
-	qstp_configuration_set_dilithium5_kyber5_rcs256_shake256 = 0x03,			/*!< The Dilithium-S5/Kyber-S5/RCS-256/SHAKE-256 algorithm set */
-	qstp_configuration_set_dilithium5_kyber6_rcs512_shake512 = 0x04,			/*!< The Dilithium-S5/Kyber-S6/RCS-256/SHAKE-256 algorithm set */
-	qstp_configuration_set_dilithium1_mceliece1_rcs256_shake256 = 0x05,			/*!< The Dilithium-S1/McEliece-S1/RCS-256/SHAKE-256 algorithm set */
-	qstp_configuration_set_dilithium3_mceliece3_rcs256_shake256 = 0x06,			/*!< The Dilithium-S3/McEliece-S3/RCS-256/SHAKE-256 algorithm set */
-	qstp_configuration_set_dilithium5_mceliece5_rcs256_shake256 = 0x07,			/*!< The Dilithium-S5/McEliece-S5a/RCS-256/SHAKE-256 algorithm set */
-	qstp_configuration_set_dilithium5_mceliece6_rcs256_shake256 = 0x08,			/*!< The Dilithium-S5/McEliece-S6/RCS-256/SHAKE-256 algorithm set */
-	qstp_configuration_set_dilithium5_mceliece7_rcs256_shake256 = 0x09,			/*!< The Dilithium-S5/McEliece-S7/RCS-256/SHAKE-256 algorithm set */
-	qstp_configuration_set_sphincsplus1f_mceliece1_rcs256_shake256 = 0x0A,		/*!< The SPHINCS+-S1F/McEliece-S1/RCS-256/SHAKE-256 algorithm set */
-	qstp_configuration_set_sphincsplus1s_mceliece1_rcs256_shake256 = 0x0B,		/*!< The SPHINCS+-S1S/McEliece-S1/RCS-256/SHAKE-256 algorithm set */
-	qstp_configuration_set_sphincsplus3f_mceliece3_rcs256_shake256 = 0x0C,		/*!< The SPHINCS+-S3F/McEliece-S3/RCS-256/SHAKE-256 algorithm set */
-	qstp_configuration_set_sphincsplus3s_mceliece3_rcs256_shake256 = 0x0D,		/*!< The SPHINCS+-S3S/McEliece-S3/RCS-256/SHAKE-256 algorithm set */
-	qstp_configuration_set_sphincsplus5f_mceliece5_rcs256_shake256 = 0x0E,		/*!< The SPHINCS+-S5F/McEliece-S5a/RCS-256/SHAKE-256 algorithm set */
-	qstp_configuration_set_sphincsplus5s_mceliece5_rcs256_shake256 = 0x0F,		/*!< The SPHINCS+-S5S/McEliece-S5a/RCS-256/SHAKE-256 algorithm set */
-	qstp_configuration_set_sphincsplus5f_mceliece6_rcs256_shake256 = 0x10,		/*!< The SPHINCS+-S5F/McEliece-S5b/RCS-256/SHAKE-256 algorithm set */
-	qstp_configuration_set_sphincsplus5s_mceliece6_rcs256_shake256 = 0x11,		/*!< The SPHINCS+-S5S/McEliece-S5b/RCS-256/SHAKE-256 algorithm set */
-	qstp_configuration_set_sphincsplus5f_mceliece7_rcs256_shake256 = 0x12,		/*!< The SPHINCS+-S5F/McEliece-S5c/RCS-256/SHAKE-256 algorithm set */
-	qstp_configuration_set_sphincsplus5s_mceliece7_rcs256_shake256 = 0x13,		/*!< The SPHINCS+-S5S/McEliece-S5c/RCS-256/SHAKE-256 algorithm set */
+	qstp_configuration_set_none = 0x00U,										/*!< No algorithm identifier is set */
+	qstp_configuration_set_dilithium1_kyber1_rcs256_shake256 = 0x01U,			/*!< The Dilithium-S1/Kyber-S1/RCS-256/SHAKE-256 algorithm set */
+	qstp_configuration_set_dilithium3_kyber3_rcs256_shake256 = 0x02U,			/*!< The Dilithium-S3/Kyber-S3/RCS-256/SHAKE-256 algorithm set */
+	qstp_configuration_set_dilithium5_kyber5_rcs256_shake256 = 0x03U,			/*!< The Dilithium-S5/Kyber-S5/RCS-256/SHAKE-256 algorithm set */
+	qstp_configuration_set_dilithium5_kyber6_rcs512_shake512 = 0x04U,			/*!< The Dilithium-S5/Kyber-S6/RCS-256/SHAKE-256 algorithm set */
+	qstp_configuration_set_dilithium1_mceliece1_rcs256_shake256 = 0x05U,		/*!< The Dilithium-S1/McEliece-S1/RCS-256/SHAKE-256 algorithm set */
+	qstp_configuration_set_dilithium3_mceliece3_rcs256_shake256 = 0x06U,		/*!< The Dilithium-S3/McEliece-S3/RCS-256/SHAKE-256 algorithm set */
+	qstp_configuration_set_dilithium5_mceliece5_rcs256_shake256 = 0x07U,		/*!< The Dilithium-S5/McEliece-S5a/RCS-256/SHAKE-256 algorithm set */
+	qstp_configuration_set_dilithium5_mceliece6_rcs256_shake256 = 0x08U,		/*!< The Dilithium-S5/McEliece-S6/RCS-256/SHAKE-256 algorithm set */
+	qstp_configuration_set_dilithium5_mceliece7_rcs256_shake256 = 0x09U,		/*!< The Dilithium-S5/McEliece-S7/RCS-256/SHAKE-256 algorithm set */
+	qstp_configuration_set_sphincsplus1f_mceliece1_rcs256_shake256 = 0x0AU,		/*!< The SPHINCS+-S1F/McEliece-S1/RCS-256/SHAKE-256 algorithm set */
+	qstp_configuration_set_sphincsplus1s_mceliece1_rcs256_shake256 = 0x0BU,		/*!< The SPHINCS+-S1S/McEliece-S1/RCS-256/SHAKE-256 algorithm set */
+	qstp_configuration_set_sphincsplus3f_mceliece3_rcs256_shake256 = 0x0CU,		/*!< The SPHINCS+-S3F/McEliece-S3/RCS-256/SHAKE-256 algorithm set */
+	qstp_configuration_set_sphincsplus3s_mceliece3_rcs256_shake256 = 0x0DU,		/*!< The SPHINCS+-S3S/McEliece-S3/RCS-256/SHAKE-256 algorithm set */
+	qstp_configuration_set_sphincsplus5f_mceliece5_rcs256_shake256 = 0x0EU,		/*!< The SPHINCS+-S5F/McEliece-S5a/RCS-256/SHAKE-256 algorithm set */
+	qstp_configuration_set_sphincsplus5s_mceliece5_rcs256_shake256 = 0x0FU,		/*!< The SPHINCS+-S5S/McEliece-S5a/RCS-256/SHAKE-256 algorithm set */
+	qstp_configuration_set_sphincsplus5f_mceliece6_rcs256_shake256 = 0x10U,		/*!< The SPHINCS+-S5F/McEliece-S5b/RCS-256/SHAKE-256 algorithm set */
+	qstp_configuration_set_sphincsplus5s_mceliece6_rcs256_shake256 = 0x11U,		/*!< The SPHINCS+-S5S/McEliece-S5b/RCS-256/SHAKE-256 algorithm set */
+	qstp_configuration_set_sphincsplus5f_mceliece7_rcs256_shake256 = 0x12U,		/*!< The SPHINCS+-S5F/McEliece-S5c/RCS-256/SHAKE-256 algorithm set */
+	qstp_configuration_set_sphincsplus5s_mceliece7_rcs256_shake256 = 0x13U,		/*!< The SPHINCS+-S5S/McEliece-S5c/RCS-256/SHAKE-256 algorithm set */
 } qstp_configuration_sets;
 
 #if defined(QSTP_CONFIG_DILITHIUM_MCELIECE)
@@ -259,19 +259,19 @@ QSTP_EXPORT_API typedef enum qstp_configuration_sets
 #	define QSTP_ASYMMETRIC_SIGNATURE_SIZE (QSC_DILITHIUM_SIGNATURE_SIZE)
 
 /** \cond */
-#	if defined(QSC_DILITHIUM_S1P2544) && defined(QSC_MCELIECE_S1N3488T64)
+#	if defined(QSC_DILITHIUM_S1P44) && defined(QSC_MCELIECE_S1N3488T64)
 		static const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "dilithium-s1_mceliece-s1_rcs-256_sha3-256";
 		static const qstp_configuration_sets QSTP_CONFIGURATION_SET = qstp_configuration_set_dilithium1_mceliece1_rcs256_shake256;
-#	elif defined(QSC_DILITHIUM_S3P4016) && defined(QSC_MCELIECE_S3N4608T96)
+#	elif defined(QSC_DILITHIUM_S3P65) && defined(QSC_MCELIECE_S3N4608T96)
 		static const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "dilithium-s3_mceliece-s3_rcs-256_sha3-256";
 		static const qstp_configuration_sets QSTP_CONFIGURATION_SET = qstp_configuration_set_dilithium3_mceliece3_rcs256_shake256;
-#	elif defined(QSC_DILITHIUM_S5P4880) && defined(QSC_MCELIECE_S5N6688T128)
+#	elif defined(QSC_DILITHIUM_S5P87) && defined(QSC_MCELIECE_S5N6688T128)
 		static const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "dilithium-s5_mceliece-s5_rcs-256_sha3-256";
 		static const qstp_configuration_sets QSTP_CONFIGURATION_SET = qstp_configuration_set_dilithium5_mceliece5_rcs256_shake256;
-#	elif defined(QSC_DILITHIUM_S5P4880) && defined(QSC_MCELIECE_S6N6960T119)
+#	elif defined(QSC_DILITHIUM_S5P87) && defined(QSC_MCELIECE_S6N6960T119)
 		static const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "dilithium-s5_mceliece-s6_rcs-256_sha3-256";
 		static const qstp_configuration_sets QSTP_CONFIGURATION_SET = qstp_configuration_set_dilithium5_mceliece6_rcs256_shake256;
-#	elif defined(QSC_DILITHIUM_S5P4880) && defined(QSC_MCELIECE_S7N8192T128)
+#	elif defined(QSC_DILITHIUM_S5P87) && defined(QSC_MCELIECE_S7N8192T128)
 		static const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "dilithium-s5_mceliece-s7_rcs-256_sha3-256";
 		static const qstp_configuration_sets QSTP_CONFIGURATION_SET = qstp_configuration_set_dilithium5_mceliece7_rcs256_shake256;
 #	else
@@ -349,16 +349,16 @@ QSTP_EXPORT_API typedef enum qstp_configuration_sets
 #	define QSTP_ASYMMETRIC_SIGNATURE_SIZE (QSC_DILITHIUM_SIGNATURE_SIZE)
 
 /** \cond */
-#	if defined(QSC_DILITHIUM_S1P2544) && defined(QSC_KYBER_S1P1632)
+#	if defined(QSC_DILITHIUM_S1P44) && defined(QSC_KYBER_S1K2P512)
 		static const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "dilithium-s1_kyber-s1_rcs-256_sha3-256";
 		static const qstp_configuration_sets QSTP_CONFIGURATION_SET = qstp_configuration_set_dilithium1_kyber1_rcs256_shake256;
-#	elif defined(QSC_DILITHIUM_S3P4016) && defined(QSC_KYBER_S3P2400)
+#	elif defined(QSC_DILITHIUM_S3P65) && defined(QSC_KYBER_S3K3P768)
 		static const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "dilithium-s3_kyber-s3_rcs-256_sha3-256";
 		static const qstp_configuration_sets QSTP_CONFIGURATION_SET = qstp_configuration_set_dilithium3_kyber3_rcs256_shake256;
-#	elif defined(QSC_DILITHIUM_S5P4880) && defined(QSC_KYBER_S5P3168)
+#	elif defined(QSC_DILITHIUM_S5P87) && defined(QSC_KYBER_S5K4P1024)
 		static const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "dilithium-s5_kyber-s5_rcs-256_sha3-256";
 		static const qstp_configuration_sets QSTP_CONFIGURATION_SET = qstp_configuration_set_dilithium5_kyber5_rcs256_shake256;
-#	elif defined(QSC_DILITHIUM_S5P4880) && defined(QSC_KYBER_S6P3936)
+#	elif defined(QSC_DILITHIUM_S5P87) && defined(QSC_KYBER_S6K5P1280)
 		static const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "dilithium-s5_kyber-s6_rcs-512_sha3-512";
 		static const qstp_configuration_sets QSTP_CONFIGURATION_SET = qstp_configuration_set_dilithium5_kyber6_rcs512_shake512;
 #	else
@@ -479,91 +479,91 @@ QSTP_EXPORT_API typedef enum qstp_configuration_sets
  * \def QSTP_ACTIVE_VERSION
  * \brief The QSTP active version.
  */
-#define QSTP_ACTIVE_VERSION 1
+#define QSTP_ACTIVE_VERSION 1U
 
 /*!
  * \def QSTP_CERTIFICATE_ALGORITHM_SIZE
  * \brief The certificate algorithm type field size in bytes.
  */
-#define QSTP_CERTIFICATE_ALGORITHM_SIZE 1
+#define QSTP_CERTIFICATE_ALGORITHM_SIZE 1U
 
 /*!
  * \def QSTP_CERTIFICATE_DESIGNATION_SIZE
  * \brief The certificate designation field size in bytes.
  */
-#define QSTP_CERTIFICATE_DESIGNATION_SIZE 1
+#define QSTP_CERTIFICATE_DESIGNATION_SIZE 1U
 
 /*!
  * \def QSTP_CERTIFICATE_EXPIRATION_SIZE
  * \brief The length (in bytes) of the certificate expiration date.
  */
-#define QSTP_CERTIFICATE_EXPIRATION_SIZE 16
+#define QSTP_CERTIFICATE_EXPIRATION_SIZE 16U
 
 /*!
  * \def QSTP_CERTIFICATE_HASH_SIZE
  * \brief The size in bytes of the certificate hash.
  */
-#define QSTP_CERTIFICATE_HASH_SIZE 32
+#define QSTP_CERTIFICATE_HASH_SIZE 32U
 
 /*!
  * \def QSTP_CERTIFICATE_ISSUER_SIZE
  * \brief The maximum length of the certificate issuer string (including terminator).
  */
-#define QSTP_CERTIFICATE_ISSUER_SIZE 32
+#define QSTP_CERTIFICATE_ISSUER_SIZE 32U
 
 /*!
  * \def QSTP_CERTIFICATE_LINE_LENGTH
  * \brief The line length for printing the MPDC certificate.
  */
-#define QSTP_CERTIFICATE_LINE_LENGTH 64
+#define QSTP_CERTIFICATE_LINE_LENGTH 64U
 
 /*!
  * \def QSTP_CERTIFICATE_DEFAULT_PERIOD
  * \brief The default certificate validity period in milliseconds.
  */
-#define QSTP_CERTIFICATE_DEFAULT_PERIOD ((uint64_t)365 * 24 * 60 * 60)
+#define QSTP_CERTIFICATE_DEFAULT_PERIOD ((uint64_t)365U * 24U * 60U * 60U)
 
 /*!
  * \def QSTP_CERTIFICATE_DEFAULT_DURATION_DAYS
  * \brief The default number of days a public key remains valid.
  */
-#define QSTP_CERTIFICATE_DEFAULT_DURATION_DAYS 365
+#define QSTP_CERTIFICATE_DEFAULT_DURATION_DAYS 365U
 
 /*!
  * \def QSTP_CERTIFICATE_DEFAULT_DURATION_SECONDS
  * \brief The number of seconds a public key remains valid.
  */
-#define QSTP_CERTIFICATE_DEFAULT_DURATION_SECONDS (QSTP_CERTIFICATE_DEFAULT_DURATION_DAYS * 24 * 60 * 60)
+#define QSTP_CERTIFICATE_DEFAULT_DURATION_SECONDS (QSTP_CERTIFICATE_DEFAULT_DURATION_DAYS * 24U * 60U * 60U)
 
 /*!
  * \def QSTP_CERTIFICATE_LINE_LENGTH
  * \brief The line length for printing the QSTP public key.
  */
-#define QSTP_CERTIFICATE_LINE_LENGTH 64
+#define QSTP_CERTIFICATE_LINE_LENGTH 64U
 
 /*!
  * \def QSTP_CERTIFICATE_MAXIMUM_PERIOD
  * \brief The maximum certificate validity period in milliseconds.
  */
-#define QSTP_CERTIFICATE_MAXIMUM_PERIOD (QSTP_CERTIFICATE_DEFAULT_PERIOD * 2)
+#define QSTP_CERTIFICATE_MAXIMUM_PERIOD (QSTP_CERTIFICATE_DEFAULT_PERIOD * 2U)
 
 /*!
  * \def QSTP_CERTIFICATE_MINIMUM_PERIOD
  * \brief The minimum certificate validity period in milliseconds.
  */
-#define QSTP_CERTIFICATE_MINIMUM_PERIOD ((uint64_t)1 * 24 * 60 * 60)
+#define QSTP_CERTIFICATE_MINIMUM_PERIOD ((uint64_t)1U * 24U * 60U * 60U)
 
 /*!
  * \def QSTP_CERTIFICATE_SERIAL_SIZE
  * \brief The length of the certificate serial number field in bytes.
  */
-#define QSTP_CERTIFICATE_SERIAL_SIZE 16
+#define QSTP_CERTIFICATE_SERIAL_SIZE 16U
 
 /*!
  * \def QSTP_CERTIFICATE_SERIAL_ENCODED_SIZE
  * \brief The length of the hex-encoded certificate serial number string.
  */
-#define QSTP_CERTIFICATE_SERIAL_ENCODED_SIZE 32
+#define QSTP_CERTIFICATE_SERIAL_ENCODED_SIZE 32U
 
 /*!
  * \def QSTP_CERTIFICATE_SIGNED_HASH_SIZE
@@ -575,19 +575,19 @@ QSTP_EXPORT_API typedef enum qstp_configuration_sets
  * \def QSTP_CERTIFICATE_TIMESTAMP_SIZE
  * \brief The size in bytes of the key expiration timestamp.
  */
-#define QSTP_CERTIFICATE_TIMESTAMP_SIZE 8
+#define QSTP_CERTIFICATE_TIMESTAMP_SIZE 8U
 
 /*!
  * \def QSTP_CERTIFICATE_VERSION_SIZE
  * \brief The size in bytes of the certificate version field.
  */
-#define QSTP_CERTIFICATE_VERSION_SIZE 1
+#define QSTP_CERTIFICATE_VERSION_SIZE 1U
 
 /*!
  * \def QSTP_CONNECTIONS_INIT
  * \brief The initial QSTP connections queue size.
  */
-#define QSTP_CONNECTIONS_INIT 1000
+#define QSTP_CONNECTIONS_INIT 1000U
 
 /*!
  * \def QSTP_CONNECTIONS_MAX
@@ -596,28 +596,28 @@ QSTP_EXPORT_API typedef enum qstp_configuration_sets
  * Calculated based on approximately 5k bytes per connection (3480 for connection state + 1500 for MTU + overhead)
  * on a system with 256GB of DRAM. Can be increased if supported by the hardware.
  */
-#define QSTP_CONNECTIONS_MAX 50000
+#define QSTP_CONNECTIONS_MAX 50000U
 
 /*!
  * \def QSTP_CONNECTION_MTU
  * \brief The QSTP packet buffer (MTU) size in bytes.
  */
-#define QSTP_CONNECTION_MTU 1500
+#define QSTP_CONNECTION_MTU 1500U
 
 /*!
  * \def QSTP_KEEPALIVE_TIMEOUT
  * \brief The keep alive timeout in milliseconds (2 minutes).
  */
-#define QSTP_KEEPALIVE_TIMEOUT (120 * 1000)
+#define QSTP_KEEPALIVE_TIMEOUT (120U * 1000U)
 
 /*!
  * \def QSTP_MACTAG_SIZE
  * \brief The MAC tag size in bytes.
  */
 #if defined(QSTP_USE_RCS_ENCRYPTION)
-#	define QSTP_MACTAG_SIZE 32
+#	define QSTP_MACTAG_SIZE 32U
 #else
-#	define QSTP_MACTAG_SIZE 16
+#	define QSTP_MACTAG_SIZE 16U
 #endif
 
 /*!
@@ -625,9 +625,9 @@ QSTP_EXPORT_API typedef enum qstp_configuration_sets
  * \brief The size in bytes of the symmetric cipher nonce.
  */
 #if defined(QSTP_USE_RCS_ENCRYPTION)
-#	define QSTP_NONCE_SIZE 32
+#	define QSTP_NONCE_SIZE 32U
 #else
-#	define QSTP_NONCE_SIZE 16
+#	define QSTP_NONCE_SIZE 16U
 #endif
 
 /*!
@@ -640,43 +640,43 @@ QSTP_EXPORT_API typedef enum qstp_configuration_sets
  * \def QSTP_PACKET_ERROR_SIZE
  * \brief The size in bytes of the packet error message.
  */
-#define QSTP_PACKET_ERROR_SIZE 1
+#define QSTP_PACKET_ERROR_SIZE 1U
 
 /*!
  * \def QSTP_PACKET_FLAG_SIZE
  * \brief The size in bytes of the packet flag field.
  */
-#define QSTP_PACKET_FLAG_SIZE 1
+#define QSTP_PACKET_FLAG_SIZE 1U
 
 /*!
  * \def QSTP_PACKET_HEADER_SIZE
  * \brief The size in bytes of the QSTP packet header.
  */
-#define QSTP_PACKET_HEADER_SIZE 21
+#define QSTP_PACKET_HEADER_SIZE 21U
 
 /*!
  * \def QSTP_PACKET_MESSAGE_LENGTH_SIZE
  * \brief The size in bytes of the packet message length field.
  */
-#define QSTP_PACKET_MESSAGE_LENGTH_SIZE 4
+#define QSTP_PACKET_MESSAGE_LENGTH_SIZE 4U
 
 /*!
  * \def QSTP_PACKET_MESSAGE_MAX
  * \brief The maximum message size (in bytes) used during the key exchange (approximately 1 GB).
  */
-#define QSTP_PACKET_MESSAGE_MAX 0x3D090000
+#define QSTP_PACKET_MESSAGE_MAX 0x3D090000UL
 
 /*!
  * \def QSTP_PACKET_REVOCATION_SEQUENCE
  * \brief The packet sequence number used for revocation messages.
  */
-#define QSTP_PACKET_REVOCATION_SEQUENCE 0xFFUL
+#define QSTP_PACKET_REVOCATION_SEQUENCE 0xFFU
 
 /*!
  * \def QSTP_PACKET_SEQUENCE_SIZE
  * \brief The size in bytes of the packet sequence number.
  */
-#define QSTP_PACKET_SEQUENCE_SIZE 8
+#define QSTP_PACKET_SEQUENCE_SIZE 8U
 
 /*!
  * \def QSTP_PACKET_SEQUENCE_TERMINATOR
@@ -691,43 +691,43 @@ QSTP_EXPORT_API typedef enum qstp_configuration_sets
  * On networks with a shared (NTP) time source, this may be as low as 1 second. On exterior networks,
  * this value should be adjusted (typically between 30 and 100 seconds) to account for clock differences.
  */
-#define QSTP_PACKET_TIME_THRESHOLD 60
+#define QSTP_PACKET_TIME_THRESHOLD 60U
 
 /*!
  * \def QSTP_SECRET_SIZE
  * \brief The size in bytes of the shared secret for each channel.
  */
-#define QSTP_SECRET_SIZE 32
+#define QSTP_SECRET_SIZE 32U
 
 /*!
  * \def QSTP_CLIENT_PORT
  * \brief The default QSTP client port number.
  */
-#define QSTP_CLIENT_PORT 32118
+#define QSTP_CLIENT_PORT 32118U
 
 /*!
  * \def QSTP_SERVER_PORT
  * \brief The default QSTP server port number.
  */
-#define QSTP_SERVER_PORT 32119
+#define QSTP_SERVER_PORT 32119U
 
 /*!
  * \def QSTP_ROOT_PORT
  * \brief The default QSTP root port number.
  */
-#define QSTP_ROOT_PORT 32120
+#define QSTP_ROOT_PORT 32120U
 
 /*!
  * \def QSTP_SYMMETRIC_KEY_SIZE
  * \brief The size in bytes of the Simplex 256-bit symmetric cipher key.
  */
-#define QSTP_SYMMETRIC_KEY_SIZE 32
+#define QSTP_SYMMETRIC_KEY_SIZE 32U
 
 /*!
  * \def QSTP_STORAGE_PATH_MAX
  * \brief The maximum file system path size.
  */
-#define QSTP_STORAGE_PATH_MAX 260
+#define QSTP_STORAGE_PATH_MAX 260U
 
 /*!
  * \def QSTP_ROOT_CERTIFICATE_SIZE
@@ -782,7 +782,7 @@ QSTP_EXPORT_API typedef enum qstp_configuration_sets
 	QSTP_CERTIFICATE_VERSION_SIZE)
 
 /** \cond */
-#define QSTP_PROTOCOL_SET_DEPTH 12
+#define QSTP_PROTOCOL_SET_DEPTH 12U
 
 /* protocol set strings */
 static const char QSTP_PARAMETER_STRINGS[QSTP_PROTOCOL_SET_DEPTH][QSTP_PROTOCOL_SET_SIZE] =
@@ -804,8 +804,8 @@ static const char QSTP_PARAMETER_STRINGS[QSTP_PROTOCOL_SET_DEPTH][QSTP_PROTOCOL_
 
 /* error code strings */
 /** \cond */
-#define QSTP_MESSAGE_STRING_DEPTH 20
-#define QSTP_MESSAGE_STRING_WIDTH 128
+#define QSTP_MESSAGE_STRING_DEPTH 20U
+#define QSTP_MESSAGE_STRING_WIDTH 128U
 
 static const char QSTP_MESSAGE_STRINGS[QSTP_MESSAGE_STRING_DEPTH][QSTP_MESSAGE_STRING_WIDTH] =
 {
@@ -833,8 +833,8 @@ static const char QSTP_MESSAGE_STRINGS[QSTP_MESSAGE_STRING_DEPTH][QSTP_MESSAGE_S
 /** \endcond */
 
 /** \cond */
-#define QSTP_ERROR_STRING_DEPTH 30
-#define QSTP_ERROR_STRING_WIDTH 128
+#define QSTP_ERROR_STRING_DEPTH 30U
+#define QSTP_ERROR_STRING_WIDTH 128U
 
 static const char QSTP_ERROR_STRINGS[QSTP_ERROR_STRING_DEPTH][QSTP_ERROR_STRING_WIDTH] =
 {
@@ -877,26 +877,26 @@ static const char QSTP_ERROR_STRINGS[QSTP_ERROR_STRING_DEPTH][QSTP_ERROR_STRING_
  */
 QSTP_EXPORT_API typedef enum qstp_messages
 {
-	qstp_messages_none = 0x00,						/*!< No configuration was specified */
-	qstp_messages_accept_fail = 0x01,				/*!< The socket accept failed */
-	qstp_messages_listen_fail = 0x02,				/*!< The listener socket could not connect */
-	qstp_messages_bind_fail = 0x03,					/*!< The listener socket could not bind to the address */
-	qstp_messages_create_fail = 0x04,				/*!< The listener socket could not be created */
-	qstp_messages_connect_success = 0x05,			/*!< The server connected to a host */
-	qstp_messages_receive_fail = 0x06,				/*!< The socket receive function failed */
-	qstp_messages_allocate_fail = 0x07,				/*!< The server memory allocation request has failed */
-	qstp_messages_kex_fail = 0x08,					/*!< The key exchange has experienced a failure */
-	qstp_messages_disconnect = 0x09,				/*!< The server has disconnected the client */
-	qstp_messages_disconnect_fail = 0x0A,			/*!< The server has disconnected the client due to an error */
-	qstp_messages_socket_message = 0x0B,			/*!< The server has had a socket level error */
-	qstp_messages_queue_empty = 0x0C,				/*!< The server has reached the maximum number of connections */
-	qstp_messages_listener_fail = 0x0D,				/*!< The server listener socket has failed */
-	qstp_messages_sockalloc_fail = 0x0E,			/*!< The server has run out of socket connections */
-	qstp_messages_decryption_fail = 0x0F,			/*!< The message decryption has failed */
-	qstp_messages_keepalive_fail = 0x10,			/*!< The keepalive function has failed */
-	qstp_messages_keepalive_timeout = 0x11,			/*!< The keepalive period has been exceeded */
-	qstp_messages_connection_fail = 0x12,			/*!< The connection failed or was interrupted */
-	qstp_messages_invalid_request = 0x13,			/*!< The function received an invalid request */
+	qstp_messages_none = 0x00U,						/*!< No configuration was specified */
+	qstp_messages_accept_fail = 0x01U,				/*!< The socket accept failed */
+	qstp_messages_listen_fail = 0x02U,				/*!< The listener socket could not connect */
+	qstp_messages_bind_fail = 0x03U,				/*!< The listener socket could not bind to the address */
+	qstp_messages_create_fail = 0x04U,				/*!< The listener socket could not be created */
+	qstp_messages_connect_success = 0x05U,			/*!< The server connected to a host */
+	qstp_messages_receive_fail = 0x06U,				/*!< The socket receive function failed */
+	qstp_messages_allocate_fail = 0x07U,			/*!< The server memory allocation request has failed */
+	qstp_messages_kex_fail = 0x08U,					/*!< The key exchange has experienced a failure */
+	qstp_messages_disconnect = 0x09U,				/*!< The server has disconnected the client */
+	qstp_messages_disconnect_fail = 0x0AU,			/*!< The server has disconnected the client due to an error */
+	qstp_messages_socket_message = 0x0BU,			/*!< The server has had a socket level error */
+	qstp_messages_queue_empty = 0x0CU,				/*!< The server has reached the maximum number of connections */
+	qstp_messages_listener_fail = 0x0DU,			/*!< The server listener socket has failed */
+	qstp_messages_sockalloc_fail = 0x0EU,			/*!< The server has run out of socket connections */
+	qstp_messages_decryption_fail = 0x0FU,			/*!< The message decryption has failed */
+	qstp_messages_keepalive_fail = 0x10U,			/*!< The keepalive function has failed */
+	qstp_messages_keepalive_timeout = 0x11U,		/*!< The keepalive period has been exceeded */
+	qstp_messages_connection_fail = 0x12U,			/*!< The connection failed or was interrupted */
+	qstp_messages_invalid_request = 0x13U,			/*!< The function received an invalid request */
 } qstp_messages;
 
 /*!
@@ -905,36 +905,36 @@ QSTP_EXPORT_API typedef enum qstp_messages
  */
 QSTP_EXPORT_API typedef enum qstp_errors
 {
-	qstp_error_none = 0x00,							/*!< No error was detected */
-	qstp_error_accept_fail = 0x01,					/*!< The socket accept function returned an error */
-	qstp_error_authentication_failure = 0x02,		/*!< The symmetric cipher had an authentication failure */
-	qstp_error_bad_keep_alive = 0x03,				/*!< The keep alive check failed */
-	qstp_error_channel_down = 0x04,					/*!< The communications channel has failed */
-	qstp_error_connection_failure = 0x05,			/*!< The device could not make a connection to the remote host */
-	qstp_error_connect_failure = 0x06,				/*!< The transmission failed at the KEX connection phase */
-	qstp_error_decapsulation_failure = 0x07,		/*!< The asymmetric cipher failed to decapsulate the shared secret */
-	qstp_error_decryption_failure = 0x08,			/*!< The decryption authentication has failed */
-	qstp_error_establish_failure = 0x09,			/*!< The transmission failed at the KEX establish phase */
-	qstp_error_exchange_failure = 0x0A,				/*!< The transmission failed at the KEX exchange phase */
-	qstp_error_hash_invalid = 0x0B,					/*!< The public-key hash is invalid */
-	qstp_error_hosts_exceeded = 0x0C,				/*!< The server has run out of socket connections */
-	qstp_error_invalid_input = 0x0D,				/*!< The expected input was invalid */
-	qstp_error_invalid_request = 0x0E,				/*!< The packet flag was unexpected */
-	qstp_error_keepalive_expired = 0x0F,			/*!< The keep alive has expired with no response */
-	qstp_error_keepalive_timeout = 0x10,			/*!< The decryption authentication has failed */
-	qstp_error_key_expired = 0x11,					/*!< The QSTP public key has expired  */
-	qstp_error_key_unrecognized = 0x12,				/*!< The key identity is unrecognized */
-	qstp_error_keychain_fail = 0x13,				/*!< The ratchet operation has failed */
-	qstp_error_listener_fail = 0x14,				/*!< The listener function failed to initialize */
-	qstp_error_memory_allocation = 0x15,			/*!< The server has run out of memory */
-	qstp_error_message_time_invalid = 0x16,			/*!< The packet has valid time expired */
-	qstp_error_packet_unsequenced = 0x17,			/*!< The packet was received out of sequence */
-	qstp_error_random_failure = 0x18,				/*!< The random generator has failed */
-	qstp_error_receive_failure = 0x19,				/*!< The receiver failed at the network layer */
-	qstp_error_signature_failure = 0x1A,			/*!< The signing function has failed */
-	qstp_error_transmit_failure = 0x1B,				/*!< The transmitter failed at the network layer */
-	qstp_error_unknown_protocol = 0x1C,				/*!< The protocol string was not recognized */
-	qstp_error_verify_failure = 0x1D,				/*!< The expected data could not be verified */
+	qstp_error_none = 0x00U,						/*!< No error was detected */
+	qstp_error_accept_fail = 0x01U,					/*!< The socket accept function returned an error */
+	qstp_error_authentication_failure = 0x02U,		/*!< The symmetric cipher had an authentication failure */
+	qstp_error_bad_keep_alive = 0x03U,				/*!< The keep alive check failed */
+	qstp_error_channel_down = 0x04U,				/*!< The communications channel has failed */
+	qstp_error_connection_failure = 0x05U,			/*!< The device could not make a connection to the remote host */
+	qstp_error_connect_failure = 0x06U,				/*!< The transmission failed at the KEX connection phase */
+	qstp_error_decapsulation_failure = 0x07U,		/*!< The asymmetric cipher failed to decapsulate the shared secret */
+	qstp_error_decryption_failure = 0x08U,			/*!< The decryption authentication has failed */
+	qstp_error_establish_failure = 0x09U,			/*!< The transmission failed at the KEX establish phase */
+	qstp_error_exchange_failure = 0x0AU,			/*!< The transmission failed at the KEX exchange phase */
+	qstp_error_hash_invalid = 0x0BU,				/*!< The public-key hash is invalid */
+	qstp_error_hosts_exceeded = 0x0CU,				/*!< The server has run out of socket connections */
+	qstp_error_invalid_input = 0x0DU,				/*!< The expected input was invalid */
+	qstp_error_invalid_request = 0x0EU,				/*!< The packet flag was unexpected */
+	qstp_error_keepalive_expired = 0x0FU,			/*!< The keep alive has expired with no response */
+	qstp_error_keepalive_timeout = 0x10U,			/*!< The decryption authentication has failed */
+	qstp_error_key_expired = 0x11U,					/*!< The QSTP public key has expired  */
+	qstp_error_key_unrecognized = 0x12U,			/*!< The key identity is unrecognized */
+	qstp_error_keychain_fail = 0x13U,				/*!< The ratchet operation has failed */
+	qstp_error_listener_fail = 0x14U,				/*!< The listener function failed to initialize */
+	qstp_error_memory_allocation = 0x15U,			/*!< The server has run out of memory */
+	qstp_error_message_time_invalid = 0x16U,		/*!< The packet has valid time expired */
+	qstp_error_packet_unsequenced = 0x17U,			/*!< The packet was received out of sequence */
+	qstp_error_random_failure = 0x18U,				/*!< The random generator has failed */
+	qstp_error_receive_failure = 0x19U,				/*!< The receiver failed at the network layer */
+	qstp_error_signature_failure = 0x1AU,			/*!< The signing function has failed */
+	qstp_error_transmit_failure = 0x1BU,			/*!< The transmitter failed at the network layer */
+	qstp_error_unknown_protocol = 0x1CU,			/*!< The protocol string was not recognized */
+	qstp_error_verify_failure = 0x1DU,				/*!< The expected data could not be verified */
 } qstp_errors;
 
 /*!
@@ -943,27 +943,27 @@ QSTP_EXPORT_API typedef enum qstp_errors
  */
 QSTP_EXPORT_API typedef enum qstp_flags
 {
-	qstp_flag_none = 0x00,							/*!< No flag was specified */
-	qstp_flag_connect_request = 0x01,				/*!< The QSTP key-exchange client connection request flag */
-	qstp_flag_connect_response = 0x02,				/*!< The QSTP key-exchange server connection response flag */
-	qstp_flag_connection_terminate = 0x03,			/*!< Indicates the connection is to be terminated */
-	qstp_flag_encrypted_message = 0x04,				/*!< Indicates the packet contains an encrypted message */
-	qstp_flag_exstart_request = 0x05,				/*!< The QSTP key-exchange client exstart request flag */
-	qstp_flag_exstart_response = 0x06,				/*!< The QSTP key-exchange server exstart response flag */
-	qstp_flag_exchange_request = 0x07,				/*!< The QSTP key-exchange client exchange request flag */
-	qstp_flag_exchange_response = 0x08,				/*!< The QSTP key-exchange server exchange response flag */
-	qstp_flag_establish_request = 0x09,				/*!< The QSTP key-exchange client establish request flag */
-	qstp_flag_establish_response = 0x0A,			/*!< The QSTP key-exchange server establish response flag */
-	qstp_flag_keep_alive_request = 0x0B,			/*!< The packet contains a keep alive request */
-	qstp_flag_keep_alive_response = 0x0C,			/*!< The packet contains a keep alive response */
-	qstp_flag_remote_connected = 0x0E,				/*!< Indicates that the remote host is connected */
-	qstp_flag_remote_terminated = 0x0F,				/*!< Indicates that the remote host has terminated the connection */
-	qstp_flag_session_established = 0x10,			/*!< Indicates that the key exchange is in the established state */
-	qstp_flag_session_establish_verify = 0x11,		/*!< Indicates that the key exchange is in the established verify state */
-	qstp_flag_unrecognized_protocol = 0x12,			/*!< The protocol string is not recognized */
-	qstp_flag_certificate_revoke = 0x13,			/*!< Indicates a certificate revocation message */
-	qstp_flag_transfer_request = 0x14,				/*!< Reserved: Indicates a transfer request */
-	qstp_flag_error_condition = 0xFF,				/*!< Indicates that the connection experienced an error */
+	qstp_flag_none = 0x00U,							/*!< No flag was specified */
+	qstp_flag_connect_request = 0x01U,				/*!< The QSTP key-exchange client connection request flag */
+	qstp_flag_connect_response = 0x02U,				/*!< The QSTP key-exchange server connection response flag */
+	qstp_flag_connection_terminate = 0x03U,			/*!< Indicates the connection is to be terminated */
+	qstp_flag_encrypted_message = 0x04U,			/*!< Indicates the packet contains an encrypted message */
+	qstp_flag_exstart_request = 0x05U,				/*!< The QSTP key-exchange client exstart request flag */
+	qstp_flag_exstart_response = 0x06U,				/*!< The QSTP key-exchange server exstart response flag */
+	qstp_flag_exchange_request = 0x07U,				/*!< The QSTP key-exchange client exchange request flag */
+	qstp_flag_exchange_response = 0x08U,			/*!< The QSTP key-exchange server exchange response flag */
+	qstp_flag_establish_request = 0x09U,			/*!< The QSTP key-exchange client establish request flag */
+	qstp_flag_establish_response = 0x0AU,			/*!< The QSTP key-exchange server establish response flag */
+	qstp_flag_keep_alive_request = 0x0BU,			/*!< The packet contains a keep alive request */
+	qstp_flag_keep_alive_response = 0x0CU,			/*!< The packet contains a keep alive response */
+	qstp_flag_remote_connected = 0x0EU,				/*!< Indicates that the remote host is connected */
+	qstp_flag_remote_terminated = 0x0FU,			/*!< Indicates that the remote host has terminated the connection */
+	qstp_flag_session_established = 0x10U,			/*!< Indicates that the key exchange is in the established state */
+	qstp_flag_session_establish_verify = 0x11U,		/*!< Indicates that the key exchange is in the established verify state */
+	qstp_flag_unrecognized_protocol = 0x12U,		/*!< The protocol string is not recognized */
+	qstp_flag_certificate_revoke = 0x13U,			/*!< Indicates a certificate revocation message */
+	qstp_flag_transfer_request = 0x14U,				/*!< Reserved: Indicates a transfer request */
+	qstp_flag_error_condition = 0xFFU,				/*!< Indicates that the connection experienced an error */
 } qstp_flags;
 
 /*!
@@ -972,11 +972,11 @@ QSTP_EXPORT_API typedef enum qstp_flags
  */
 QSTP_EXPORT_API typedef enum qstp_network_designations
 {
-	qstp_network_designation_none = 0x00,				/*!< No designation was selected */
-	mpdc_network_designation_client = 0x01,				/*!< The device is a client */
-	mpdc_network_designation_root = 0x02,				/*!< The device is the DLA (root) */
-	mpdc_network_designation_server = 0x03,				/*!< The device is an inter-domain gateway (server) */
-	mpdc_network_designation_all = 0xFF,				/*!< All devices on the network */
+	qstp_network_designation_none = 0x00U,			/*!< No designation was selected */
+	mpdc_network_designation_client = 0x01U,		/*!< The device is a client */
+	mpdc_network_designation_root = 0x02U,			/*!< The device is the DLA (root) */
+	mpdc_network_designation_server = 0x03U,		/*!< The device is an inter-domain gateway (server) */
+	mpdc_network_designation_all = 0xFFU,			/*!< All devices on the network */
 } qstp_network_designations;
 
 /*!
@@ -985,8 +985,8 @@ QSTP_EXPORT_API typedef enum qstp_network_designations
  */
 QSTP_EXPORT_API typedef enum qstp_version_sets
 {
-	qstp_version_set_none = 0x00,						/*!< No version identifier is set */
-	qstp_version_set_one_zero = 0x01,					/*!< The 1.0 version identifier */
+	qstp_version_set_none = 0x00U,					/*!< No version identifier is set */
+	qstp_version_set_one_zero = 0x01U,				/*!< The 1.0 version identifier */
 } qstp_version_sets;
 
 /*!
@@ -1136,22 +1136,22 @@ static const char QSTP_SERVER_PUBLIC_CERTIFICATE_NAME[] = "server_public_cert.qr
 
 /* Public key encoding constants (hidden from documentation) */
 /** \cond */
-#define QSTP_CERTIFICATE_SEPERATOR_SIZE 1
-#define QSTP_CHILD_CERTIFICATE_HEADER_SIZE 54
-#define QSTP_CHILD_CERTIFICATE_HASH_PREFIX_SIZE 30
-#define QSTP_CHILD_CERTIFICATE_SIGNATURE_KEY_PREFIX_SIZE 23
-#define QSTP_CHILD_CERTIFICATE_ISSUER_PREFIX_SIZE 9
-#define QSTP_CHILD_CERTIFICATE_NAME_PREFIX_SIZE 7
-#define QSTP_CHILD_CERTIFICATE_SERIAL_PREFIX_SIZE 9
-#define QSTP_CHILD_CERTIFICATE_ROOT_SERIAL_PREFIX_SIZE 14
-#define QSTP_CHILD_CERTIFICATE_VALID_FROM_PREFIX_SIZE 13
-#define QSTP_CHILD_CERTIFICATE_EXPIRATION_TO_PREFIX_SIZE 11
-#define QSTP_CHILD_CERTIFICATE_ALGORITHM_PREFIX_SIZE 12
-#define QSTP_CHILD_CERTIFICATE_VERSION_PREFIX_SIZE 10
-#define QSTP_CHILD_CERTIFICATE_DESIGNATION_PREFIX_SIZE 14
-#define QSTP_CHILD_CERTIFICATE_ADDRESS_PREFIX_SIZE 10
-#define QSTP_CHILD_CERTIFICATE_PUBLICKEY_PREFIX_SIZE 13
-#define QSTP_CHILD_CERTIFICATE_FOOTER_SIZE 52
+#define QSTP_CERTIFICATE_SEPERATOR_SIZE 1U
+#define QSTP_CHILD_CERTIFICATE_HEADER_SIZE 54U
+#define QSTP_CHILD_CERTIFICATE_HASH_PREFIX_SIZE 30U
+#define QSTP_CHILD_CERTIFICATE_SIGNATURE_KEY_PREFIX_SIZE 23U
+#define QSTP_CHILD_CERTIFICATE_ISSUER_PREFIX_SIZE 9U
+#define QSTP_CHILD_CERTIFICATE_NAME_PREFIX_SIZE 7U
+#define QSTP_CHILD_CERTIFICATE_SERIAL_PREFIX_SIZE 9U
+#define QSTP_CHILD_CERTIFICATE_ROOT_SERIAL_PREFIX_SIZE 14U
+#define QSTP_CHILD_CERTIFICATE_VALID_FROM_PREFIX_SIZE 13U
+#define QSTP_CHILD_CERTIFICATE_EXPIRATION_TO_PREFIX_SIZE 11U
+#define QSTP_CHILD_CERTIFICATE_ALGORITHM_PREFIX_SIZE 12U
+#define QSTP_CHILD_CERTIFICATE_VERSION_PREFIX_SIZE 10U
+#define QSTP_CHILD_CERTIFICATE_DESIGNATION_PREFIX_SIZE 14U
+#define QSTP_CHILD_CERTIFICATE_ADDRESS_PREFIX_SIZE 10U
+#define QSTP_CHILD_CERTIFICATE_PUBLICKEY_PREFIX_SIZE 13U
+#define QSTP_CHILD_CERTIFICATE_FOOTER_SIZE 52U
 /** \endcond */
 
 /** \cond */
@@ -1173,20 +1173,20 @@ static const char QSTP_CHILD_CERTIFICATE_FOOTER[QSTP_CHILD_CERTIFICATE_FOOTER_SI
 /** \endcond */
 
 /** \cond */
-#define QSTP_ROOT_CERTIFICATE_HEADER_SIZE 53
-#define QSTP_ROOT_CERTIFICATE_HASH_PREFIX_SIZE 19
-#define QSTP_ROOT_CERTIFICATE_PUBLICKEY_PREFIX_SIZE 13
-#define QSTP_ROOT_CERTIFICATE_ISSUER_PREFIX_SIZE 9
-#define QSTP_ROOT_CERTIFICATE_NAME_PREFIX_SIZE 7
-#define QSTP_ROOT_CERTIFICATE_SERIAL_PREFIX_SIZE 9
-#define QSTP_ROOT_CERTIFICATE_FOOTER_SIZE 51
-#define QSTP_ROOT_CERTIFICATE_VALID_FROM_PREFIX_SIZE 13
-#define QSTP_ROOT_CERTIFICATE_EXPIRATION_TO_PREFIX_SIZE 11
-#define QSTP_ROOT_CERTIFICATE_ALGORITHM_PREFIX_SIZE 12
-#define QSTP_ROOT_CERTIFICATE_VERSION_PREFIX_SIZE 10
-#define QSTP_ROOT_CERTIFICATE_DEFAULT_NAME_SIZE 18
-#define QSTP_ROOT_ACTIVE_VERSION_STRING_SIZE 5
-#define QSTP_CERTIFICATE_DEFAULT_DOMAIN_SIZE 5
+#define QSTP_ROOT_CERTIFICATE_HEADER_SIZE 53U
+#define QSTP_ROOT_CERTIFICATE_HASH_PREFIX_SIZE 19U
+#define QSTP_ROOT_CERTIFICATE_PUBLICKEY_PREFIX_SIZE 13U
+#define QSTP_ROOT_CERTIFICATE_ISSUER_PREFIX_SIZE 9U
+#define QSTP_ROOT_CERTIFICATE_NAME_PREFIX_SIZE 7U
+#define QSTP_ROOT_CERTIFICATE_SERIAL_PREFIX_SIZE 9U
+#define QSTP_ROOT_CERTIFICATE_FOOTER_SIZE 51U
+#define QSTP_ROOT_CERTIFICATE_VALID_FROM_PREFIX_SIZE 13U
+#define QSTP_ROOT_CERTIFICATE_EXPIRATION_TO_PREFIX_SIZE 11U
+#define QSTP_ROOT_CERTIFICATE_ALGORITHM_PREFIX_SIZE 12U
+#define QSTP_ROOT_CERTIFICATE_VERSION_PREFIX_SIZE 10U
+#define QSTP_ROOT_CERTIFICATE_DEFAULT_NAME_SIZE 18U
+#define QSTP_ROOT_ACTIVE_VERSION_STRING_SIZE 5U
+#define QSTP_CERTIFICATE_DEFAULT_DOMAIN_SIZE 5U
 /** \endcond */
 
 /** \cond */

@@ -34,7 +34,7 @@
  * in the LICENSE.txt file distributed with this software.
  *
  * Written by: John G. Underhill
- * Contact: john.underhill@protonmail.com
+ * Contact: contact@qrcscorp.ca
  */
 
 #ifndef QSTP_ROOT_H
@@ -108,22 +108,6 @@ QSTP_EXPORT_API void qstp_root_certificate_print(const qstp_root_certificate* ro
  * \param cert [const] A pointer to the QSTP server certificate.
  */
 QSTP_EXPORT_API void qstp_root_server_certificate_print(const qstp_server_certificate* cert);
-
-/**
- * \brief Send a certificate revocation request to a client.
- *
- * \details
- * This function sends a certificate revocation request to a client, using the provided root signing key
- * and the certificate serial number that identifies the certificate to be revoked. The request is sent
- * to the specified server IPv4 network address.
- *
- * \param rootkey A pointer to the root signing key.
- * \param serial A pointer to the certificate serial number that should be revoked.
- * \param address A pointer to the IPv4 network address of the target server.
- *
- * \return Returns a value of type \c qstp_errors indicating the result of the revocation request.
- */
-QSTP_EXPORT_API qstp_errors qstp_root_certificate_revoke(const uint8_t* rootkey, const uint8_t* serial, const qsc_ipinfo_ipv4_address* address);
 
 /**
  * \brief Sign a child certificate.

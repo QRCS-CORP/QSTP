@@ -34,7 +34,7 @@
  * in the LICENSE.txt file distributed with this software.
  *
  * Written by: John G. Underhill
- * Contact: john.underhill@protonmail.com
+ * Contact: contact@qrcscorp.ca
  */
 
 #ifndef QSTP_MASTER_COMMON_H
@@ -55,7 +55,7 @@
 * \author   John G. Underhill
 * \version  1.0
 * \date     August 27, 2024
-* \contact: john.underhill@protonmail.com
+* \contact: contact@qrcscorp.ca
 */
 
 /** \cond DOXYGEN_IGNORE */

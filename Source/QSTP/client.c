@@ -34,9 +34,9 @@ static void client_state_initialize(qstp_kex_client_state* kcs, qstp_connection_
 	qstp_cipher_dispose(&cns->rxcpr);
 	qstp_cipher_dispose(&cns->txcpr);
 	cns->exflag = qstp_flag_none;
-	cns->cid = 0;
-	cns->rxseq = 0;
-	cns->txseq = 0;
+	cns->cid = 0U;
+	cns->rxseq = 0U;
+	cns->txseq = 0U;
 }
 
 static void client_connection_dispose(client_receiver_state* prcv)
@@ -54,8 +54,8 @@ static void client_connection_dispose(client_receiver_state* prcv)
 #if defined(QSTP_FUTURE_FEATURE)
 static qstp_errors client_send_keep_alive(qstp_keep_alive_state* kctx, const qsc_socket* sock)
 {
-	assert(kctx != NULL);
-	assert(sock != NULL);
+	QSTP_ASSERT(kctx != NULL);
+	QSTP_ASSERT(sock != NULL);
 
 	qstp_errors qerr;
 
@@ -63,7 +63,7 @@ static qstp_errors client_send_keep_alive(qstp_keep_alive_state* kctx, const qsc
 
 	if (qsc_socket_is_connected(sock) == true)
 	{
-		uint8_t spct[QSTP_PACKET_HEADER_SIZE + QSTP_CERTIFICATE_TIMESTAMP_SIZE] = { 0 };
+		uint8_t spct[QSTP_PACKET_HEADER_SIZE + QSTP_CERTIFICATE_TIMESTAMP_SIZE] = { 0U };
 		qstp_network_packet resp = { 0 };
 		uint64_t etime;
 		size_t slen;
@@ -93,7 +93,7 @@ static qstp_errors client_send_keep_alive(qstp_keep_alive_state* kctx, const qsc
 
 static void client_keepalive_loop(qstp_keep_alive_state* kpa)
 {
-	assert(kpa != NULL);
+	QSTP_ASSERT(kpa != NULL);
 
 	qsc_mutex mtx;
 	qstp_errors qerr;
@@ -118,7 +118,7 @@ static void client_keepalive_loop(qstp_keep_alive_state* kpa)
 
 static void client_receive_loop(void* prcv)
 {
-	assert(prcv != NULL);
+	QSTP_ASSERT(prcv != NULL);
 
 	qstp_network_packet pkt = { 0 };
 	char cadd[QSC_SOCKET_ADDRESS_MAX_SIZE] = { 0 };
@@ -138,8 +138,8 @@ static void client_receive_loop(void* prcv)
 	{
 		while (pprcv->pcns->target.connection_status == qsc_socket_state_connected)
 		{
-			mlen = 0;
-			slen = 0;
+			mlen = 0U;
+			slen = 0U;
 			qsc_memutils_clear(rbuf, QSTP_PACKET_HEADER_SIZE);
 
 			plen = qsc_socket_peek(&pprcv->pcns->target, rbuf, QSTP_PACKET_HEADER_SIZE);
@@ -148,7 +148,7 @@ static void client_receive_loop(void* prcv)
 			{
 				qstp_packet_header_deserialize(rbuf, &pkt);
 
-				if (pkt.msglen > 0 && pkt.msglen <= QSTP_PACKET_MESSAGE_MAX)
+				if (pkt.msglen > 0U && pkt.msglen <= QSTP_PACKET_MESSAGE_MAX)
 				{
 					plen = pkt.msglen + QSTP_PACKET_HEADER_SIZE;
 					rbuf = (uint8_t*)qsc_memutils_realloc(rbuf, plen);
@@ -158,7 +158,7 @@ static void client_receive_loop(void* prcv)
 						qsc_memutils_clear(rbuf, plen);
 						mlen = qsc_socket_receive(&pprcv->pcns->target, rbuf, plen, qsc_socket_receive_flag_wait_all);
 
-						if (mlen > 0)
+						if (mlen > 0U)
 						{
 							pkt.pmessage = rbuf + QSTP_PACKET_HEADER_SIZE;
 
@@ -267,11 +267,11 @@ qstp_errors qstp_client_connect_ipv4(const qstp_root_certificate* root,
 	void (*send_func)(qstp_connection_state*), 
 	void (*receive_callback)(qstp_connection_state*, const char*, size_t))
 {
-	assert(root != NULL);
-	assert(cert != NULL);
-	assert(send_func != NULL);
-	assert(send_func != NULL);
-	assert(receive_callback != NULL);
+	QSTP_ASSERT(root != NULL);
+	QSTP_ASSERT(cert != NULL);
+	QSTP_ASSERT(send_func != NULL);
+	QSTP_ASSERT(send_func != NULL);
+	QSTP_ASSERT(receive_callback != NULL);
 
 	qstp_kex_client_state* kcs;
 	client_receiver_state* prcv;
@@ -403,11 +403,11 @@ qstp_errors qstp_client_connect_ipv6(const qstp_root_certificate* root,
 	void (*send_func)(qstp_connection_state*), 
 	void (*receive_callback)(qstp_connection_state*, const char*, size_t))
 {
-	assert(root != NULL);
-	assert(cert != NULL);
-	assert(send_func != NULL);
-	assert(send_func != NULL);
-	assert(receive_callback != NULL);
+	QSTP_ASSERT(root != NULL);
+	QSTP_ASSERT(cert != NULL);
+	QSTP_ASSERT(send_func != NULL);
+	QSTP_ASSERT(send_func != NULL);
+	QSTP_ASSERT(receive_callback != NULL);
 
 	qstp_kex_client_state* kcs;
 	client_receiver_state* prcv;

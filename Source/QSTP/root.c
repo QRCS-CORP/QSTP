@@ -18,8 +18,8 @@
 
 bool qstp_root_certificate_export(const qstp_root_certificate* root, const char* fpath)
 {
-	assert(root != NULL);
-	assert(fpath != NULL);
+	QSTP_ASSERT(root != NULL);
+	QSTP_ASSERT(fpath != NULL);
 
 	char cpath[QSTP_STORAGE_PATH_MAX] = { 0 };
 	bool res;
@@ -29,7 +29,7 @@ bool qstp_root_certificate_export(const qstp_root_certificate* root, const char*
 	if (root != NULL && fpath != NULL)
 	{
 		if (qsc_folderutils_directory_exists(fpath) == true &&
-			qsc_stringutils_string_size(root->issuer) > 0)
+			qsc_stringutils_string_size(root->issuer) > 0U)
 		{
 			qsc_stringutils_copy_string(cpath, sizeof(cpath), fpath);
 
@@ -49,14 +49,14 @@ bool qstp_root_certificate_export(const qstp_root_certificate* root, const char*
 
 void qstp_root_key_generate(qstp_root_signature_key* kset, const char issuer[QSTP_CERTIFICATE_ISSUER_SIZE], uint32_t exp)
 {
-	assert(kset != NULL);
-	assert(exp != 0);
+	QSTP_ASSERT(kset != NULL);
+	QSTP_ASSERT(exp != 0U);
 
-	if (kset != NULL && exp != 0)
+	if (kset != NULL && exp != 0U)
 	{
 		uint64_t period;
 
-		period = exp * 24 * 60 * 60;
+		period = exp * 24U * 60U * 60U;
 
 		if (period >= QSTP_CERTIFICATE_MINIMUM_PERIOD || period <= QSTP_CERTIFICATE_MAXIMUM_PERIOD)
 		{
@@ -73,7 +73,7 @@ void qstp_root_key_generate(qstp_root_signature_key* kset, const char issuer[QST
 
 void qstp_root_certificate_print(const qstp_root_certificate* root)
 {
-	assert(root != NULL);
+	QSTP_ASSERT(root != NULL);
 
 	char* penk;
 	size_t elen;
@@ -99,7 +99,7 @@ void qstp_root_certificate_print(const qstp_root_certificate* root)
 
 void qstp_root_server_certificate_print(const qstp_server_certificate* cert)
 {
-	assert(cert != NULL);
+	QSTP_ASSERT(cert != NULL);
 
 	char* penk;
 	size_t elen;
@@ -125,9 +125,9 @@ void qstp_root_server_certificate_print(const qstp_server_certificate* cert)
 
 bool qstp_root_sign_certificate(const char* fpath, const qstp_root_certificate* root, const uint8_t* rootkey)
 {
-	assert(fpath != NULL);
-	assert(root != NULL);
-	assert(rootkey != NULL);
+	QSTP_ASSERT(fpath != NULL);
+	QSTP_ASSERT(root != NULL);
+	QSTP_ASSERT(rootkey != NULL);
 
 	bool res;
 
