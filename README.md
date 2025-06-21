@@ -39,7 +39,7 @@ QSTP employs state-of-the-art cryptographic algorithms to deliver strong securit
 
 - **Symmetric Cipher:**  
   QSTP utilizes the Rijndael-based Cryptographic Stream (RCS) cipher. This cipher is enhanced with:
-  - Uses the wide-block form of Rigndael with a 256-bit state.
+  - Uses the wide-block form of Rigndael with a 256-bit state. 
   - An increased number of rounds
   - A cryptographically strong key schedule
   - Integrated AEAD authentication via post-quantum secure KMAC or QMAC
