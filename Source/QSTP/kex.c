@@ -276,8 +276,11 @@ static qstp_errors kex_client_exchange_request(const qstp_kex_client_state* kcs,
 					/* initialize cSHAKE k = H(sec, sch) */
 					qsc_cshake_initialize(&kstate, qsc_keccak_rate_256, ssec, QSTP_SECRET_SIZE, kcs->schash, QSTP_CERTIFICATE_HASH_SIZE, NULL, 0U);
 					qsc_cshake_squeezeblocks(&kstate, qsc_keccak_rate_256, prnd, 1U);
-					/* permute the state so we are not storing the current key */
+
+					/* symmetric ratchet: permute the state so we are not storing the current key */
 					qsc_keccak_permute(&kstate, QSC_KECCAK_PERMUTATION_ROUNDS);
+					/* copy as next key */
+					qsc_memutils_copy(cns->rtcs, (uint8_t*)kstate.state, QSTP_SYMMETRIC_KEY_SIZE);
 
 					/* initialize the symmetric cipher, and raise client channel-1 tx */
 					qstp_cipher_keyparams kp1;
@@ -511,8 +514,11 @@ static qstp_errors kex_server_exchange_response(qstp_kex_server_state* kss, qstp
 				/* initialize cSHAKE k = H(ssec, sch) */
 				qsc_cshake_initialize(&kstate, qsc_keccak_rate_256, ssec, sizeof(ssec), kss->schash, QSTP_CERTIFICATE_HASH_SIZE, NULL, 0U);
 				qsc_cshake_squeezeblocks(&kstate, qsc_keccak_rate_256, prnd, 1U);
+				
 				/* permute the state so we are not storing the current key */
 				qsc_keccak_permute(&kstate, QSC_KECCAK_PERMUTATION_ROUNDS);
+				/* copy as next key */
+				qsc_memutils_copy(cns->rtcs, (uint8_t*)kstate.state, QSTP_SYMMETRIC_KEY_SIZE);
 
 				/* initialize the symmetric cipher, and raise client channel-1 tx */
 				qstp_cipher_keyparams kp1;

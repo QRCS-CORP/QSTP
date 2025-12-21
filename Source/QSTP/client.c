@@ -22,6 +22,94 @@ typedef struct client_receiver_state
 
 /* Private Functions */
 
+static void symmetric_ratchet(qstp_connection_state* cns, const uint8_t* secret, size_t seclen)
+{
+	qsc_keccak_state kstate = { 0 };
+	qsc_rcs_keyparams kp = { 0 };
+	uint8_t prnd[QSC_KECCAK_256_RATE] = { 0U };
+
+	/* re-key the ciphers using the token, ratchet key, and configuration name */
+	qsc_cshake_initialize(&kstate, qsc_keccak_rate_512, secret, seclen, (const uint8_t*)QSTP_PROTOCOL_SET_STRING, QSTP_PROTOCOL_SET_SIZE, cns->rtcs, QSTP_SYMMETRIC_KEY_SIZE);
+	/* re-key the ciphers using the symmetric ratchet key */
+	qsc_cshake_squeezeblocks(&kstate, qsc_keccak_rate_512, prnd, 3);
+
+	if (cns->receiver == true)
+	{
+		/* initialize for decryption, and raise client channel rx */
+		kp.key = prnd;
+		kp.keylen = QSTP_SYMMETRIC_KEY_SIZE;
+		kp.nonce = ((uint8_t*)prnd + QSTP_SYMMETRIC_KEY_SIZE);
+		kp.info = NULL;
+		kp.infolen = 0U;
+		qsc_rcs_initialize(&cns->rxcpr, &kp, false);
+
+		/* initialize for encryption, and raise client channel tx */
+		kp.key = prnd + QSTP_SYMMETRIC_KEY_SIZE + QSTP_NONCE_SIZE;
+		kp.keylen = QSTP_SYMMETRIC_KEY_SIZE;
+		kp.nonce = ((uint8_t*)prnd + QSTP_SYMMETRIC_KEY_SIZE + QSTP_NONCE_SIZE + QSTP_SYMMETRIC_KEY_SIZE);
+		kp.info = NULL;
+		kp.infolen = 0U;
+		qsc_rcs_initialize(&cns->txcpr, &kp, true);
+	}
+	else
+	{
+		/* initialize for encryption, and raise tx */
+		kp.key = prnd;
+		kp.keylen = QSTP_SYMMETRIC_KEY_SIZE;
+		kp.nonce = ((uint8_t*)prnd + QSTP_SYMMETRIC_KEY_SIZE);
+		kp.info = NULL;
+		kp.infolen = 0U;
+		qsc_rcs_initialize(&cns->txcpr, &kp, true);
+
+		/* initialize decryption, and raise rx */
+		kp.key = prnd + QSTP_SYMMETRIC_KEY_SIZE + QSTP_NONCE_SIZE;
+		kp.keylen = QSTP_SYMMETRIC_KEY_SIZE;
+		kp.nonce = ((uint8_t*)prnd + QSTP_SYMMETRIC_KEY_SIZE + QSTP_NONCE_SIZE + QSTP_SYMMETRIC_KEY_SIZE);
+		kp.info = NULL;
+		kp.infolen = 0U;
+		qsc_rcs_initialize(&cns->rxcpr, &kp, false);
+	}
+
+	/* permute key state and store next key */
+	qsc_keccak_permute(&kstate, QSC_KECCAK_PERMUTATION_ROUNDS);
+	qsc_memutils_copy(cns->rtcs, (uint8_t*)kstate.state, QSTP_SYMMETRIC_KEY_SIZE);
+	/* erase the key array */
+	qsc_memutils_clear(prnd, sizeof(prnd));
+	qsc_memutils_clear((uint8_t*)&kp, sizeof(qsc_rcs_keyparams));
+}
+
+static bool symmetric_ratchet_response(qstp_connection_state* cns, const qstp_network_packet* packetin)
+{
+	uint8_t rkey[QSTP_RTOK_SIZE] = { 0U };
+	uint8_t shdr[QSTP_PACKET_HEADER_SIZE] = { 0U };
+	size_t mlen;
+	bool res;
+
+	res = false;
+	cns->rxseq += 1U;
+
+	if (packetin->sequence == cns->rxseq)
+	{
+		/* serialize the header and add it to the ciphers associated data */
+		qstp_packet_header_serialize(packetin, shdr);
+		qsc_rcs_set_associated(&cns->rxcpr, shdr, QSTP_PACKET_HEADER_SIZE);
+		mlen = packetin->msglen - (size_t)QSTP_MACTAG_SIZE;
+
+		/* authenticate then decrypt the data */
+		if (qsc_rcs_transform(&cns->rxcpr, rkey, packetin->pmessage, mlen) == true)
+		{
+			/* inject into key state */
+			symmetric_ratchet(cns, rkey, sizeof(rkey));
+			res = true;
+		}
+	}
+
+	qsc_memutils_clear(rkey, sizeof(rkey));
+	qsc_memutils_clear(shdr, sizeof(shdr));
+
+	return res;
+}
+
 /** \cond */
 static void client_state_initialize(qstp_kex_client_state* kcs, qstp_connection_state* cns, const qstp_root_certificate* root, const qstp_server_certificate* cert)
 {
@@ -194,6 +282,14 @@ static void client_receive_loop(void* prcv)
 									break;
 								}
 							}
+							else if (pkt.flag == qstp_flag_symmetric_ratchet_request)
+							{
+								if (symmetric_ratchet_response(pprcv->pcns, &pkt) == false)
+								{
+									qstp_log_write(qstp_messages_symmetric_ratchet, (const char*)pprcv->pcns->target.address);
+									break;
+								}
+							}
 							else if (pkt.flag == qstp_flag_connection_terminate)
 							{
 								qstp_log_write(qstp_messages_disconnect, cadd);
@@ -260,6 +356,63 @@ static void client_receive_loop(void* prcv)
 /** \endcond */
 
 /* Public Functions */
+
+bool qstp_send_symmetric_ratchet_request(qstp_connection_state* cns)
+{
+	QSTP_ASSERT(cns != NULL);
+
+	size_t plen;
+	size_t slen;
+	bool res;
+
+	res = false;
+
+	if (cns != NULL)
+	{
+		qstp_network_packet pkt = { 0 };
+		uint8_t pmsg[QSTP_RTOK_SIZE + QSTP_MACTAG_SIZE] = { 0U };
+		uint8_t rkey[QSTP_RTOK_SIZE] = { 0U };
+
+		/* generate the token key */
+		if (qsc_acp_generate(rkey, sizeof(rkey)) == true)
+		{
+			uint8_t shdr[QSTP_PACKET_HEADER_SIZE] = { 0U };
+			uint8_t spct[QSTP_PACKET_HEADER_SIZE + QSTP_RTOK_SIZE + QSTP_MACTAG_SIZE] = { 0U };
+
+			cns->txseq += 1U;
+			pkt.pmessage = pmsg;
+			pkt.flag = qstp_flag_symmetric_ratchet_request;
+			pkt.msglen = QSTP_RTOK_SIZE + QSTP_MACTAG_SIZE;
+			pkt.sequence = cns->txseq;
+
+			/* serialize the header and add it to the ciphers associated data */
+			qstp_packet_header_serialize(&pkt, shdr);
+			qstp_cipher_set_associated(&cns->txcpr, shdr, QSTP_PACKET_HEADER_SIZE);
+			/* encrypt the message */
+			qstp_cipher_transform(&cns->txcpr, pkt.pmessage, rkey, sizeof(rkey));
+
+			/* convert the packet to bytes */
+			plen = qstp_packet_to_stream(&pkt, spct);
+
+			/* send the ratchet request */
+			slen = qsc_socket_send(&cns->target, spct, plen, qsc_socket_send_flag_none);
+
+			if (slen == plen)
+			{
+				symmetric_ratchet(cns, rkey, sizeof(rkey));
+				res = true;
+			}
+
+			qsc_memutils_clear(shdr, sizeof(shdr));
+			qsc_memutils_clear(spct, sizeof(spct));
+		}
+
+		qsc_memutils_clear(pmsg, sizeof(pmsg));
+		qsc_memutils_clear(rkey, sizeof(rkey));
+	}
+
+	return res;
+}
 
 qstp_errors qstp_client_connect_ipv4(const qstp_root_certificate* root, 
 	const qstp_server_certificate* cert,

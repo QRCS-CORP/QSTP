@@ -152,6 +152,16 @@ static void server_receive_loop(void* prcv)
 										break;
 									}
 								}
+								else if (pkt.flag == qstp_flag_error_condition)
+								{
+									/* anti-dos: break on error message is conditional
+									   on succesful authentication/decryption */
+									if (qstp_decrypt_error_message(&qerr, pprcv->pcns, rbuf) == true)
+									{
+										qstp_log_system_error(qerr);
+										break;
+									}
+								}
 								else if (pkt.flag == qstp_flag_keep_alive_response)
 								{
 									/* test the keepalive */

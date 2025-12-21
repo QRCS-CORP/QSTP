@@ -86,7 +86,7 @@
 * \brief If the RCS encryption option is chosen SKDP uses the more modern RCS stream cipher with KMAC/QMAC authentication.
 * The default symmetric cipher/authenticator is AES-256/GCM (GMAC Counter Mode) NIST standardized per SP800-38a.
 */
-//#define QSTP_USE_RCS_ENCRYPTION
+#define QSTP_USE_RCS_ENCRYPTION
 
 #if defined(QSTP_USE_RCS_ENCRYPTION)
 #	include "rcs.h"
@@ -693,6 +693,12 @@ QSTP_EXPORT_API typedef enum qstp_configuration_sets
  */
 #define QSTP_PACKET_TIME_THRESHOLD 60U
 
+ /*!
+ * \def QSTP_RTOK_SIZE
+ * \brief The size of the ratchet token
+ */
+#define QSTP_RTOK_SIZE 32U
+
 /*!
  * \def QSTP_SECRET_SIZE
  * \brief The size in bytes of the shared secret for each channel.
@@ -706,16 +712,16 @@ QSTP_EXPORT_API typedef enum qstp_configuration_sets
 #define QSTP_CLIENT_PORT 32118U
 
 /*!
- * \def QSTP_SERVER_PORT
- * \brief The default QSTP server port number.
- */
-#define QSTP_SERVER_PORT 32119U
-
-/*!
  * \def QSTP_ROOT_PORT
  * \brief The default QSTP root port number.
  */
 #define QSTP_ROOT_PORT 32120U
+
+/*!
+ * \def QSTP_SERVER_PORT
+ * \brief The default QSTP server port number.
+ */
+#define QSTP_SERVER_PORT 32119U
 
 /*!
  * \def QSTP_SYMMETRIC_KEY_SIZE
@@ -804,7 +810,7 @@ static const char QSTP_PARAMETER_STRINGS[QSTP_PROTOCOL_SET_DEPTH][QSTP_PROTOCOL_
 
 /* error code strings */
 /** \cond */
-#define QSTP_MESSAGE_STRING_DEPTH 20U
+#define QSTP_MESSAGE_STRING_DEPTH 21U
 #define QSTP_MESSAGE_STRING_WIDTH 128U
 
 static const char QSTP_MESSAGE_STRINGS[QSTP_MESSAGE_STRING_DEPTH][QSTP_MESSAGE_STRING_WIDTH] =
@@ -828,12 +834,13 @@ static const char QSTP_MESSAGE_STRINGS[QSTP_MESSAGE_STRING_DEPTH][QSTP_MESSAGE_S
 	"The keepalive function has failed.",
 	"The keepalive period has been exceeded",
 	"The connection failed or was interrupted.",
-	"The function received an invalid request."
+	"The function received an invalid request.",
+	"The host received a symmetric ratchet request"
 };
 /** \endcond */
 
 /** \cond */
-#define QSTP_ERROR_STRING_DEPTH 30U
+#define QSTP_ERROR_STRING_DEPTH 31U
 #define QSTP_ERROR_STRING_WIDTH 128U
 
 static const char QSTP_ERROR_STRINGS[QSTP_ERROR_STRING_DEPTH][QSTP_ERROR_STRING_WIDTH] =
@@ -867,7 +874,8 @@ static const char QSTP_ERROR_STRINGS[QSTP_ERROR_STRING_DEPTH][QSTP_ERROR_STRING_
 	"The signing function has failed",
 	"The transmitter failed at the network layer",
 	"The protocol string was not recognized",
-	"The expected data could not be verified"
+	"The expected data could not be verified",
+	"The remote host sent an error or disconnect message"
 };
 /** \endcond */
 
@@ -897,6 +905,7 @@ QSTP_EXPORT_API typedef enum qstp_messages
 	qstp_messages_keepalive_timeout = 0x11U,		/*!< The keepalive period has been exceeded */
 	qstp_messages_connection_fail = 0x12U,			/*!< The connection failed or was interrupted */
 	qstp_messages_invalid_request = 0x13U,			/*!< The function received an invalid request */
+	qstp_messages_symmetric_ratchet = 0x14U,		/*!< The host received a symmetric ratchet request */
 } qstp_messages;
 
 /*!
@@ -935,6 +944,7 @@ QSTP_EXPORT_API typedef enum qstp_errors
 	qstp_error_transmit_failure = 0x1BU,			/*!< The transmitter failed at the network layer */
 	qstp_error_unknown_protocol = 0x1CU,			/*!< The protocol string was not recognized */
 	qstp_error_verify_failure = 0x1DU,				/*!< The expected data could not be verified */
+	qstp_messages_system_message = 0x1EU,			/*!< The remote host sent an error or disconnect message */
 } qstp_errors;
 
 /*!
@@ -963,6 +973,7 @@ QSTP_EXPORT_API typedef enum qstp_flags
 	qstp_flag_unrecognized_protocol = 0x12U,		/*!< The protocol string is not recognized */
 	qstp_flag_certificate_revoke = 0x13U,			/*!< Indicates a certificate revocation message */
 	qstp_flag_transfer_request = 0x14U,				/*!< Reserved: Indicates a transfer request */
+	qstp_flag_symmetric_ratchet_request = 0x15U,	/*!< The host has received a symmetric key ratchet request */
 	qstp_flag_error_condition = 0xFFU,				/*!< Indicates that the connection experienced an error */
 } qstp_flags;
 
@@ -1095,11 +1106,11 @@ QSTP_EXPORT_API typedef struct qstp_root_signature_key
  */
 QSTP_EXPORT_API typedef struct qstp_network_packet
 {
-	uint8_t flag;			/*!< The packet flag */
-	uint32_t msglen;		/*!< The message length in bytes */
-	uint64_t sequence;		/*!< The packet sequence number */
-	uint64_t utctime;		/*!< The UTC time when the packet was created (in seconds) */
-	uint8_t* pmessage;		/*!< Pointer to the packet's message buffer */
+	uint8_t flag;										/*!< The packet flag */
+	uint32_t msglen;									/*!< The message length in bytes */
+	uint64_t sequence;									/*!< The packet sequence number */
+	uint64_t utctime;									/*!< The UTC time when the packet was created (in seconds) */
+	uint8_t* pmessage;									/*!< Pointer to the packet's message buffer */
 } qstp_network_packet;
 
 /*!
@@ -1111,14 +1122,15 @@ QSTP_EXPORT_API typedef struct qstp_network_packet
  */
 QSTP_EXPORT_API typedef struct qstp_connection_state
 {
-	qsc_socket target;		/*!< The target socket structure */
-	qstp_cipher_state rxcpr;/*!< The receive channel cipher state */
-	qstp_cipher_state txcpr;/*!< The transmit channel cipher state */
-	uint64_t rxseq;			/*!< The receive channel packet sequence number */
-	uint64_t txseq;			/*!< The transmit channel packet sequence number */
-	uint32_t cid;			/*!< The connection instance count */
-	qstp_flags exflag;		/*!< The key exchange (KEX) position flag */
-	bool receiver;			/*!< Flag indicating if the connection was initialized in listener mode */
+	uint8_t rtcs[QSTP_SYMMETRIC_KEY_SIZE];				/*!< The ratchet key generation state */
+	qsc_socket target;									/*!< The target socket structure */
+	qstp_cipher_state rxcpr;							/*!< The receive channel cipher state */
+	qstp_cipher_state txcpr;							/*!< The transmit channel cipher state */
+	uint64_t rxseq;										/*!< The receive channel packet sequence number */
+	uint64_t txseq;										/*!< The transmit channel packet sequence number */
+	uint32_t cid;										/*!< The connection instance count */
+	qstp_flags exflag;									/*!< The key exchange (KEX) position flag */
+	bool receiver;										/*!< Flag indicating if the connection was initialized in listener mode */
 } qstp_connection_state;
 
 /* Default key and path names (hidden from documentation) */
@@ -1234,6 +1246,17 @@ QSTP_EXPORT_API const char* qstp_configuration_to_string(qstp_configuration_sets
 QSTP_EXPORT_API void qstp_connection_close(qstp_connection_state* cns, qstp_errors err, bool notify);
 
 /*!
+ * \brief Decrypt an error message.
+ *
+ * \param cns A pointer to the QSTP connection state structure.
+ * \param message [const] The serialized error packet.
+ * \param merr A pointer to an \c qstp_errors error value.
+ *
+ * \return Returns true if the message was decrypted successfully, false on failure.
+ */
+QSTP_EXPORT_API bool qstp_decrypt_error_message(qstp_errors* merr, qstp_connection_state* cns, const uint8_t* message);
+
+/*!
  * \brief Reset the connection state to zero.
  *
  * \param cns A pointer to the QSTP connection state structure.
@@ -1336,6 +1359,13 @@ QSTP_EXPORT_API void qstp_log_error(qstp_messages emsg, qsc_socket_exceptions er
  * \param emsg The QSTP message enumeration.
  */
 QSTP_EXPORT_API void qstp_log_message(qstp_messages emsg);
+
+/*!
+* \brief Log a system error message
+*
+* \param err: The system error enumerator
+*/
+QSTP_EXPORT_API void qstp_log_system_error(qstp_errors err);
 
 /*!
  * \brief Log a QSTP message with an additional description.

@@ -59,54 +59,43 @@ void qstp_connection_close(qstp_connection_state* cns, qstp_errors err, bool not
 		{
 			if (notify == true)
 			{
-				if (err == qstp_error_none)
+				qstp_network_packet resp = { 0U };
+
+				/* build a disconnect message */
+				cns->txseq += 1U;
+				resp.flag = qstp_flag_error_condition;
+				resp.sequence = cns->txseq;
+				resp.msglen = QSTP_MACTAG_SIZE + 1U;
+
+				qstp_packet_set_utc_time(&resp);
+
+				/* tunnel gets encrypted message */
+				if (cns->exflag == qstp_flag_session_established)
 				{
-					qstp_network_packet resp = { 0 };
-					uint8_t spct[QSTP_PACKET_HEADER_SIZE] = { 0U };
+					uint8_t spct[QSTP_PACKET_HEADER_SIZE + QSTP_MACTAG_SIZE + 1U] = { 0U };
+					uint8_t pmsg[1U] = { 0U };
 
-					/* send a disconnect message */
 					resp.pmessage = spct + QSTP_PACKET_HEADER_SIZE;
-					resp.flag = qstp_flag_connection_terminate;
-					resp.sequence = QSTP_PACKET_SEQUENCE_TERMINATOR;
-					resp.msglen = 0U;
-					resp.pmessage = NULL;
-
 					qstp_packet_header_serialize(&resp, spct);
+					/* the error is the message */
+					pmsg[0U] = (uint8_t)err;
+
+					/* add the header to aad */
+					qstp_cipher_set_associated(&cns->txcpr, spct, QSTP_PACKET_HEADER_SIZE);
+					/* encrypt the message */
+					qstp_cipher_transform(&cns->txcpr, resp.pmessage, pmsg, sizeof(pmsg));
+					/* send the message */
 					qsc_socket_send(&cns->target, spct, sizeof(spct), qsc_socket_send_flag_none);
 				}
 				else
 				{
-					/* send an error message */
-					qstp_network_packet resp = { 0 };
-					uint8_t perr[QSTP_PACKET_ERROR_SIZE] = { 0U };
-					uint8_t* spct;
-					size_t mlen;
-					qstp_errors qerr;
+					/* pre-established phase */
+					uint8_t spct[QSTP_PACKET_HEADER_SIZE + 1U] = { 0U };
 
-					mlen = QSTP_PACKET_HEADER_SIZE + QSTP_PACKET_FLAG_SIZE + QSTP_MACTAG_SIZE;
-					spct = (uint8_t*)qsc_memutils_malloc(mlen);
-
-					if (spct != NULL)
-					{
-						qsc_memutils_clear(spct, mlen);
-
-						/* send a disconnect message */
-						resp.flag = qstp_flag_connection_terminate;
-						resp.sequence = QSTP_PACKET_SEQUENCE_TERMINATOR;
-						resp.msglen = QSTP_PACKET_ERROR_SIZE;
-						resp.pmessage = spct + QSTP_PACKET_HEADER_SIZE;
-						perr[0U] = err;
-
-						qerr = qstp_encrypt_packet(cns, &resp, perr, QSTP_PACKET_ERROR_SIZE);
-
-						if (qerr == qstp_error_none)
-						{
-							qstp_packet_header_serialize(&resp, spct);
-							qsc_socket_send(&cns->target, spct, sizeof(spct), qsc_socket_send_flag_none);
-						}
-
-						qsc_memutils_alloc_free(spct);
-					}
+					qstp_packet_header_serialize(&resp, spct);
+					spct[QSTP_PACKET_HEADER_SIZE] = (uint8_t)err;
+					/* send the message */
+					qsc_socket_send(&cns->target, spct, sizeof(spct), qsc_socket_send_flag_none);
 				}
 			}
 
@@ -114,6 +103,62 @@ void qstp_connection_close(qstp_connection_state* cns, qstp_errors err, bool not
 			qsc_socket_close_socket(&cns->target);
 		}
 	}
+}
+
+bool qstp_decrypt_error_message(qstp_errors* merr, qstp_connection_state* cns, const uint8_t* message)
+{
+	QSTP_ASSERT(merr != NULL);
+	QSTP_ASSERT(cns != NULL);
+	QSTP_ASSERT(message != NULL);
+
+	qstp_network_packet pkt = { 0U };
+	uint8_t dmsg[1U] = { 0U };
+	const uint8_t* emsg;
+	size_t mlen;
+	qstp_errors err;
+	bool res;
+
+	mlen = 0U;
+	res = false;
+	err = qstp_error_invalid_input;
+
+	if (cns->exflag == qstp_flag_session_established)
+	{
+		qstp_packet_header_deserialize(message, &pkt);
+		emsg = message + QSTP_PACKET_HEADER_SIZE;
+
+		if (cns != NULL && message != NULL)
+		{
+			cns->rxseq += 1;
+
+			if (pkt.sequence == cns->rxseq)
+			{
+				if (cns->exflag == qstp_flag_session_established)
+				{
+					/* anti-replay; verify the packet time */
+					if (qstp_packet_time_valid(&pkt) == true)
+					{
+						qstp_cipher_set_associated(&cns->rxcpr, message, QSTP_PACKET_HEADER_SIZE);
+						mlen = pkt.msglen - QSTP_MACTAG_SIZE;
+
+						if (mlen == 1U)
+						{
+							/* authenticate then decrypt the data */
+							if (qstp_cipher_transform(&cns->rxcpr, dmsg, emsg, mlen) == true)
+							{
+								err = (qstp_errors)dmsg[0U];
+								res = true;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	*merr = err;
+
+	return res;
 }
 
 void qstp_connection_state_dispose(qstp_connection_state* cns)
@@ -124,6 +169,7 @@ void qstp_connection_state_dispose(qstp_connection_state* cns)
 	{
 		qstp_cipher_dispose(&cns->rxcpr);
 		qstp_cipher_dispose(&cns->txcpr);
+		qsc_memutils_clear(&cns->rtcs, QSTP_SYMMETRIC_KEY_SIZE);
 		qsc_memutils_clear((uint8_t*)&cns->target, sizeof(qsc_socket));
 		cns->rxseq = 0U;
 		cns->txseq = 0U;
@@ -354,6 +400,22 @@ void qstp_log_message(qstp_messages emsg)
 	{
 		qstp_logger_write(msg);
 	}
+}
+
+void qstp_log_system_error(qstp_errors err)
+{
+	char mtmp[QSTP_ERROR_STRING_WIDTH * 2U] = { 0 };
+	const char* perr;
+	const char* pmsg;
+
+	perr = qstp_error_to_string(qstp_messages_system_message);
+	pmsg = qstp_error_to_string(err);
+
+	qsc_stringutils_copy_string(mtmp, sizeof(mtmp), perr);
+	qsc_stringutils_concat_strings(mtmp, sizeof(mtmp), ": ");
+	qsc_stringutils_concat_strings(mtmp, sizeof(mtmp), pmsg);
+
+	qstp_logger_write(mtmp);
 }
 
 void qstp_log_write(qstp_messages emsg, const char* msg)

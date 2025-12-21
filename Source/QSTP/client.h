@@ -64,6 +64,20 @@
  */
 
 /**
+ * \brief Send a symmetric key-ratchet request to the remote host.
+ *
+ * \details
+ * This function initiates a symmetric key ratchet process in an ongoing QSTP session. By periodically
+ * updating the symmetric session keys, it maintains forward secrecy and ensures that any compromise
+ * of past keys does not affect the security of future communications.
+ *
+ * \param cns A pointer to the current QSTP connection state structure.
+ *
+ * \return Returns true if the symmetric ratchet request was successfully sent, otherwise false.
+ */
+QSTP_EXPORT_API bool qstp_send_symmetric_ratchet_request(qstp_connection_state* cns);
+
+/**
  * \brief Connect to the remote server using IPv4 and perform the key exchange.
  *
  * \details
