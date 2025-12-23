@@ -24,8 +24,11 @@ QSTP is a next-generation cryptographic protocol designed to enable secure commu
 Engineered to address the challenges posed by quantum computing threats, QSTP introduces entirely new mechanisms—designed from the ground up for both security and performance in a post-quantum context. This design avoids the legacy issues of backward compatibility, complex versioning, and outdated APIs.
 
 [QSTP Help Documentation](https://qrcs-corp.github.io/QSTP/)  
-[QSTP Protocol Specification](https://qrcs-corp.github.io/QSTP/pdf/QSTP_Specification.pdf)  
-[QSTP Summary Document](https://qrcs-corp.github.io/QSTP/pdf/QSTP_Summary.pdf)  
+[QSTP Summary Document](https://qrcs-corp.github.io/QSTP/pdf/qstp_summary.pdf)  
+[QSTP Protocol Specification](https://qrcs-corp.github.io/QSTP/pdf/qstp_specification.pdf)  
+[QSTP Formal Analysis](https://qrcs-corp.github.io/QSTP/pdf/qstp_formal.pdf)  
+[QSTP Implementation Analysis](https://qrcs-corp.github.io/QSTP/pdf/qstp_analysis.pdf)  
+[QSTP Integration Guide](https://qrcs-corp.github.io/QSTP/pdf/qstp_integration.pdf)  
 
 ## Cryptographic Primitives
 
@@ -141,9 +144,10 @@ QSTP relies on the [QSC Cryptographic Library](https://github.com/QRCS-CORP/QSC)
 
 ## License
 
-ACQUISITION INQUIRIES:
-QRCS is currently seeking a corporate acquirer for this technology.
-Parties interested in exclusive licensing or acquisition should contact: contact@qrcscorp.ca
+INVESTMENT INQUIRIES:
+QRCS is currently seeking a corporate investor for this technology.
+Parties interested in licensing or investment should connect to us at: contact@qrcscorp.ca  
+Visit https://www.qrcscorp.ca for a full inventory of our products and services.  
 
 PATENT NOTICE:
 One or more patent applications (provisional and/or non-provisional) covering aspects of this software have been filed with the United States Patent and 
