@@ -7,11 +7,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "QSC", "..\QSC\QSC\QSC.vcxpr
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "QSTP", "QSTP\MPTP.vcxproj", "{7044C00F-CF2F-49AF-B1E9-4AFFC903EA41}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0A0B71E4-6C2F-48E0-AA17-2819FE7F1D5B}"
-	ProjectSection(SolutionItems) = preProject
-		QSTP\QRCS-PL License.txt = QSTP\QRCS-PL License.txt
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "QSTP Client", "Client\QSTP Client.vcxproj", "{E7A29919-F0D8-46C4-B754-4854E53E3CC3}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "QSTP Root", "Root\QSTP Root.vcxproj", "{4F112100-E549-46D8-B189-9B28613D7FFD}"
