@@ -22,7 +22,7 @@ FetchContent_MakeAvailable(QSC)
 
 # QSTP Static Library
 file(GLOB_RECURSE QSTP_SOURCES "Source/QSTP/*.c")
-file(GLOB_RECURSE QSTP_HEADERS "Source/QSTP/include/*.h")
+file(GLOB_RECURSE QSTP_HEADERS "Source/QSTP/*.h")
 
 add_library(qstp STATIC ${QSTP_SOURCES} ${QSTP_HEADERS})
 target_include_directories(qstp PUBLIC "Source/QSTP")
