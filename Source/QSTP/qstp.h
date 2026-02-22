@@ -66,8 +66,8 @@
  *
  * QSTP is designed to provide a complete cryptographic protocol for secure tunneling by integrating
  * post-quantum key exchange, authenticated encryption, and certificate-based authentication.
- * The protocol utilizes various asymmetric cryptographic primitive sets (e.g., Kyber, McEliece, Dilithium, Sphincs+)
- * which are configured in the QSC library's common.h file. For maximum security, the McEliece/SPHINCS+ set is recommended;
+ * The protocol utilizes various asymmetric cryptographic primitive sets (e.g., Kyber, McEliece, Dilithium, Falcon -in a future release)
+ * which are configured in the QSC library's common.h file. For maximum security, the McEliece/Dilithium set is recommended;
  * for a balance of performance and security, the Dilithium/Kyber or Dilithium/McEliece sets are advised.
  *
  * \par Recommended Parameter Sets:
@@ -79,19 +79,37 @@
  * - McEliece-S3, Dilithium-S3(f,s)
  * - McEliece-S5, Dilithium-S5(f,s)
  * - McEliece-S6, Dilithium-S5(f,s)
- * - McEliece-S1, Sphincs-S1(f,s)
- * - McEliece-S3, Sphincs-S3(f,s)
- * - McEliece-S5, Sphincs-S5(f,s)
- * - McEliece-S6, Sphincs-S5(f,s)
- * - McEliece-S7, Sphincs-S6(f,s)
  *
  * \par Additional Notes:
- * When using the McEliece/SPHINCS+ options in Visual Studio, it may be necessary to increase the maximum
+ * When using the McEliece/Dilithium options in Visual Studio, it may be necessary to increase the maximum
  * stack size (e.g., to 200KB) to accommodate the larger key sizes.
  *
  * The parameter sets used by QSTP are selected in the QSC library (via libraries/common.h) at their library defaults.
  */
 
+/* === MODIFIABLE SETTINGS START === */
+
+/*!
+ * \def QSTP_CONFIG_DILITHIUM_KYBER
+ * \brief Sets the asymmetric cryptographic primitive-set to Dilithium/Kyber.
+ */
+#define QSTP_CONFIG_DILITHIUM_KYBER
+
+///*!
+//* \def QSTP_CONFIG_DILITHIUM_MCELIECE
+//* \brief Sets the asymmetric cryptographic primitive-set to Dilithium/McEliece.
+//*/
+//#define QSTP_CONFIG_DILITHIUM_MCELIECE
+
+#if defined(QSTP_CONFIG_DILITHIUM_KYBER)
+#	include "dilithium.h"
+#	include "kyber.h"
+#elif defined(QSTP_CONFIG_DILITHIUM_MCELIECE)
+#	include "dilithium.h"
+#	include "mceliece.h"
+#else
+#	error Invalid parameter set!
+#endif
 
 /*!
 * \def QSTP_USE_RCS_ENCRYPTION
@@ -100,6 +118,17 @@
 */
 #define QSTP_USE_RCS_ENCRYPTION
 
+///*!
+//* \def QSTP_EXTERNAL_SIGNED_ROOT
+//* \brief If the external signed root option is enabled, the root certificate switches from self-signed to signed by an external authority.
+//* If this option is used, the implementation must call the qstp_root_external_sign function, providing the signing function instance as a parameter.
+//* The signing function must be equivalent to the parameter set used by the QSC library for either ML-DSA or SPH-DSA to allow for successful 
+//* signature verification and correct signature size. The responsibility for signing the root certificate is the implementation provider, 
+//* if the root certificate is not signed, root certificate verification will fail in operation.
+//*/
+//#define QSTP_EXTERNAL_SIGNED_ROOT
+
+/** \cond DOXYGEN_NO_DOCUMENT */
 #if defined(QSTP_USE_RCS_ENCRYPTION)
 #	include "rcs.h"
 #	define qstp_cipher_state qsc_rcs_state
@@ -117,38 +146,9 @@
 #	define qstp_cipher_set_associated qsc_aes_gcm256_set_associated
 #	define qstp_cipher_transform qsc_aes_gcm256_transform
 #endif
+/** \endcond DOXYGEN_NO_DOCUMENT */
 
-/*!
- * \def QSTP_CONFIG_DILITHIUM_KYBER
- * \brief Sets the asymmetric cryptographic primitive-set to Dilithium/Kyber.
- */
-#define QSTP_CONFIG_DILITHIUM_KYBER
-
-///*!
-//* \def QSTP_CONFIG_DILITHIUM_MCELIECE
-//* \brief Sets the asymmetric cryptographic primitive-set to Dilithium/McEliece.
-//*/
-//#define QSTP_CONFIG_DILITHIUM_MCELIECE
-
-///*!
-//* \def QSTP_CONFIG_SPHINCS_MCELIECE
-//* \brief Sets the asymmetric cryptographic primitive-set to Sphincs+/McEliece, default is Dilithium/Kyber.
-//* Note: You may have to increase the stack reserve size on both projects, as McEliece and Sphincs+ use many resources.
-//*/
-//#define QSTP_CONFIG_SPHINCS_MCELIECE
-
-#if defined(QSTP_CONFIG_DILITHIUM_KYBER)
-#	include "dilithium.h"
-#	include "kyber.h"
-#elif defined(QSTP_CONFIG_DILITHIUM_MCELIECE)
-#	include "dilithium.h"
-#	include "mceliece.h"
-#elif defined(QSTP_CONFIG_SPHINCS_MCELIECE)
-#	include "sphincsplus.h"
-#	include "mceliece.h"
-#else
-#	error Invalid parameter set!
-#endif
+/* === MODIFIABLE SETTINGS END === */
 
 /* 
  * Valid parameter sets:
@@ -160,11 +160,6 @@
  *   Kyber-S3, Dilithium-S3
  *   Kyber-S5, Dilithium-S5
  *   Kyber-S6, Dilithium-S5
- *   McEliece-S1, Sphincs-S1(f,s)
- *   McEliece-S3, Sphincs-S3(f,s)
- *   McEliece-S5, Sphincs-S5(f,s)
- *   McEliece-S6, Sphincs-S5(f,s)
- *   McEliece-S7, Sphincs-S6(f,s)
  */
 
 /*!
@@ -175,7 +170,7 @@
 
 /*!
  * \enum qstp_configuration_sets
- * \brief The MPDC algorithm configuration sets.
+ * \brief The QSTP algorithm configuration sets.
  */
 QSTP_EXPORT_API typedef enum qstp_configuration_sets
 {
@@ -189,17 +184,19 @@ QSTP_EXPORT_API typedef enum qstp_configuration_sets
 	qstp_configuration_set_dilithium5_mceliece5_rcs256_shake256 = 0x07U,		/*!< The Dilithium-S5/McEliece-S5a/RCS-256/SHAKE-256 algorithm set */
 	qstp_configuration_set_dilithium5_mceliece6_rcs256_shake256 = 0x08U,		/*!< The Dilithium-S5/McEliece-S6/RCS-256/SHAKE-256 algorithm set */
 	qstp_configuration_set_dilithium5_mceliece7_rcs256_shake256 = 0x09U,		/*!< The Dilithium-S5/McEliece-S7/RCS-256/SHAKE-256 algorithm set */
-	qstp_configuration_set_sphincsplus1f_mceliece1_rcs256_shake256 = 0x0AU,		/*!< The SPHINCS+-S1F/McEliece-S1/RCS-256/SHAKE-256 algorithm set */
-	qstp_configuration_set_sphincsplus1s_mceliece1_rcs256_shake256 = 0x0BU,		/*!< The SPHINCS+-S1S/McEliece-S1/RCS-256/SHAKE-256 algorithm set */
-	qstp_configuration_set_sphincsplus3f_mceliece3_rcs256_shake256 = 0x0CU,		/*!< The SPHINCS+-S3F/McEliece-S3/RCS-256/SHAKE-256 algorithm set */
-	qstp_configuration_set_sphincsplus3s_mceliece3_rcs256_shake256 = 0x0DU,		/*!< The SPHINCS+-S3S/McEliece-S3/RCS-256/SHAKE-256 algorithm set */
-	qstp_configuration_set_sphincsplus5f_mceliece5_rcs256_shake256 = 0x0EU,		/*!< The SPHINCS+-S5F/McEliece-S5a/RCS-256/SHAKE-256 algorithm set */
-	qstp_configuration_set_sphincsplus5s_mceliece5_rcs256_shake256 = 0x0FU,		/*!< The SPHINCS+-S5S/McEliece-S5a/RCS-256/SHAKE-256 algorithm set */
-	qstp_configuration_set_sphincsplus5f_mceliece6_rcs256_shake256 = 0x10U,		/*!< The SPHINCS+-S5F/McEliece-S5b/RCS-256/SHAKE-256 algorithm set */
-	qstp_configuration_set_sphincsplus5s_mceliece6_rcs256_shake256 = 0x11U,		/*!< The SPHINCS+-S5S/McEliece-S5b/RCS-256/SHAKE-256 algorithm set */
-	qstp_configuration_set_sphincsplus5f_mceliece7_rcs256_shake256 = 0x12U,		/*!< The SPHINCS+-S5F/McEliece-S5c/RCS-256/SHAKE-256 algorithm set */
-	qstp_configuration_set_sphincsplus5s_mceliece7_rcs256_shake256 = 0x13U,		/*!< The SPHINCS+-S5S/McEliece-S5c/RCS-256/SHAKE-256 algorithm set */
 } qstp_configuration_sets;
+
+/*!
+ * \enum qstp_signature_schemes
+ * \brief The QSTP device designations.
+ */
+typedef enum qstp_signature_schemes
+{
+	qstp_signature_scheme_none = 0U,
+	qstp_signature_scheme_dilithium1 = 1U,
+	qstp_signature_scheme_dilithium3 = 2U,
+	qstp_signature_scheme_dilithium5 = 3U,
+} qstp_signature_schemes;
 
 #if defined(QSTP_CONFIG_DILITHIUM_MCELIECE)
 
@@ -270,7 +267,7 @@ QSTP_EXPORT_API typedef enum qstp_configuration_sets
 */
 #	define QSTP_ASYMMETRIC_SIGNATURE_SIZE (QSC_DILITHIUM_SIGNATURE_SIZE)
 
-/** \cond */
+/** \cond DOXYGEN_NO_DOCUMENT */
 #	if defined(QSC_DILITHIUM_S1P44) && defined(QSC_MCELIECE_S1N3488T64)
 		static const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "dilithium-s1_mceliece-s1_rcs-256_sha3-256";
 		static const qstp_configuration_sets QSTP_CONFIGURATION_SET = qstp_configuration_set_dilithium1_mceliece1_rcs256_shake256;
@@ -289,7 +286,7 @@ QSTP_EXPORT_API typedef enum qstp_configuration_sets
 #	else
 #		error the library parameter sets are mismatched!
 #	endif
-/** \endcond */
+/** \endcond DOXYGEN_NO_DOCUMENT */
 
 #elif defined(QSTP_CONFIG_DILITHIUM_KYBER)
 
@@ -360,130 +357,27 @@ QSTP_EXPORT_API typedef enum qstp_configuration_sets
 */
 #	define QSTP_ASYMMETRIC_SIGNATURE_SIZE (QSC_DILITHIUM_SIGNATURE_SIZE)
 
-/** \cond */
+/** \cond DOXYGEN_NO_DOCUMENT */
 #	if defined(QSC_DILITHIUM_S1P44) && defined(QSC_KYBER_S1K2P512)
 		static const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "dilithium-s1_kyber-s1_rcs-256_sha3-256";
 		static const qstp_configuration_sets QSTP_CONFIGURATION_SET = qstp_configuration_set_dilithium1_kyber1_rcs256_shake256;
+		static const qstp_signature_schemes QSTP_ACTIVE_SIGNATURE_SCHEME = qstp_signature_scheme_dilithium1;
 #	elif defined(QSC_DILITHIUM_S3P65) && defined(QSC_KYBER_S3K3P768)
 		static const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "dilithium-s3_kyber-s3_rcs-256_sha3-256";
 		static const qstp_configuration_sets QSTP_CONFIGURATION_SET = qstp_configuration_set_dilithium3_kyber3_rcs256_shake256;
+		static const qstp_signature_schemes QSTP_ACTIVE_SIGNATURE_SCHEME = qstp_signature_scheme_dilithium3;
 #	elif defined(QSC_DILITHIUM_S5P87) && defined(QSC_KYBER_S5K4P1024)
 		static const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "dilithium-s5_kyber-s5_rcs-256_sha3-256";
 		static const qstp_configuration_sets QSTP_CONFIGURATION_SET = qstp_configuration_set_dilithium5_kyber5_rcs256_shake256;
+		static const qstp_signature_schemes QSTP_ACTIVE_SIGNATURE_SCHEME = qstp_signature_scheme_dilithium5;
 #	elif defined(QSC_DILITHIUM_S5P87) && defined(QSC_KYBER_S6K5P1280)
-		static const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "dilithium-s5_kyber-s6_rcs-512_sha3-512";
+		static const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "dilithium-s5_kyber-s6_rcs-256_sha3-256";
 		static const qstp_configuration_sets QSTP_CONFIGURATION_SET = qstp_configuration_set_dilithium5_kyber6_rcs512_shake512;
+		static const qstp_signature_schemes QSTP_ACTIVE_SIGNATURE_SCHEME = qstp_signature_scheme_dilithium5;
 #	else
 #		error the library parameter sets are mismatched!
 #	endif
-/** \endcond */
-
-#elif defined(QSTP_CONFIG_SPHINCS_MCELIECE)
-
-	/*!
-	 * \def qstp_cipher_generate_keypair
-	 * \brief Generate an asymmetric cipher key-pair using McEliece.
-	 */
-#	define qstp_cipher_generate_keypair qsc_mceliece_generate_keypair
-	/*!
-	 * \def qstp_cipher_decapsulate
-	 * \brief Decapsulate a shared-secret with the McEliece asymmetric cipher.
-	 */
-#	define qstp_cipher_decapsulate qsc_mceliece_decapsulate
-	/*!
-	 * \def qstp_cipher_encapsulate
-	 * \brief Encapsulate a shared-secret with the McEliece asymmetric cipher.
-	 */
-#	define qstp_cipher_encapsulate qsc_mceliece_encapsulate
-	/*!
-	 * \def qstp_signature_generate_keypair
-	 * \brief Generate an asymmetric signature key-pair using Sphincs+.
-	 */
-#	define qstp_signature_generate_keypair qsc_sphincsplus_generate_keypair
-	/*!
-	 * \def qstp_signature_sign
-	 * \brief Sign a message using the Sphincs+ signature scheme.
-	 */
-#	define qstp_signature_sign qsc_sphincsplus_sign
-	/*!
-	 * \def qstp_signature_verify
-	 * \brief Verify a message using the Sphincs+ signature scheme.
-	 */
-#	define qstp_signature_verify qsc_sphincsplus_verify
-
-/*!
-* \def QSTP_ASYMMETRIC_CIPHER_TEXT_SIZE
-* \brief The byte size of the cipher-text array (McEliece)
-*/
-#	define QSTP_ASYMMETRIC_CIPHER_TEXT_SIZE (QSC_MCELIECE_CIPHERTEXT_SIZE)
-
-/*!
-* \def QSTP_ASYMMETRIC_PRIVATE_KEY_SIZE
-* \brief The byte size of the asymmetric cipher private-key array (McEliece)
-*/
-#	define QSTP_ASYMMETRIC_PRIVATE_KEY_SIZE (QSC_MCELIECE_PRIVATEKEY_SIZE)
-
-/*!
-* \def QSTP_ASYMMETRIC_PUBLIC_KEY_SIZE
-* \brief The byte size of the asymmetric cipher public-key array (McEliece)
-*/
-#	define QSTP_ASYMMETRIC_PUBLIC_KEY_SIZE (QSC_MCELIECE_PUBLICKEY_SIZE)
-
-/*!
-* \def QSTP_ASYMMETRIC_SIGNING_KEY_SIZE
-* \brief The byte size of the asymmetric signature signing-key array (Sphincs+)
-*/
-#	define QSTP_ASYMMETRIC_SIGNING_KEY_SIZE (QSC_SPHINCSPLUS_PRIVATEKEY_SIZE)
-
-/*!
-* \def QSTP_ASYMMETRIC_VERIFICATION_KEY_SIZE
-* \brief The byte size of the asymmetric signature verification-key array (Sphincs+)
-*/
-#	define QSTP_ASYMMETRIC_VERIFICATION_KEY_SIZE (QSC_SPHINCSPLUS_PUBLICKEY_SIZE)
-
-/*!
-* \def QSTP_ASYMMETRIC_SIGNATURE_SIZE
-* \brief The byte size of the asymmetric signature array (Sphincs+)
-*/
-#	define QSTP_ASYMMETRIC_SIGNATURE_SIZE (QSC_SPHINCSPLUS_SIGNATURE_SIZE)
-
-/** \cond */
-#	if defined(QSC_MCELIECE_S1N3488T64) && defined(QSC_SPHINCSPLUS_S1S128SHAKERF)
-		static const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "mceliece-s1_sphincs-f1_rcs-256_sha3-256";
-		static const qstp_configuration_sets QSTP_CONFIGURATION_SET = qstp_configuration_set_sphincsplus1f_mceliece1_rcs256_shake256;
-#	elif defined(QSC_MCELIECE_S1N3488T64) && defined(QSC_SPHINCSPLUS_S1S128SHAKERS)
-		static const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "mceliece-s1_sphincs-s1_rcs-256_sha3-256";
-		static const qstp_configuration_sets QSTP_CONFIGURATION_SET = qstp_configuration_set_sphincsplus1s_mceliece1_rcs256_shake256;
-#	elif defined(QSC_MCELIECE_S3N4608T96) && defined(QSC_SPHINCSPLUS_S3S192SHAKERF)
-		static const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "mceliece-s3_sphincs-f3_rcs-256_sha3-256";
-		static const qstp_configuration_sets QSTP_CONFIGURATION_SET = qstp_configuration_set_sphincsplus3f_mceliece3_rcs256_shake256;
-#	elif defined(QSC_MCELIECE_S3N4608T96) && defined(QSC_SPHINCSPLUS_S3S192SHAKERS)
-		static const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "mceliece-s3_sphincs-s3_rcs-256_sha3-256";
-		static const qstp_configuration_sets QSTP_CONFIGURATION_SET = qstp_configuration_set_sphincsplus3s_mceliece3_rcs256_shake256;
-#	elif defined(QSC_MCELIECE_S5N6688T128) && defined(QSC_SPHINCSPLUS_S5S256SHAKERF)
-		static const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "mceliece-s5_sphincs-f5_rcs-256_sha3-256";
-		static const qstp_configuration_sets QSTP_CONFIGURATION_SET = qstp_configuration_set_sphincsplus5f_mceliece5_rcs256_shake256;
-#	elif defined(QSC_MCELIECE_S5N6688T128) && defined(QSC_SPHINCSPLUS_S5S256SHAKERS)
-		static const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "mceliece-s5_sphincs-s5_rcs-256_sha3-256";
-		static const qstp_configuration_sets QSTP_CONFIGURATION_SET = qstp_configuration_set_sphincsplus5s_mceliece5_rcs256_shake256;
-#	elif defined(QSC_MCELIECE_S6N6960T119) && defined(QSC_SPHINCSPLUS_S5S256SHAKERF)
-		static const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "mceliece-s6_sphincs-f5_rcs-256_sha3-256";
-		static const qstp_configuration_sets QSTP_CONFIGURATION_SET = qstp_configuration_set_sphincsplus5f_mceliece6_rcs256_shake256;
-#	elif defined(QSC_MCELIECE_S6N6960T119) && defined(QSC_SPHINCSPLUS_S5S256SHAKERS)
-		static const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "mceliece-s6_sphincs-s5_rcs-256_sha3-256";
-		static const qstp_configuration_sets QSTP_CONFIGURATION_SET = qstp_configuration_set_sphincsplus5s_mceliece6_rcs256_shake256;
-#	elif defined(QSC_MCELIECE_S7N8192T128) && defined(QSC_SPHINCSPLUS_S5S256SHAKERF)
-		static const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "mceliece-s7_sphincs-f5_rcs-256_sha3-256";
-		static const qstp_configuration_sets QSTP_CONFIGURATION_SET = qstp_configuration_set_sphincsplus5f_mceliece7_rcs256_shake256;
-#	elif defined(QSC_MCELIECE_S7N8192T128) && defined(QSC_SPHINCSPLUS_S5S256SHAKERS)
-		static const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "mceliece-s7_sphincs-s5_rcs-256_sha3-256";
-		static const qstp_configuration_sets QSTP_CONFIGURATION_SET = qstp_configuration_set_sphincsplus5s_mceliece7_rcs256_shake256;
-#	else
-		/* The library signature scheme and asymmetric cipher parameter sets must be synchronized 
-		   to a common security level; s1, s3, s5 or s6. Check the QSC library common.h file for alignment. */
-#		error Invalid parameter sets, check the QSC library settings 
-#	endif
-/** \endcond */
+/** \endcond DOXYGEN_NO_DOCUMENT */
 
 #endif
 
@@ -498,12 +392,6 @@ QSTP_EXPORT_API typedef enum qstp_configuration_sets
  * \brief The certificate algorithm type field size in bytes.
  */
 #define QSTP_CERTIFICATE_ALGORITHM_SIZE 1U
-
-/*!
- * \def QSTP_CERTIFICATE_DESIGNATION_SIZE
- * \brief The certificate designation field size in bytes.
- */
-#define QSTP_CERTIFICATE_DESIGNATION_SIZE 1U
 
 /*!
  * \def QSTP_CERTIFICATE_EXPIRATION_SIZE
@@ -525,7 +413,7 @@ QSTP_EXPORT_API typedef enum qstp_configuration_sets
 
 /*!
  * \def QSTP_CERTIFICATE_LINE_LENGTH
- * \brief The line length for printing the MPDC certificate.
+ * \brief The line length for printing the QSTP certificate.
  */
 #define QSTP_CERTIFICATE_LINE_LENGTH 64U
 
@@ -674,9 +562,9 @@ QSTP_EXPORT_API typedef enum qstp_configuration_sets
 
 /*!
  * \def QSTP_PACKET_MESSAGE_MAX
- * \brief The maximum message size (in bytes) used during the key exchange (approximately 1 GB).
+ * \brief The maximum message size (in bytes) used during the key exchange (65,536  bytes).
  */
-#define QSTP_PACKET_MESSAGE_MAX 0x3D090000UL
+#define QSTP_PACKET_MESSAGE_MAX 0x10000UL
 
 /*!
  * \def QSTP_PACKET_REVOCATION_SEQUENCE
@@ -751,22 +639,35 @@ QSTP_EXPORT_API typedef enum qstp_configuration_sets
  * \def QSTP_ROOT_CERTIFICATE_SIZE
  * \brief The total length in bytes of the root certificate.
  */
-#define QSTP_ROOT_CERTIFICATE_SIZE (QSTP_CERTIFICATE_HASH_SIZE + \
-	QSTP_ASYMMETRIC_VERIFICATION_KEY_SIZE + \
-	QSTP_CERTIFICATE_ISSUER_SIZE + \
-	QSTP_CERTIFICATE_SERIAL_SIZE + \
-	QSTP_CERTIFICATE_EXPIRATION_SIZE + \
-	QSTP_CERTIFICATE_ALGORITHM_SIZE + \
-	QSTP_CERTIFICATE_VERSION_SIZE)
+#if defined(QSTP_EXTERNAL_SIGNED_ROOT)
+#	define QSTP_ROOT_CERTIFICATE_SIZE (QSTP_CERTIFICATE_SIGNED_HASH_SIZE + \
+		QSTP_ASYMMETRIC_VERIFICATION_KEY_SIZE + \
+		QSTP_CERTIFICATE_ISSUER_SIZE + \
+		QSTP_CERTIFICATE_SERIAL_SIZE + \
+		QSTP_CERTIFICATE_EXPIRATION_SIZE + \
+		QSTP_CERTIFICATE_ALGORITHM_SIZE + \
+		QSTP_CERTIFICATE_VERSION_SIZE + \
+		QSTP_CERTIFICATE_ISSUER_SIZE + \
+		QSTP_CERTIFICATE_SERIAL_SIZE + \
+		QSTP_CERTIFICATE_ALGORITHM_SIZE)
+#else
+#	define QSTP_ROOT_CERTIFICATE_SIZE (QSTP_CERTIFICATE_SIGNED_HASH_SIZE + \
+		QSTP_ASYMMETRIC_VERIFICATION_KEY_SIZE + \
+		QSTP_CERTIFICATE_ISSUER_SIZE + \
+		QSTP_CERTIFICATE_SERIAL_SIZE + \
+		QSTP_CERTIFICATE_EXPIRATION_SIZE + \
+		QSTP_CERTIFICATE_ALGORITHM_SIZE + \
+		QSTP_CERTIFICATE_VERSION_SIZE)
+#endif
 
 /*!
  * \def QSTP_ROOT_SIGNATURE_KEY_SIZE
  * \brief The total length in bytes of the root signature key.
  */
-#define QSTP_ROOT_SIGNATURE_KEY_SIZE (QSTP_CERTIFICATE_ISSUER_SIZE + \
-	QSTP_CERTIFICATE_SERIAL_SIZE + \
-	QSTP_ASYMMETRIC_SIGNING_KEY_SIZE + \
+#define QSTP_ROOT_SIGNATURE_KEY_SIZE (QSTP_ASYMMETRIC_SIGNING_KEY_SIZE + \
 	QSTP_ASYMMETRIC_VERIFICATION_KEY_SIZE + \
+	QSTP_CERTIFICATE_ISSUER_SIZE + \
+	QSTP_CERTIFICATE_SERIAL_SIZE + \
 	QSTP_CERTIFICATE_EXPIRATION_SIZE + \
 	QSTP_CERTIFICATE_ALGORITHM_SIZE + \
 	QSTP_CERTIFICATE_VERSION_SIZE)
@@ -782,7 +683,6 @@ QSTP_EXPORT_API typedef enum qstp_configuration_sets
 	QSTP_CERTIFICATE_SERIAL_SIZE + \
 	QSTP_CERTIFICATE_EXPIRATION_SIZE + \
 	QSTP_CERTIFICATE_ALGORITHM_SIZE + \
-	QSTP_CERTIFICATE_DESIGNATION_SIZE + \
 	QSTP_CERTIFICATE_VERSION_SIZE)
 
 /*!
@@ -796,11 +696,10 @@ QSTP_EXPORT_API typedef enum qstp_configuration_sets
 	QSTP_CERTIFICATE_SERIAL_SIZE + \
 	QSTP_CERTIFICATE_EXPIRATION_SIZE + \
 	QSTP_CERTIFICATE_ALGORITHM_SIZE + \
-	QSTP_CERTIFICATE_DESIGNATION_SIZE + \
 	QSTP_CERTIFICATE_VERSION_SIZE)
 
-/** \cond */
-#define QSTP_PROTOCOL_SET_DEPTH 12U
+/** \cond DOXYGEN_NO_DOCUMENT */
+#define QSTP_PROTOCOL_SET_DEPTH 9U
 
 /* protocol set strings */
 static const char QSTP_PARAMETER_STRINGS[QSTP_PROTOCOL_SET_DEPTH][QSTP_PROTOCOL_SET_SIZE] =
@@ -812,17 +711,15 @@ static const char QSTP_PARAMETER_STRINGS[QSTP_PROTOCOL_SET_DEPTH][QSTP_PROTOCOL_
 	"dilithium-s1_mceliece-s1_rcs-256_sha3-256",
 	"dilithium-s3_mceliece-s3_rcs-256_sha3-256",
 	"dilithium-s5_mceliece-s5_rcs-256_sha3-256",
-	"sphincs-1f_mceliece-s1_rcs-256_sha3-256",
-	"sphincs-3f_mceliece-s3_rcs-256_sha3-256",
-	"sphincs-5f_mceliece-s5_rcs-256_sha3-256",
-	"sphincs-5f_mceliece-s6_rcs-256_sha3-256",
-	"sphincs-5f_mceliece-s7_rcs-256_sha3-256",
+	"dilithium-s5_mceliece-s6_rcs-256_sha3-256",
+	"dilithium-s5_mceliece-s7_rcs-256_sha3-256",
 };
-/** \endcond */
+/** \endcond DOXYGEN_NO_DOCUMENT */
 
 /* error code strings */
-/** \cond */
-#define QSTP_MESSAGE_STRING_DEPTH 21U
+
+/** \cond DOXYGEN_NO_DOCUMENT */
+#define QSTP_MESSAGE_STRING_DEPTH 19U
 #define QSTP_MESSAGE_STRING_WIDTH 128U
 
 static const char QSTP_MESSAGE_STRINGS[QSTP_MESSAGE_STRING_DEPTH][QSTP_MESSAGE_STRING_WIDTH] =
@@ -843,16 +740,14 @@ static const char QSTP_MESSAGE_STRINGS[QSTP_MESSAGE_STRING_DEPTH][QSTP_MESSAGE_S
 	"The server listener socket has failed.",
 	"The server has run out of socket connections.",
 	"The message decryption has failed.",
-	"The keepalive function has failed.",
-	"The keepalive period has been exceeded",
 	"The connection failed or was interrupted.",
 	"The function received an invalid request.",
 	"The host received a symmetric ratchet request"
 };
-/** \endcond */
+/** \endcond DOXYGEN_NO_DOCUMENT */
 
-/** \cond */
-#define QSTP_ERROR_STRING_DEPTH 31U
+/** \cond DOXYGEN_NO_DOCUMENT */
+#define QSTP_ERROR_STRING_DEPTH 28U
 #define QSTP_ERROR_STRING_WIDTH 128U
 
 static const char QSTP_ERROR_STRINGS[QSTP_ERROR_STRING_DEPTH][QSTP_ERROR_STRING_WIDTH] =
@@ -860,7 +755,6 @@ static const char QSTP_ERROR_STRINGS[QSTP_ERROR_STRING_DEPTH][QSTP_ERROR_STRING_
 	"No error was detected",
 	"The socket accept function returned an error",
 	"The symmetric cipher had an authentication failure",
-	"The keep alive check failed",
 	"The communications channel has failed",
 	"The device could not make a connection to the remote host",
 	"The transmission failed at the KEX connection phase",
@@ -868,13 +762,11 @@ static const char QSTP_ERROR_STRINGS[QSTP_ERROR_STRING_DEPTH][QSTP_ERROR_STRING_
 	"The decryption authentication has failed",
 	"The transmission failed at the KEX establish phase",
 	"The transmission failed at the KEX exchange phase",
-	"The public - key hash is invalid",
+	"The public key hash is invalid",
 	"The server has run out of socket connections",
 	"The expected input was invalid",
 	"The packet flag was unexpected",
-	"The keep alive has expired with no response",
-	"The decryption authentication has failed",
-	"The QSTP public key has expired ",
+	"The QSTP public key has expired",
 	"The key identity is unrecognized",
 	"The ratchet operation has failed",
 	"The listener function failed to initialize",
@@ -889,7 +781,7 @@ static const char QSTP_ERROR_STRINGS[QSTP_ERROR_STRING_DEPTH][QSTP_ERROR_STRING_
 	"The expected data could not be verified",
 	"The remote host sent an error or disconnect message"
 };
-/** \endcond */
+/** \endcond DOXYGEN_NO_DOCUMENT */
 
 /*!
  * \enum qstp_messages
@@ -913,11 +805,9 @@ QSTP_EXPORT_API typedef enum qstp_messages
 	qstp_messages_listener_fail = 0x0DU,			/*!< The server listener socket has failed */
 	qstp_messages_sockalloc_fail = 0x0EU,			/*!< The server has run out of socket connections */
 	qstp_messages_decryption_fail = 0x0FU,			/*!< The message decryption has failed */
-	qstp_messages_keepalive_fail = 0x10U,			/*!< The keepalive function has failed */
-	qstp_messages_keepalive_timeout = 0x11U,		/*!< The keepalive period has been exceeded */
-	qstp_messages_connection_fail = 0x12U,			/*!< The connection failed or was interrupted */
-	qstp_messages_invalid_request = 0x13U,			/*!< The function received an invalid request */
-	qstp_messages_symmetric_ratchet = 0x14U,		/*!< The host received a symmetric ratchet request */
+	qstp_messages_connection_fail = 0x10U,			/*!< The connection failed or was interrupted */
+	qstp_messages_invalid_request = 0x11U,			/*!< The function received an invalid request */
+	qstp_messages_symmetric_ratchet = 0x12U,		/*!< The host received a symmetric ratchet request */
 } qstp_messages;
 
 /*!
@@ -929,34 +819,31 @@ QSTP_EXPORT_API typedef enum qstp_errors
 	qstp_error_none = 0x00U,						/*!< No error was detected */
 	qstp_error_accept_fail = 0x01U,					/*!< The socket accept function returned an error */
 	qstp_error_authentication_failure = 0x02U,		/*!< The symmetric cipher had an authentication failure */
-	qstp_error_bad_keep_alive = 0x03U,				/*!< The keep alive check failed */
-	qstp_error_channel_down = 0x04U,				/*!< The communications channel has failed */
-	qstp_error_connection_failure = 0x05U,			/*!< The device could not make a connection to the remote host */
-	qstp_error_connect_failure = 0x06U,				/*!< The transmission failed at the KEX connection phase */
-	qstp_error_decapsulation_failure = 0x07U,		/*!< The asymmetric cipher failed to decapsulate the shared secret */
-	qstp_error_decryption_failure = 0x08U,			/*!< The decryption authentication has failed */
-	qstp_error_establish_failure = 0x09U,			/*!< The transmission failed at the KEX establish phase */
-	qstp_error_exchange_failure = 0x0AU,			/*!< The transmission failed at the KEX exchange phase */
-	qstp_error_hash_invalid = 0x0BU,				/*!< The public-key hash is invalid */
-	qstp_error_hosts_exceeded = 0x0CU,				/*!< The server has run out of socket connections */
-	qstp_error_invalid_input = 0x0DU,				/*!< The expected input was invalid */
-	qstp_error_invalid_request = 0x0EU,				/*!< The packet flag was unexpected */
-	qstp_error_keepalive_expired = 0x0FU,			/*!< The keep alive has expired with no response */
-	qstp_error_keepalive_timeout = 0x10U,			/*!< The decryption authentication has failed */
-	qstp_error_key_expired = 0x11U,					/*!< The QSTP public key has expired  */
-	qstp_error_key_unrecognized = 0x12U,			/*!< The key identity is unrecognized */
-	qstp_error_keychain_fail = 0x13U,				/*!< The ratchet operation has failed */
-	qstp_error_listener_fail = 0x14U,				/*!< The listener function failed to initialize */
-	qstp_error_memory_allocation = 0x15U,			/*!< The server has run out of memory */
-	qstp_error_message_time_invalid = 0x16U,		/*!< The packet has valid time expired */
-	qstp_error_packet_unsequenced = 0x17U,			/*!< The packet was received out of sequence */
-	qstp_error_random_failure = 0x18U,				/*!< The random generator has failed */
-	qstp_error_receive_failure = 0x19U,				/*!< The receiver failed at the network layer */
-	qstp_error_signature_failure = 0x1AU,			/*!< The signing function has failed */
-	qstp_error_transmit_failure = 0x1BU,			/*!< The transmitter failed at the network layer */
-	qstp_error_unknown_protocol = 0x1CU,			/*!< The protocol string was not recognized */
-	qstp_error_verify_failure = 0x1DU,				/*!< The expected data could not be verified */
-	qstp_messages_system_message = 0x1EU,			/*!< The remote host sent an error or disconnect message */
+	qstp_error_channel_down = 0x03U,				/*!< The communications channel has failed */
+	qstp_error_connection_failure = 0x04U,			/*!< The device could not make a connection to the remote host */
+	qstp_error_connect_failure = 0x05U,				/*!< The transmission failed at the KEX connection phase */
+	qstp_error_decapsulation_failure = 0x06U,		/*!< The asymmetric cipher failed to decapsulate the shared secret */
+	qstp_error_decryption_failure = 0x07U,			/*!< The decryption authentication has failed */
+	qstp_error_establish_failure = 0x08U,			/*!< The transmission failed at the KEX establish phase */
+	qstp_error_exchange_failure = 0x09U,			/*!< The transmission failed at the KEX exchange phase */
+	qstp_error_hash_invalid = 0x0AU,				/*!< The public key hash is invalid */
+	qstp_error_hosts_exceeded = 0x0BU,				/*!< The server has run out of socket connections */
+	qstp_error_invalid_input = 0x0CU,				/*!< The expected input was invalid */
+	qstp_error_invalid_request = 0x0DU,				/*!< The packet flag was unexpected */
+	qstp_error_key_expired = 0x0EU,					/*!< The QSTP public key has expired  */
+	qstp_error_key_unrecognized = 0x0FU,			/*!< The key identity is unrecognized */
+	qstp_error_keychain_fail = 0x10U,				/*!< The ratchet operation has failed */
+	qstp_error_listener_fail = 0x11U,				/*!< The listener function failed to initialize */
+	qstp_error_memory_allocation = 0x12U,			/*!< The server has run out of memory */
+	qstp_error_message_time_invalid = 0x13U,		/*!< The packet has valid time expired */
+	qstp_error_packet_unsequenced = 0x14U,			/*!< The packet was received out of sequence */
+	qstp_error_random_failure = 0x15U,				/*!< The random generator has failed */
+	qstp_error_receive_failure = 0x16U,				/*!< The receiver failed at the network layer */
+	qstp_error_signature_failure = 0x17U,			/*!< The signing function has failed */
+	qstp_error_transmit_failure = 0x18U,			/*!< The transmitter failed at the network layer */
+	qstp_error_unknown_protocol = 0x19U,			/*!< The protocol string was not recognized */
+	qstp_error_verify_failure = 0x1AU,				/*!< The expected data could not be verified */
+	qstp_messages_system_message = 0x1BU,			/*!< The remote host sent an error or disconnect message */
 } qstp_errors;
 
 /*!
@@ -976,35 +863,33 @@ QSTP_EXPORT_API typedef enum qstp_flags
 	qstp_flag_exchange_response = 0x08U,			/*!< The QSTP key-exchange server exchange response flag */
 	qstp_flag_establish_request = 0x09U,			/*!< The QSTP key-exchange client establish request flag */
 	qstp_flag_establish_response = 0x0AU,			/*!< The QSTP key-exchange server establish response flag */
-	qstp_flag_keep_alive_request = 0x0BU,			/*!< The packet contains a keep alive request */
-	qstp_flag_keep_alive_response = 0x0CU,			/*!< The packet contains a keep alive response */
-	qstp_flag_remote_connected = 0x0EU,				/*!< Indicates that the remote host is connected */
-	qstp_flag_remote_terminated = 0x0FU,			/*!< Indicates that the remote host has terminated the connection */
-	qstp_flag_session_established = 0x10U,			/*!< Indicates that the key exchange is in the established state */
-	qstp_flag_session_establish_verify = 0x11U,		/*!< Indicates that the key exchange is in the established verify state */
-	qstp_flag_unrecognized_protocol = 0x12U,		/*!< The protocol string is not recognized */
-	qstp_flag_certificate_revoke = 0x13U,			/*!< Indicates a certificate revocation message */
-	qstp_flag_transfer_request = 0x14U,				/*!< Reserved: Indicates a transfer request */
-	qstp_flag_symmetric_ratchet_request = 0x15U,	/*!< The host has received a symmetric key ratchet request */
-	qstp_flag_error_condition = 0xFFU,				/*!< Indicates that the connection experienced an error */
+	qstp_flag_remote_connected = 0x0BU,				/*!< Indicates that the remote host is connected */
+	qstp_flag_remote_terminated = 0x0CU,			/*!< Indicates that the remote host has terminated the connection */
+	qstp_flag_session_established = 0x0DU,			/*!< Indicates that the key exchange is in the established state */
+	qstp_flag_session_establish_verify = 0x0EU,		/*!< Indicates that the key exchange is in the established verify state */
+	qstp_flag_unrecognized_protocol = 0x0FU,		/*!< The protocol string is not recognized */
+	qstp_flag_certificate_revoke = 0x10U,			/*!< Indicates a certificate revocation message */
+	qstp_flag_transfer_request = 0x11U,				/*!< Reserved: Indicates a transfer request */
+	qstp_flag_symmetric_ratchet_request = 0x12U,	/*!< The host has received a symmetric key ratchet request */
+	qstp_flag_error_condition = 0x13U,				/*!< Indicates that the connection experienced an error */
 } qstp_flags;
 
 /*!
  * \enum qstp_network_designations
- * \brief The MPDC device designations.
+ * \brief The QSTP device designations.
  */
 QSTP_EXPORT_API typedef enum qstp_network_designations
 {
 	qstp_network_designation_none = 0x00U,			/*!< No designation was selected */
-	mpdc_network_designation_client = 0x01U,		/*!< The device is a client */
-	mpdc_network_designation_root = 0x02U,			/*!< The device is the DLA (root) */
-	mpdc_network_designation_server = 0x03U,		/*!< The device is an inter-domain gateway (server) */
-	mpdc_network_designation_all = 0xFFU,			/*!< All devices on the network */
+	qstp_network_designation_client = 0x01U,		/*!< The device is a client */
+	qstp_network_designation_root = 0x02U,			/*!< The device is the DLA (root) */
+	qstp_network_designation_server = 0x03U,		/*!< The device is an inter-domain gateway (server) */
+	qstp_network_designation_all = 0xFFU,			/*!< All devices on the network */
 } qstp_network_designations;
 
 /*!
  * \enum qstp_version_sets
- * \brief The MPDC version sets.
+ * \brief The QSTP version sets.
  */
 QSTP_EXPORT_API typedef enum qstp_version_sets
 {
@@ -1023,20 +908,6 @@ QSTP_EXPORT_API typedef struct qstp_certificate_expiration
 	uint64_t from;	/*!< The starting time in seconds */
 	uint64_t to;	/*!< The expiration time in seconds */
 } qstp_certificate_expiration;
-
-/*!
- * \struct qstp_keep_alive_state
- * \brief The QSTP keep alive state structure.
- *
- * This structure tracks the state of keep-alive messages for a connection.
- */
-QSTP_EXPORT_API typedef struct qstp_keep_alive_state
-{
-	qsc_socket target;	/*!< The target socket structure */
-	uint64_t etime;		/*!< The keep alive epoch time */
-	uint64_t seqctr;	/*!< The keep alive packet sequence counter */
-	bool recd;			/*!< The flag indicating if a keep alive response was received */
-} qstp_keep_alive_state;
 
 /*!
  * \struct qstp_server_certificate
@@ -1067,7 +938,7 @@ QSTP_EXPORT_API typedef struct qstp_server_certificate
 QSTP_EXPORT_API typedef struct qstp_server_signature_key
 {
 	char issuer[QSTP_CERTIFICATE_ISSUER_SIZE];			/*!< The certificate issuer */
-	uint8_t schash[QSTP_CERTIFICATE_HASH_SIZE];			/*!< The root/server certificate hash */
+	uint8_t schash[QSTP_CERTIFICATE_HASH_SIZE];			/*!< The root/server transcript hash */
 	uint8_t serial[QSTP_CERTIFICATE_SERIAL_SIZE];		/*!< The certificate serial number */
 	uint8_t sigkey[QSTP_ASYMMETRIC_SIGNING_KEY_SIZE];	/*!< The asymmetric signature signing key */
 	uint8_t verkey[QSTP_ASYMMETRIC_VERIFICATION_KEY_SIZE];	/*!< The serialized public verification key */
@@ -1084,12 +955,18 @@ QSTP_EXPORT_API typedef struct qstp_server_signature_key
  */
 QSTP_EXPORT_API typedef struct qstp_root_certificate
 {
+	uint8_t csig[QSTP_CERTIFICATE_SIGNED_HASH_SIZE];	/*!< Root certificate signed hash */
 	uint8_t verkey[QSTP_ASYMMETRIC_VERIFICATION_KEY_SIZE]; /*!< The serialized public key */
 	char issuer[QSTP_CERTIFICATE_ISSUER_SIZE];			/*!< The certificate issuer text */
 	uint8_t serial[QSTP_CERTIFICATE_SERIAL_SIZE];		/*!< The certificate serial number */
 	qstp_certificate_expiration expiration;				/*!< The certificate expiration times */
 	qstp_configuration_sets algorithm;					/*!< The signature algorithm identifier */
 	qstp_version_sets version;							/*!< The certificate version */
+#if defined(QSTP_EXTERNAL_SIGNED_ROOT)
+	char authority[QSTP_CERTIFICATE_ISSUER_SIZE];		/*!< Signing authority identity */
+	uint8_t keyid[QSTP_CERTIFICATE_SERIAL_SIZE];		/*!< Authority key identity linkage */
+	qstp_signature_schemes scheme;						/*!< Signature suite used by external authority */
+#endif
 } qstp_root_certificate;
 
 /*!
@@ -1146,7 +1023,8 @@ QSTP_EXPORT_API typedef struct qstp_connection_state
 } qstp_connection_state;
 
 /* Default key and path names (hidden from documentation) */
-/** \cond */
+
+/** \cond DOXYGEN_NO_DOCUMENT */
 static const char QSTP_CLIENT_DIRECTORY_PATH[] = "Client";
 static const char QSTP_ROOT_CERTIFICATE_EXTENSION_NAME[] = ".qrr";
 static const char QSTP_ROOT_DIRECTORY_PATH[] = "Root";
@@ -1156,10 +1034,10 @@ static const char QSTP_SERVER_CERTIFICATE_EXTENSION_NAME[] = ".qrc";
 static const char QSTP_SERVER_DIRECTORY_PATH[] = "Server";
 static const char QSTP_SERVER_PRIVATE_KEY_NAME[] = "server_secret_key.qsk";
 static const char QSTP_SERVER_PUBLIC_CERTIFICATE_NAME[] = "server_public_cert.qrc";
-/** \endcond */
+/** \endcond DOXYGEN_NO_DOCUMENT */
 
 /* Public key encoding constants (hidden from documentation) */
-/** \cond */
+/** \cond DOXYGEN_NO_DOCUMENT */
 #define QSTP_CERTIFICATE_SEPERATOR_SIZE 1U
 #define QSTP_CHILD_CERTIFICATE_HEADER_SIZE 54U
 #define QSTP_CHILD_CERTIFICATE_HASH_PREFIX_SIZE 30U
@@ -1176,11 +1054,11 @@ static const char QSTP_SERVER_PUBLIC_CERTIFICATE_NAME[] = "server_public_cert.qr
 #define QSTP_CHILD_CERTIFICATE_ADDRESS_PREFIX_SIZE 10U
 #define QSTP_CHILD_CERTIFICATE_PUBLICKEY_PREFIX_SIZE 13U
 #define QSTP_CHILD_CERTIFICATE_FOOTER_SIZE 52U
-/** \endcond */
+/** \endcond DOXYGEN_NO_DOCUMENT */
 
-/** \cond */
+/** \cond DOXYGEN_NO_DOCUMENT */
 static const char QSTP_CHILD_CERTIFICATE_HEADER[QSTP_CHILD_CERTIFICATE_HEADER_SIZE] = "------BEGIN QSTP CHILD PUBLIC CERTIFICATE BLOCK------";
-static const char QSTP_CHILD_CERTIFICATE_ROOT_HASH_PREFIX[QSTP_CHILD_CERTIFICATE_HASH_PREFIX_SIZE] = "Root Signed Public Key Hash: ";
+static const char QSTP_CHILD_CERTIFICATE_ROOT_SIGNED_HASH_PREFIX[QSTP_CHILD_CERTIFICATE_HASH_PREFIX_SIZE] = "Root Signed Public Key Hash: ";
 static const char QSTP_CHILD_CERTIFICATE_SIGNATURE_KEY_PREFIX[QSTP_CHILD_CERTIFICATE_SIGNATURE_KEY_PREFIX_SIZE] = "Public Signature Key: ";
 static const char QSTP_CHILD_CERTIFICATE_ISSUER_PREFIX[QSTP_CHILD_CERTIFICATE_ISSUER_PREFIX_SIZE] = "Issuer: ";
 static const char QSTP_CHILD_CERTIFICATE_NAME_PREFIX[QSTP_CHILD_CERTIFICATE_NAME_PREFIX_SIZE] = "Name: ";
@@ -1194,11 +1072,12 @@ static const char QSTP_CHILD_CERTIFICATE_DESIGNATION_PREFIX[QSTP_CHILD_CERTIFICA
 static const char QSTP_CHILD_CERTIFICATE_ADDRESS_PREFIX[QSTP_CHILD_CERTIFICATE_ADDRESS_PREFIX_SIZE] = "Address: ";
 static const char QSTP_CHILD_CERTIFICATE_PUBLICKEY_PREFIX[QSTP_CHILD_CERTIFICATE_PUBLICKEY_PREFIX_SIZE] = "Public Key: ";
 static const char QSTP_CHILD_CERTIFICATE_FOOTER[QSTP_CHILD_CERTIFICATE_FOOTER_SIZE] = "------END QSTP CHILD PUBLIC CERTIFICATE BLOCK------";
-/** \endcond */
+/** \endcond DOXYGEN_NO_DOCUMENT */
 
-/** \cond */
+/** \cond DOXYGEN_NO_DOCUMENT */
 #define QSTP_ROOT_CERTIFICATE_HEADER_SIZE 53U
 #define QSTP_ROOT_CERTIFICATE_HASH_PREFIX_SIZE 19U
+#define QSTP_ROOT_CERTIFICATE_SIGNED_CERTIFICATE_PREFIX_SIZE 30U
 #define QSTP_ROOT_CERTIFICATE_PUBLICKEY_PREFIX_SIZE 13U
 #define QSTP_ROOT_CERTIFICATE_ISSUER_PREFIX_SIZE 9U
 #define QSTP_ROOT_CERTIFICATE_NAME_PREFIX_SIZE 7U
@@ -1211,10 +1090,16 @@ static const char QSTP_CHILD_CERTIFICATE_FOOTER[QSTP_CHILD_CERTIFICATE_FOOTER_SI
 #define QSTP_ROOT_CERTIFICATE_DEFAULT_NAME_SIZE 18U
 #define QSTP_ROOT_ACTIVE_VERSION_STRING_SIZE 5U
 #define QSTP_CERTIFICATE_DEFAULT_DOMAIN_SIZE 5U
-/** \endcond */
+#if defined(QSTP_EXTERNAL_SIGNED_ROOT)
+#define QSTP_ROOT_CERTIFICATE_AUTHORITY_PREFIX_SIZE 12U
+#define QSTP_ROOT_CERTIFICATE_AUTH_KEYID_PREFIX_SIZE 19U
+#define QSTP_ROOT_CERTIFICATE_AUTHORITY_ALGORITHM_SIZE 22U
+#endif
+/** \endcond DOXYGEN_NO_DOCUMENT */
 
-/** \cond */
+/** \cond DOXYGEN_NO_DOCUMENT */
 static const char QSTP_ROOT_CERTIFICATE_HEADER[QSTP_ROOT_CERTIFICATE_HEADER_SIZE] = "------BEGIN QSTP ROOT PUBLIC CERTIFICATE BLOCK------";
+static const char QSTP_ROOT_CERTIFICATE_ROOT_SIGNED_HASH_PREFIX[QSTP_ROOT_CERTIFICATE_SIGNED_CERTIFICATE_PREFIX_SIZE] = "Signed Certificate Key Hash: ";
 static const char QSTP_ROOT_CERTIFICATE_ISSUER_PREFIX[QSTP_ROOT_CERTIFICATE_ISSUER_PREFIX_SIZE] = "Issuer: ";
 static const char QSTP_ROOT_CERTIFICATE_NAME_PREFIX[QSTP_ROOT_CERTIFICATE_NAME_PREFIX_SIZE] = "Name: ";
 static const char QSTP_ROOT_CERTIFICATE_SERIAL_PREFIX[QSTP_ROOT_CERTIFICATE_SERIAL_PREFIX_SIZE] = "Serial: ";
@@ -1228,12 +1113,17 @@ static const char QSTP_ROOT_CERTIFICATE_FOOTER[QSTP_ROOT_CERTIFICATE_FOOTER_SIZE
 static const char QSTP_ROOT_CERTIFICATE_DEFAULT_NAME[QSTP_ROOT_CERTIFICATE_DEFAULT_NAME_SIZE] = " Root Certificate";
 static const char QSTP_ACTIVE_VERSION_STRING[QSTP_ROOT_ACTIVE_VERSION_STRING_SIZE] = "0x01";
 static const char QSTP_CERTIFICATE_DEFAULT_DOMAIN[QSTP_CERTIFICATE_DEFAULT_DOMAIN_SIZE] = "QSTP";
-/** \endcond */
+#if defined(QSTP_EXTERNAL_SIGNED_ROOT)
+static const char QSTP_ROOT_CERTIFICATE_AUTHORITY_PREFIX[QSTP_ROOT_CERTIFICATE_AUTHORITY_PREFIX_SIZE] = "Authority: ";
+static const char QSTP_ROOT_CERTIFICATE_AUTH_KEYID_PREFIX[QSTP_ROOT_CERTIFICATE_AUTH_KEYID_PREFIX_SIZE] = "Authority Key ID: ";
+static const char QSTP_ROOT_CERTIFICATE_AUTHORITY_ALGORITHM_PREFIX[QSTP_ROOT_CERTIFICATE_AUTHORITY_ALGORITHM_SIZE] = "Authority Algorithm: ";
+#endif
+/** \endcond DOXYGEN_NO_DOCUMENT */
 
 /*!
  * \brief Get the configuration enumerator from a string.
  *
- * \param config The configuration string.
+ * \param config: [const] The configuration string.
  *
  * \return The corresponding configuration set enumerator.
  */
@@ -1242,27 +1132,27 @@ QSTP_EXPORT_API qstp_configuration_sets qstp_configuration_from_string(const cha
 /*!
  * \brief Get the configuration string from the enumerator.
  *
- * \param cset The configuration set enumerator.
+ * \param cset: The configuration set enumerator.
  *
- * \return The configuration set string or NULL if not recognized.
+ * \return [const] The configuration set string or NULL if not recognized.
  */
 QSTP_EXPORT_API const char* qstp_configuration_to_string(qstp_configuration_sets cset);
 
 /*!
  * \brief Close the network connection between hosts.
  *
- * \param cns A pointer to the QSTP connection state structure.
- * \param err The error code.
- * \param notify If true, notify the remote host that the connection is closing.
+ * \param cns: A pointer to the QSTP connection state structure.
+ * \param err: The error code.
+ * \param notify: If true, notify the remote host that the connection is closing.
  */
 QSTP_EXPORT_API void qstp_connection_close(qstp_connection_state* cns, qstp_errors err, bool notify);
 
 /*!
  * \brief Decrypt an error message.
  *
- * \param cns A pointer to the QSTP connection state structure.
- * \param message [const] The serialized error packet.
- * \param merr A pointer to an \c qstp_errors error value.
+ * \param merr: A pointer to an \c qstp_errors error value.
+ * \param cns: A pointer to the QSTP connection state structure.
+ * \param message: [const] The serialized error packet.
  *
  * \return Returns true if the message was decrypted successfully, false on failure.
  */
@@ -1271,17 +1161,17 @@ QSTP_EXPORT_API bool qstp_decrypt_error_message(qstp_errors* merr, qstp_connecti
 /*!
  * \brief Reset the connection state to zero.
  *
- * \param cns A pointer to the QSTP connection state structure.
+ * \param cns: A pointer to the QSTP connection state structure.
  */
 QSTP_EXPORT_API void qstp_connection_state_dispose(qstp_connection_state* cns);
 
 /*!
  * \brief Decrypt a message from an input packet.
  *
- * \param cns A pointer to the QSTP connection state structure.
- * \param message The output buffer for the decrypted message.
- * \param msglen A pointer to a variable to receive the message length.
- * \param packetin A pointer to the input QSTP network packet.
+ * \param cns: A pointer to the QSTP connection state structure.
+ * \param message: The output buffer for the decrypted message.
+ * \param msglen: A pointer to a variable to receive the message length.
+ * \param packetin: [const] A pointer to the input QSTP network packet.
  *
  * \return Returns the function error state.
  */
@@ -1290,10 +1180,10 @@ QSTP_EXPORT_API qstp_errors qstp_decrypt_packet(qstp_connection_state* cns, uint
 /*!
  * \brief Encrypt a message and build an output packet.
  *
- * \param cns A pointer to the QSTP connection state structure.
- * \param packetout A pointer to the output QSTP network packet.
- * \param message The input message array.
- * \param msglen The length of the message in bytes.
+ * \param cns: A pointer to the QSTP connection state structure.
+ * \param packetout: A pointer to the output QSTP network packet.
+ * \param message: [const] The input message array.
+ * \param msglen: The length of the message in bytes.
  *
  * \return Returns the function error state.
  */
@@ -1302,30 +1192,30 @@ QSTP_EXPORT_API qstp_errors qstp_encrypt_packet(qstp_connection_state* cns, qstp
 /*!
  * \brief Return a pointer to a string description of an error code.
  *
- * \param error The QSTP error code.
+ * \param error: The QSTP error code.
  *
- * \return Returns a pointer to an error string or NULL.
+ * \return [const] Returns a pointer to an error string or NULL.
  */
 QSTP_EXPORT_API const char* qstp_error_to_string(qstp_errors error);
 
 /*!
  * \brief Populate a packet header and set its creation time.
  *
- * \param packetout A pointer to the output QSTP network packet.
- * \param flag The packet flag.
- * \param sequence The packet sequence number.
- * \param msglen The length of the message in bytes.
+ * \param packetout: A pointer to the output QSTP network packet.
+ * \param flag: The packet flag.
+ * \param sequence: The packet sequence number.
+ * \param msglen: The length of the message in bytes.
  */
 QSTP_EXPORT_API void qstp_header_create(qstp_network_packet* packetout, qstp_flags flag, uint64_t sequence, uint32_t msglen);
 
 /*!
  * \brief Validate a packet header and timestamp.
  *
- * \param cns A pointer to the QSTP connection state structure.
- * \param packetin A pointer to the input QSTP network packet.
- * \param flag The expected packet flag.
- * \param sequence The expected packet sequence number.
- * \param msglen The expected message length.
+ * \param cns: A pointer to the QSTP connection state structure.
+ * \param packetin: [const] A pointer to the input QSTP network packet.
+ * \param flag: The expected packet flag.
+ * \param sequence: The expected packet sequence number.
+ * \param msglen: The expected message length.
  *
  * \return Returns the function error state.
  */
@@ -1334,41 +1224,41 @@ QSTP_EXPORT_API qstp_errors qstp_header_validate(qstp_connection_state* cns, con
 /*!
  * \brief Get the error description string for a QSTP logging message.
  *
- * \param emsg The QSTP message enumeration.
+ * \param emsg: The QSTP message enumeration.
  *
- * \return Returns a pointer to the message string or NULL.
+ * \return [const] Returns a pointer to the message string or NULL.
  */
 QSTP_EXPORT_API const char* qstp_get_error_description(qstp_messages emsg);
 
 /*!
  * \brief Deserialize a byte array into a QSTP packet header.
  *
- * \param header A pointer to the input header byte array.
- * \param packet A pointer to the QSTP network packet to populate.
+ * \param header: [const] A pointer to the input header byte array.
+ * \param packet: A pointer to the QSTP network packet to populate.
  */
 QSTP_EXPORT_API void qstp_packet_header_deserialize(const uint8_t* header, qstp_network_packet* packet);
 
 /*!
  * \brief Serialize a QSTP packet header into a byte array.
  *
- * \param packet A pointer to the QSTP network packet to serialize.
- * \param header The output header byte array.
+ * \param packet: [const] A pointer to the QSTP network packet to serialize.
+ * \param header: The output header byte array.
  */
 QSTP_EXPORT_API void qstp_packet_header_serialize(const qstp_network_packet* packet, uint8_t* header);
 
 /*!
  * \brief Log an error with a message, socket error, and description.
  *
- * \param emsg The QSTP message enumeration.
- * \param err The socket exception enumeration.
- * \param msg The additional descriptive message.
+ * \param emsg: The QSTP message enumeration.
+ * \param err: The socket exception enumeration.
+ * \param msg: [const] The additional descriptive message.
  */
 QSTP_EXPORT_API void qstp_log_error(qstp_messages emsg, qsc_socket_exceptions err, const char* msg);
 
 /*!
  * \brief Log a QSTP message.
  *
- * \param emsg The QSTP message enumeration.
+ * \param emsg: The QSTP message enumeration.
  */
 QSTP_EXPORT_API void qstp_log_message(qstp_messages emsg);
 
@@ -1382,37 +1272,37 @@ QSTP_EXPORT_API void qstp_log_system_error(qstp_errors err);
 /*!
  * \brief Log a QSTP message with an additional description.
  *
- * \param emsg The QSTP message enumeration.
- * \param msg The additional descriptive message.
+ * \param emsg: The QSTP message enumeration.
+ * \param msg: [const] The additional descriptive message.
  */
 QSTP_EXPORT_API void qstp_log_write(qstp_messages emsg, const char* msg);
 
 /*!
  * \brief Clear the state of a QSTP network packet.
  *
- * \param packet A pointer to the QSTP network packet to clear.
+ * \param packet: A pointer to the QSTP network packet to clear.
  */
 QSTP_EXPORT_API void qstp_packet_clear(qstp_network_packet* packet);
 
 /*!
  * \brief Populate a QSTP packet with an error message.
  *
- * \param packet A pointer to the QSTP network packet.
- * \param error The QSTP error code.
+ * \param packet: A pointer to the QSTP network packet.
+ * \param error: The QSTP error code.
  */
 QSTP_EXPORT_API void qstp_packet_error_message(qstp_network_packet* packet, qstp_errors error);
 
 /*!
  * \brief Set the local UTC time (in seconds) in a QSTP packet header.
  *
- * \param packet A pointer to the QSTP network packet to update.
+ * \param packet: A pointer to the QSTP network packet to update.
  */
 QSTP_EXPORT_API void qstp_packet_set_utc_time(qstp_network_packet* packet);
 
 /*!
  * \brief Check if a QSTP packet was received within the valid time threshold.
  *
- * \param packet A pointer to the QSTP network packet.
+ * \param packet: [const] A pointer to the QSTP network packet.
  *
  * \return Returns true if the packet's UTC time is within the valid threshold; otherwise, false.
  */
@@ -1421,8 +1311,8 @@ QSTP_EXPORT_API bool qstp_packet_time_valid(const qstp_network_packet* packet);
 /*!
  * \brief Serialize a QSTP packet into a byte array.
  *
- * \param packet A pointer to the QSTP network packet.
- * \param pstream The output byte stream buffer.
+ * \param packet: [const] A pointer to the QSTP network packet.
+ * \param pstream: The output byte stream buffer.
  *
  * \return Returns the size in bytes of the serialized packet.
  */
@@ -1431,8 +1321,8 @@ QSTP_EXPORT_API size_t qstp_packet_to_stream(const qstp_network_packet* packet, 
 /*!
  * \brief Compare two root certificates for equivalence.
  *
- * \param a A pointer to the first root certificate.
- * \param b A pointer to the second root certificate.
+ * \param a: [const] A pointer to the first root certificate.
+ * \param b: [const] A pointer to the second root certificate.
  *
  * \return Returns true if the certificates are equal; otherwise, false.
  */
@@ -1441,9 +1331,9 @@ QSTP_EXPORT_API bool qstp_root_certificate_compare(const qstp_root_certificate* 
 /*!
  * \brief Copy an encoded root certificate into a root certificate structure.
  *
- * \param root A pointer to the output root certificate structure.
- * \param enck The encoded root certificate string.
- * \param enclen The length of the encoded certificate.
+ * \param root: A pointer to the output root certificate structure.
+ * \param enck: [const] The encoded root certificate string.
+ * \param enclen: The length of the encoded certificate.
  *
  * \return Returns true on success; otherwise, false.
  */
@@ -1452,17 +1342,17 @@ QSTP_EXPORT_API bool qstp_root_certificate_decode(qstp_root_certificate* root, c
 /*!
  * \brief Deserialize a root certificate from a serialized byte array.
  *
- * \param root A pointer to the output root certificate.
- * \param input A pointer to the serialized root certificate array.
+ * \param root: A pointer to the output root certificate.
+ * \param input: [const] A pointer to the serialized root certificate array.
  */
 QSTP_EXPORT_API void qstp_root_certificate_deserialize(qstp_root_certificate* root, const uint8_t input[QSTP_ROOT_CERTIFICATE_SIZE]);
 
 /*!
  * \brief Encode a root certificate into a readable string.
  *
- * \param enck The output encoded certificate string.
- * \param enclen The length of the output buffer.
- * \param root A pointer to the root certificate.
+ * \param enck: The output encoded certificate string.
+ * \param enclen: The length of the output buffer.
+ * \param root: [const] A pointer to the root certificate.
  *
  * \return Returns the size in bytes of the encoded certificate string.
  */
@@ -1478,63 +1368,73 @@ QSTP_EXPORT_API size_t qstp_root_certificate_encoded_size(void);
 /*!
  * \brief Extract the root certificate from a root signature key.
  *
- * \param root The output root certificate.
- * \param kset A pointer to the input root signature key structure.
+ * \param root: The output root certificate.
+ * \param kset: [const] A pointer to the input root signature key structure.
  */
 QSTP_EXPORT_API void qstp_root_certificate_extract(qstp_root_certificate* root, const qstp_root_signature_key* kset);
 
 /*!
  * \brief Compute the hash of a root certificate.
+ * \details Does not hash the signature field.
  *
- * \param output The output hash array.
- * \param root A pointer to the root certificate.
+ * \param output: The output hash array.
+ * \param root: [const] A pointer to the root certificate.
  */
 QSTP_EXPORT_API void qstp_root_certificate_hash(uint8_t output[QSTP_CERTIFICATE_HASH_SIZE], const qstp_root_certificate* root);
 
 /*!
  * \brief Serialize a root certificate into a byte array.
  *
- * \param output The array that will receive the serialized certificate.
- * \param root A pointer to the root certificate.
+ * \param output: The array that will receive the serialized certificate.
+ * \param root: [const] A pointer to the root certificate.
  */
 QSTP_EXPORT_API void qstp_root_certificate_serialize(uint8_t output[QSTP_ROOT_CERTIFICATE_SIZE], const qstp_root_certificate* root);
 
 /*!
- * \brief Sign a server certificate using the root certificate.
- *
- * \param cert A pointer to the server certificate to sign.
- * \param root A pointer to the root certificate.
- * \param rsigkey A pointer to the root signing key (encoded).
- *
- * \return Returns the size in bytes of the signed certificate.
- */
-QSTP_EXPORT_API size_t qstp_root_certificate_sign(qstp_server_certificate* cert, const qstp_root_certificate* root, const uint8_t* rsigkey);
-
-/*!
- * \brief Verify that a server certificate is signed by the root.
- *
- * \param root A pointer to the root certificate.
- * \param cert A pointer to the server certificate.
- *
- * \return Returns true if the certificate is valid; otherwise, false.
- */
-QSTP_EXPORT_API bool qstp_root_certificate_verify(const qstp_root_certificate* root, const qstp_server_certificate* cert);
-
-/*!
  * \brief Write a root certificate to a file.
  *
- * \param root A pointer to the root certificate.
- * \param fpath The file path.
+ * \param root: [const] A pointer to the root certificate.
+ * \param fpath: [const] The file path.
  *
  * \return Returns true on success; otherwise, false.
  */
 QSTP_EXPORT_API bool qstp_root_certificate_to_file(const qstp_root_certificate* root, const char* fpath);
 
+#if defined(QSTP_EXTERNAL_SIGNED_ROOT)
+/**
+ * \brief Autheticate the certificate's authenticity using an external signature verification key.
+ *
+ * \details
+ * This function takes a signature verification and the root certificate as input,
+ * verifies the signature, then hashes the certificate and compares the hash to the signature
+ * message for equivalence.
+ *
+ * \param root: [const] A pointer to the QSTP root certificate to be verified.
+ * \param verkey: [const] A pointer to the signature verification key.
+ *
+ * \return Returns true if the verification operation succeeds; otherwise, returns false.
+ */
+QSTP_EXPORT_API bool qstp_root_certificate_verify(const qstp_root_certificate* root, const uint8_t* verkey);
+#else
+/**
+ * \brief Autheticate the certificate's authenticity using the root certificate's signature verification key.
+ *
+ * \details
+ * This function takes the root certificate as input, verifies the signature using the certificate's signature
+ * verification key, then hashes the certificate and compares the hash to the signature message for equivalence.
+ *
+ * \param root: [const] A pointer to the QSTP root certificate to be verified.
+ *
+ * \return Returns true if the verification operation succeeds; otherwise, returns false.
+ */
+QSTP_EXPORT_API bool qstp_root_certificate_verify(const qstp_root_certificate* root);
+#endif
+
 /*!
  * \brief Read a root certificate from a file into a root certificate structure.
  *
- * \param root A pointer to the root certificate.
- * \param fpath The file path.
+ * \param root: A pointer to the root certificate.
+ * \param fpath: [const] The file path.
  *
  * \return Returns true on success; otherwise, false.
  */
@@ -1543,8 +1443,8 @@ QSTP_EXPORT_API bool qstp_root_file_to_certificate(qstp_root_certificate* root, 
 /*!
  * \brief Read a root signature key from a file into a root signature key structure.
  *
- * \param kset A pointer to the root signature key structure.
- * \param fpath The file path.
+ * \param kset: A pointer to the root signature key structure.
+ * \param fpath: [const] The file path.
  *
  * \return Returns true on success; otherwise, false.
  */
@@ -1553,23 +1453,23 @@ QSTP_EXPORT_API bool qstp_root_file_to_key(qstp_root_signature_key* kset, const 
 /*!
  * \brief Get the root certificate issuer name.
  *
- * \param issuer The output buffer to receive the issuer string.
+ * \param issuer: The output buffer to receive the issuer string.
  */
 QSTP_EXPORT_API void qstp_root_get_issuer(char issuer[QSTP_CERTIFICATE_ISSUER_SIZE]);
 
 /*!
  * \brief Deserialize a root signature key from an encoded array.
  *
- * \param kset A pointer to the output root signature key structure.
- * \param input The input serialized root key array.
+ * \param kset: A pointer to the output root signature key structure.
+ * \param input: [const] The input serialized root key array.
  */
 QSTP_EXPORT_API void qstp_root_key_deserialize(qstp_root_signature_key* kset, const uint8_t input[QSTP_ROOT_SIGNATURE_KEY_SIZE]);
 
 /*!
  * \brief Write a root signature key to a file.
  *
- * \param kset A pointer to the root signature key structure.
- * \param fpath The file path.
+ * \param kset: [const] A pointer to the root signature key structure.
+ * \param fpath: [const] The file path.
  *
  * \return Returns true on success; otherwise, false.
  */
@@ -1578,16 +1478,16 @@ QSTP_EXPORT_API bool qstp_root_key_to_file(const qstp_root_signature_key* kset, 
 /*!
  * \brief Serialize a root signature key into an encoded array.
  *
- * \param serk The output array for the serialized root key.
- * \param kset A pointer to the root signature key structure.
+ * \param serk: The output array for the serialized root key.
+ * \param kset: [const] A pointer to the root signature key structure.
  */
 QSTP_EXPORT_API void qstp_root_key_serialize(uint8_t serk[QSTP_ROOT_SIGNATURE_KEY_SIZE], const qstp_root_signature_key* kset);
 
 /*!
  * \brief Compare two server certificates for equivalence.
  *
- * \param a A pointer to the first server certificate.
- * \param b A pointer to the second server certificate.
+ * \param a: [const] A pointer to the first server certificate.
+ * \param b: [const] A pointer to the second server certificate.
  *
  * \return Returns true if the certificates are equivalent; otherwise, false.
  */
@@ -1596,17 +1496,17 @@ QSTP_EXPORT_API bool qstp_server_certificate_compare(const qstp_server_certifica
 /*!
  * \brief Deserialize a server certificate from a serialized byte stream.
  *
- * \param cert A pointer to the server certificate structure to populate.
- * \param input A pointer to the serialized certificate array.
+ * \param cert: A pointer to the server certificate structure to populate.
+ * \param input: [const] A pointer to the serialized certificate array.
  */
 QSTP_EXPORT_API void qstp_server_certificate_deserialize(qstp_server_certificate* cert, const uint8_t input[QSTP_SERVER_CERTIFICATE_SIZE]);
 
 /*!
  * \brief Encode a public server certificate into a readable string.
  *
- * \param enck The output buffer for the encoded certificate string.
- * \param enclen The length of the output buffer.
- * \param cert A pointer to the server certificate.
+ * \param enck: The output buffer for the encoded certificate string.
+ * \param enclen: The length of the output buffer.
+ * \param cert: [const] A pointer to the server certificate.
  *
  * \return Returns the size in bytes of the encoded certificate string.
  */
@@ -1622,41 +1522,62 @@ QSTP_EXPORT_API size_t qstp_server_certificate_encoded_size(void);
 /*!
  * \brief Extract the server certificate from a server signature key.
  *
- * \param cert The output server certificate.
- * \param kset A pointer to the server signature key structure.
+ * \param: cert The output server certificate.
+ * \param kset: [const] A pointer to the server signature key structure.
  */
 QSTP_EXPORT_API void qstp_server_certificate_extract(qstp_server_certificate* cert, const qstp_server_signature_key* kset);
 
 /*!
  * \brief Compute the hash of a server certificate.
  *
- * \param output The output hash array.
- * \param cert A pointer to the server certificate.
+ * \param output: The output hash array.
+ * \param cert: [const] A pointer to the server certificate.
  */
 QSTP_EXPORT_API void qstp_server_certificate_hash(uint8_t output[QSTP_CERTIFICATE_HASH_SIZE], const qstp_server_certificate* cert);
 
 /*!
  * \brief Compute a combined hash of the root and server certificates.
  *
- * \param rshash The output hash array.
- * \param root A pointer to the root certificate.
- * \param cert A pointer to the server certificate.
+ * \param rshash: The output hash array.
+ * \param root: [const] A pointer to the root certificate.
+ * \param cert: [const] A pointer to the server certificate.
  */
 QSTP_EXPORT_API void qstp_server_root_certificate_hash(uint8_t rshash[QSTP_CERTIFICATE_HASH_SIZE], const qstp_root_certificate* root, const qstp_server_certificate* cert);
 
 /*!
+ * \brief Sign a server certificate using the root certificate.
+ *
+ * \param cert: A pointer to the server certificate to sign.
+ * \param root: [const] A pointer to the root certificate.
+ * \param rsigkey: [const] A pointer to the root signing key (encoded).
+ *
+ * \return Returns the size in bytes of the signed certificate.
+ */
+QSTP_EXPORT_API size_t qstp_server_root_certificate_sign(qstp_server_certificate* cert, const qstp_root_certificate* root, const uint8_t* rsigkey);
+
+/*!
+ * \brief Verify that a server certificate is signed by the root.
+ *
+ * \param root: [const] A pointer to the root certificate.
+ * \param cert: [const] A pointer to the server certificate.
+ *
+ * \return Returns true if the certificate is valid; otherwise, false.
+ */
+QSTP_EXPORT_API bool qstp_server_root_certificate_verify(const qstp_root_certificate* root, const qstp_server_certificate* cert);
+
+/*!
  * \brief Serialize a server certificate into a byte array.
  *
- * \param output The output array for the serialized certificate.
- * \param cert A pointer to the server certificate.
+ * \param output: The output array for the serialized certificate.
+ * \param cert: [const] A pointer to the server certificate.
  */
 QSTP_EXPORT_API void qstp_server_certificate_serialize(uint8_t output[QSTP_SERVER_CERTIFICATE_SIZE], const qstp_server_certificate* cert);
 
 /*!
  * \brief Write a server certificate to a file.
  *
- * \param cert A pointer to the server certificate structure.
- * \param fpath The file path.
+ * \param cert: [const] A pointer to the server certificate structure.
+ * \param fpath: [const] The file path.
  *
  * \return Returns true on success; otherwise, false.
  */
@@ -1665,8 +1586,8 @@ QSTP_EXPORT_API bool qstp_server_certificate_to_file(const qstp_server_certifica
 /*!
  * \brief Read a server certificate from a file into a server certificate structure.
  *
- * \param cert A pointer to the server certificate structure.
- * \param fpath The file path.
+ * \param cert: A pointer to the server certificate structure.
+ * \param fpath: [const] The file path.
  *
  * \return Returns true on success; otherwise, false.
  */
@@ -1675,8 +1596,8 @@ QSTP_EXPORT_API bool qstp_server_file_to_certificate(qstp_server_certificate* ce
 /*!
  * \brief Read a server signature key from a file into a server key structure.
  *
- * \param kset A pointer to the server signature key structure.
- * \param fpath The file path.
+ * \param kset: A pointer to the server signature key structure.
+ * \param fpath: [const] The file path.
  *
  * \return Returns true on success; otherwise, false.
  */
@@ -1685,41 +1606,59 @@ QSTP_EXPORT_API bool qstp_server_file_to_key(qstp_server_signature_key* kset, co
 /*!
  * \brief Get the server certificate issuer name.
  *
- * \param issuer The output buffer for the issuer string.
+ * \param issuer: The output buffer for the issuer string.
  */
 QSTP_EXPORT_API void qstp_server_get_issuer(char issuer[QSTP_CERTIFICATE_ISSUER_SIZE]);
 
 /*!
  * \brief Deserialize a server signature key from an encoded array.
  *
- * \param kset A pointer to the output server signature key structure.
- * \param input The input encoded server key array.
+ * \param kset: A pointer to the output server signature key structure.
+ * \param input: [const] The input encoded server key array.
  */
 QSTP_EXPORT_API void qstp_server_key_deserialize(qstp_server_signature_key* kset, const uint8_t input[QSTP_SERVER_SIGNATURE_KEY_SIZE]);
 
 /*!
  * \brief Serialize a server signature key into a byte array.
  *
- * \param output The output array for the serialized key.
- * \param kset A pointer to the server signature key structure.
+ * \param output: The output array for the serialized key.
+ * \param kset: [const] A pointer to the server signature key structure.
  */
 QSTP_EXPORT_API void qstp_server_key_serialize(uint8_t output[QSTP_SERVER_SIGNATURE_KEY_SIZE], const qstp_server_signature_key* kset);
 
 /*!
  * \brief Write a server signature key to a file.
  *
- * \param kset A pointer to the server signature key structure.
- * \param fpath The file path.
+ * \param kset: [const] A pointer to the server signature key structure.
+ * \param fpath: [const] The file path.
  *
  * \return Returns true on success; otherwise, false.
  */
 QSTP_EXPORT_API bool qstp_server_key_to_file(const qstp_server_signature_key* kset, const char* fpath);
 
 /*!
+ * \brief Convert a signature scheme string to a scheme enum member.
+ *
+ * \param scheme: [const] The input signature scheme string.
+ *
+ * \return Returns the version number as an 8-bit value.
+ */
+QSTP_EXPORT_API qstp_signature_schemes qstp_signature_scheme_from_string(const char* scheme);
+
+/*!
+ * \brief Get the string representation of a signature scheme.
+ *
+ * \param escheme: The signature scheme enumeration.
+ *
+ * \return Returns a pointer to the signature scheme string.
+ */
+QSTP_EXPORT_API const char* qstp_signature_scheme_to_string(qstp_signature_schemes escheme);
+
+/*!
  * \brief Convert a version string to a version number.
  *
- * \param sver The input version string.
- * \param sverlen The length of the version string.
+ * \param sver: [const] The input version string.
+ * \param sverlen: The length of the version string.
  *
  * \return Returns the version number as an 8-bit value.
  */
@@ -1728,8 +1667,8 @@ QSTP_EXPORT_API uint8_t qstp_version_from_string(const char* sver, size_t sverle
 /*!
  * \brief Convert a version number to a hexadecimal string.
  *
- * \param sver The output version string.
- * \param version The version number.
+ * \param sver: The output version string.
+ * \param version: The version number.
  */
 QSTP_EXPORT_API void qstp_version_to_string(char* sver, uint8_t version);
 
@@ -1737,16 +1676,38 @@ QSTP_EXPORT_API void qstp_version_to_string(char* sver, uint8_t version);
 /*!
 * \brief Test the root certificate encoding and decoding functions
 *
+* \param root: [const] A pointer to the root certificate.
+* 
 * \return Returns true if the encoding tests succeed
 */
 QSTP_EXPORT_API bool qstp_test_root_certificate_encoding(const qstp_root_certificate* root);
 
 /*!
-* \brief Test the server certificate encoding and decoding functions
+* \brief Test the root certificate encoding and decoding functions
+*
+* \param root: [const] A pointer to the root certificate.
 *
 * \return Returns true if the encoding tests succeed
 */
+QSTP_EXPORT_API bool qstp_test_root_certificate_serialization(const qstp_root_certificate* root);
+
+/*!
+* \brief Test the server certificate encoding and decoding functions
+*
+* \param cert: [const] A pointer to the server certificate structure.
+* 
+* \return Returns true if the encoding tests succeed
+*/
 QSTP_EXPORT_API bool qstp_test_server_certificate_encoding(const qstp_server_certificate* cert);
+
+/*!
+* \brief Test the root certificate encoding and decoding functions
+*
+* \param root: [const] A pointer to the root certificate.
+*
+* \return Returns true if the encoding tests succeed
+*/
+QSTP_EXPORT_API bool qstp_test_server_certificate_serialization(const qstp_server_certificate* root);
 #endif
 
 #endif

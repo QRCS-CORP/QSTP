@@ -72,7 +72,7 @@
  * QSTP employs state-of-the-art cryptographic algorithms:
  *
  * - **Asymmetric Ciphers:** The protocol supports Kyber or McEliece as its key encapsulation mechanisms.
- * - **Digital Signatures:** It uses the asymmetric signature schemes Dilithium or Sphincs+ for signing.
+ * - **Digital Signatures:** It uses the asymmetric signature scheme Dilithium for signing.
  * - **Symmetric Cipher:** QSTP uses the Rijndael-based Cryptographic Stream (RCS) cipher, enhanced with an increased number
  *   of rounds, a cryptographically strong key schedule, and integrated AEAD authentication via post-quantum secure KMAC or QMAC.
  *
@@ -104,6 +104,16 @@
  * A key aspect of QSTP is its robust certificate management. A root security server serves as the trust anchor by
  * signing certificates that authenticate application servers. This chain of trust is crucial for verifying
  * identities and securing the key exchange process.
+ * 
+ * \subsection version_changes New to version 1.4
+ * 
+ * Transcript hashing has been extended to the entire length of the exchange, and server and client require an 
+ * identical transcript to validate the key exchange.
+ * Added a self-signed root certificate field and fuctionality; the root certificate is now self-signed.
+ * Added an optional external root certificate signing option; this replaces the self-signed option with
+ * an option to provide either an external signer, that can chain the root certificate to an external signing authority.
+ * SPHINCS+ parameter sets have been removed due to large signature sizes, they may be replaced by Falcon as an alternative 
+ * signature scheme option when the FIPS specification of Falcon has finalized (estimates are late 2026-2027).
  *
  * \section conclusion Conclusion
  *
@@ -121,9 +131,9 @@
  * QRCS-PL private License. See license file for details.
  * All rights reserved by QRCS Corporation, copyrighted and patents pending.
  *
- * \author John G. Underhill
+ * \author QRCS Corporation - John G. Underhill
+ * \version 1.4.0.0a
  * \date 2025-02-10
  */
-
 
 #endif

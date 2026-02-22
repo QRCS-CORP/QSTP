@@ -4,6 +4,7 @@
 #include "logger.h"
 #include "acp.h"
 #include "async.h"
+#include "consoleutils.h"
 #include "encoding.h"
 #include "intutils.h"
 #include "memutils.h"
@@ -16,7 +17,6 @@ typedef struct server_receiver_state
 {
 	qstp_connection_state* pcns;
 	const qstp_server_signature_key* kset;
-	qstp_keep_alive_state* pkpa;
 	void (*receive_callback)(qstp_connection_state*, const char*, size_t);
 	void (*disconnect_callback)(qstp_connection_state*);
 } server_receiver_state;
@@ -108,126 +108,104 @@ static void server_receive_loop(void* prcv)
 						{
 							plen = pkt.msglen + QSTP_PACKET_HEADER_SIZE;
 							rbuf = (uint8_t*)qsc_memutils_realloc(rbuf, plen);
-						}
 
-						if (rbuf != NULL)
-						{
-							qsc_memutils_clear(rbuf, plen);
-							mlen = qsc_socket_receive(&pprcv->pcns->target, rbuf, plen, qsc_socket_receive_flag_wait_all);
-							
-							if (mlen != 0U)
+							if (rbuf != NULL)
 							{
-								pkt.pmessage = rbuf + QSTP_PACKET_HEADER_SIZE;
+								qsc_memutils_clear(rbuf, plen);
+								mlen = qsc_socket_receive(&pprcv->pcns->target, rbuf, plen, qsc_socket_receive_flag_wait_all);
 
-								if (pkt.flag == qstp_flag_encrypted_message)
+								if (mlen != 0U)
 								{
-									uint8_t* mstr;
+									pkt.pmessage = rbuf + QSTP_PACKET_HEADER_SIZE;
 
-									slen = pkt.msglen + QSTP_MACTAG_SIZE;
-									mstr = (uint8_t*)qsc_memutils_malloc(slen);
-
-									if (mstr != NULL)
+									if (pkt.flag == qstp_flag_encrypted_message)
 									{
-										qsc_memutils_clear(mstr, slen);
+										uint8_t* mstr;
 
-										qerr = qstp_decrypt_packet(pprcv->pcns, mstr, &mlen, &pkt);
+										slen = pkt.msglen + QSTP_MACTAG_SIZE;
+										mstr = (uint8_t*)qsc_memutils_malloc(slen);
 
-										if (qerr == qstp_error_none)
+										if (mstr != NULL)
 										{
-											pprcv->receive_callback(pprcv->pcns, (char*)mstr, mlen);
+											qsc_memutils_clear(mstr, slen);
+
+											qerr = qstp_decrypt_packet(pprcv->pcns, mstr, &mlen, &pkt);
+
+											if (qerr == qstp_error_none)
+											{
+												pprcv->receive_callback(pprcv->pcns, (char*)mstr, mlen);
+												qsc_memutils_alloc_free(mstr);
+											}
+											else
+											{
+												/* close the connection on authentication failure */
+												qstp_log_write(qstp_messages_decryption_fail, cadd);
+												qsc_memutils_alloc_free(mstr);
+												break;
+											}
 										}
 										else
 										{
-											/* close the connection on authentication failure */
-											qstp_log_write(qstp_messages_decryption_fail, cadd);
-											break;
-										}
-
-										qsc_memutils_alloc_free(mstr);
-									}
-									else
-									{
-										/* close the connection on memory allocation failure */
-										qstp_log_write(qstp_messages_allocate_fail, cadd);
-										break;
-									}
-								}
-								else if (pkt.flag == qstp_flag_error_condition)
-								{
-									/* anti-dos: break on error message is conditional
-									   on succesful authentication/decryption */
-									if (qstp_decrypt_error_message(&qerr, pprcv->pcns, rbuf) == true)
-									{
-										qstp_log_system_error(qerr);
-										break;
-									}
-								}
-								else if (pkt.flag == qstp_flag_keep_alive_response)
-								{
-									/* test the keepalive */
-
-									if (pkt.sequence == pprcv->pkpa->seqctr)
-									{
-										uint64_t tme;
-
-										tme = qsc_intutils_le8to64(pkt.pmessage);
-
-										if (pprcv->pkpa->etime == tme)
-										{
-											pprcv->pkpa->seqctr += 1U;
-											pprcv->pkpa->recd = true;
-										}
-										else
-										{
-											qstp_log_write(qstp_messages_keepalive_fail, (const char*)pprcv->pcns->target.address);
+											/* close the connection on memory allocation failure */
+											qstp_log_write(qstp_messages_allocate_fail, cadd);
 											break;
 										}
 									}
-									else
+									else if (pkt.flag == qstp_flag_error_condition)
 									{
-										qstp_log_write(qstp_messages_keepalive_timeout, (const char*)pprcv->pcns->target.address);
+										/* anti-dos: break on error message is conditional
+										   on succesful authentication/decryption */
+										if (qstp_decrypt_error_message(&qerr, pprcv->pcns, rbuf) == true)
+										{
+											qstp_log_system_error(qerr);
+											break;
+										}
+									}
+									else if (pkt.flag == qstp_flag_connection_terminate)
+									{
+										qstp_log_write(qstp_messages_disconnect, cadd);
 										break;
 									}
-								}
-								else if (pkt.flag == qstp_flag_connection_terminate)
-								{
-									qstp_log_write(qstp_messages_disconnect, cadd);
-									break;
+									else
+									{
+										/* unknown message type, we fail out of caution */
+										qstp_log_write(qstp_messages_receive_fail, cadd);
+										break;
+									}
 								}
 								else
 								{
-									/* unknown message type, we fail out of caution */
-									qstp_log_write(qstp_messages_receive_fail, cadd);
-									break;
+									qsc_socket_exceptions err = qsc_socket_get_last_error();
+
+									if (err != qsc_socket_exception_success)
+									{
+										qstp_log_error(qstp_messages_receive_fail, err, cadd);
+
+										/* fatal socket errors */
+										if (err == qsc_socket_exception_circuit_reset ||
+											err == qsc_socket_exception_circuit_terminated ||
+											err == qsc_socket_exception_circuit_timeout ||
+											err == qsc_socket_exception_dropped_connection ||
+											err == qsc_socket_exception_network_failure ||
+											err == qsc_socket_exception_shut_down)
+										{
+											qstp_log_write(qstp_messages_connection_fail, cadd);
+											break;
+										}
+									}
 								}
 							}
 							else
 							{
-								qsc_socket_exceptions err = qsc_socket_get_last_error();
-
-								if (err != qsc_socket_exception_success)
-								{
-									qstp_log_error(qstp_messages_receive_fail, err, cadd);
-
-									/* fatal socket errors */
-									if (err == qsc_socket_exception_circuit_reset ||
-										err == qsc_socket_exception_circuit_terminated ||
-										err == qsc_socket_exception_circuit_timeout ||
-										err == qsc_socket_exception_dropped_connection ||
-										err == qsc_socket_exception_network_failure ||
-										err == qsc_socket_exception_shut_down)
-									{
-										qstp_log_write(qstp_messages_connection_fail, cadd);
-										break;
-									}
-								}
+								/* close the connection on memory allocation failure */
+								qstp_log_write(qstp_messages_allocate_fail, cadd);
+								break;
 							}
 						}
 						else
 						{
-							/* close the connection on memory allocation failure */
-							qstp_log_write(qstp_messages_allocate_fail, cadd);
-							break;
+							/* message size exceeds maximum allowable */
+							qstp_log_write(qstp_messages_invalid_request, cadd);
 						}
 					}
 				}
@@ -347,6 +325,32 @@ bool qstp_server_expiration_check(const qstp_server_signature_key* kset)
 
 /* Public Functions */
 
+void qstp_server_certificate_print(const qstp_server_certificate* cert)
+{
+	QSTP_ASSERT(cert != NULL);
+
+	char* penk;
+	size_t elen;
+	size_t slen;
+
+	elen = qstp_server_certificate_encoded_size();
+	penk = qsc_memutils_malloc(elen);
+
+	if (penk != NULL)
+	{
+		qsc_memutils_clear(penk, elen);
+		slen = qstp_server_certificate_encode(penk, elen, cert);
+
+		if (slen <= elen)
+		{
+			qsc_consoleutils_print_safe(penk);
+			qsc_consoleutils_print_line("");
+		}
+
+		qsc_memutils_alloc_free(penk);
+	}
+}
+
 void qstp_server_key_generate(qstp_server_signature_key* kset, const char issuer[QSTP_CERTIFICATE_ISSUER_SIZE], uint32_t exp)
 {
 	QSTP_ASSERT(kset != NULL);
@@ -358,7 +362,7 @@ void qstp_server_key_generate(qstp_server_signature_key* kset, const char issuer
 
 		period = exp * 24 * 60 * 60;
 
-		if (period >= QSTP_CERTIFICATE_MINIMUM_PERIOD || period <= QSTP_CERTIFICATE_MAXIMUM_PERIOD)
+		if (period >= QSTP_CERTIFICATE_MINIMUM_PERIOD && period <= QSTP_CERTIFICATE_MAXIMUM_PERIOD)
 		{
 			qsc_acp_generate(kset->serial, QSTP_CERTIFICATE_SERIAL_SIZE);
 			qsc_memutils_copy(kset->issuer, issuer, QSTP_CERTIFICATE_ISSUER_SIZE);
@@ -417,44 +421,54 @@ qstp_errors qstp_server_start_ipv4(qsc_socket* source,
 	void (*disconnect_callback)(qstp_connection_state*))
 {
 	QSTP_ASSERT(kset != NULL);
+	QSTP_ASSERT(qsc_memutils_zeroed(kset->schash, QSTP_CERTIFICATE_HASH_SIZE) == false);
 	QSTP_ASSERT(receive_callback != NULL);
 
 	qsc_ipinfo_ipv4_address addt = { 0 };
 	qsc_socket_exceptions res;
 	qstp_errors qerr;
 
-	addt = qsc_ipinfo_ipv4_address_any();
-	qsc_socket_server_initialize(source);
-	res = qsc_socket_create(source, qsc_socket_address_family_ipv4, qsc_socket_transport_stream, qsc_socket_protocol_tcp);
-
-	if (res == qsc_socket_exception_success)
+	/* ensure that the caller has created the transcript hash */
+	if (kset != NULL && qsc_memutils_zeroed(kset->schash, QSTP_CERTIFICATE_HASH_SIZE) == false && receive_callback != NULL)
 	{
-		res = qsc_socket_bind_ipv4(source, &addt, QSTP_SERVER_PORT);
+		addt = qsc_ipinfo_ipv4_address_any();
+		qsc_socket_server_initialize(source);
+		res = qsc_socket_create(source, qsc_socket_address_family_ipv4, qsc_socket_transport_stream, qsc_socket_protocol_tcp);
 
 		if (res == qsc_socket_exception_success)
 		{
-			res = qsc_socket_listen(source, QSC_SOCKET_SERVER_LISTEN_BACKLOG);
+			res = qsc_socket_bind_ipv4(source, &addt, QSTP_SERVER_PORT);
 
 			if (res == qsc_socket_exception_success)
 			{
-				qerr = server_start(kset, source, receive_callback, disconnect_callback);
+				res = qsc_socket_listen(source, QSC_SOCKET_SERVER_LISTEN_BACKLOG);
+
+				if (res == qsc_socket_exception_success)
+				{
+					qerr = server_start(kset, source, receive_callback, disconnect_callback);
+				}
+				else
+				{
+					qerr = qstp_error_listener_fail;
+					qstp_log_message(qstp_messages_listener_fail);
+				}
 			}
 			else
 			{
-				qerr = qstp_error_listener_fail;
-				qstp_log_message(qstp_messages_listener_fail);
+				qerr = qstp_error_connection_failure;
+				qstp_log_message(qstp_messages_bind_fail);
 			}
 		}
 		else
 		{
 			qerr = qstp_error_connection_failure;
-			qstp_log_message(qstp_messages_bind_fail);
+			qstp_log_message(qstp_messages_create_fail);
 		}
 	}
 	else
 	{
-		qerr = qstp_error_connection_failure;
-		qstp_log_message(qstp_messages_create_fail);
+		qerr = qstp_error_invalid_input;
+		qstp_log_message(qstp_messages_invalid_request);
 	}
 
 	return qerr;
@@ -466,44 +480,54 @@ qstp_errors qstp_server_start_ipv6(qsc_socket* source,
 	void (*disconnect_callback)(qstp_connection_state*))
 {
 	QSTP_ASSERT(kset != NULL);
+	QSTP_ASSERT(qsc_memutils_zeroed(kset->schash, QSTP_CERTIFICATE_HASH_SIZE) == false);
 	QSTP_ASSERT(receive_callback != NULL);
 
 	qsc_ipinfo_ipv6_address addt = { 0 };
 	qsc_socket_exceptions res;
 	qstp_errors qerr;
 
-	addt = qsc_ipinfo_ipv6_address_any();
-	qsc_socket_server_initialize(source);
-	res = qsc_socket_create(source, qsc_socket_address_family_ipv6, qsc_socket_transport_stream, qsc_socket_protocol_tcp);
-
-	if (res == qsc_socket_exception_success)
+	/* ensure that the caller has created the transcript hash */
+	if (kset != NULL && qsc_memutils_zeroed(kset->schash, QSTP_CERTIFICATE_HASH_SIZE) == false && receive_callback != NULL)
 	{
-		res = qsc_socket_bind_ipv6(source, &addt, QSTP_SERVER_PORT);
+		addt = qsc_ipinfo_ipv6_address_any();
+		qsc_socket_server_initialize(source);
+		res = qsc_socket_create(source, qsc_socket_address_family_ipv6, qsc_socket_transport_stream, qsc_socket_protocol_tcp);
 
 		if (res == qsc_socket_exception_success)
 		{
-			res = qsc_socket_listen(source, QSC_SOCKET_SERVER_LISTEN_BACKLOG);
+			res = qsc_socket_bind_ipv6(source, &addt, QSTP_SERVER_PORT);
 
 			if (res == qsc_socket_exception_success)
 			{
-				qerr = server_start(kset, source, receive_callback, disconnect_callback);
+				res = qsc_socket_listen(source, QSC_SOCKET_SERVER_LISTEN_BACKLOG);
+
+				if (res == qsc_socket_exception_success)
+				{
+					qerr = server_start(kset, source, receive_callback, disconnect_callback);
+				}
+				else
+				{
+					qerr = qstp_error_listener_fail;
+					qstp_log_message(qstp_messages_listener_fail);
+				}
 			}
 			else
 			{
-				qerr = qstp_error_listener_fail;
-				qstp_log_message(qstp_messages_listener_fail);
+				qerr = qstp_error_connection_failure;
+				qstp_log_message(qstp_messages_bind_fail);
 			}
 		}
 		else
 		{
 			qerr = qstp_error_connection_failure;
-			qstp_log_message(qstp_messages_bind_fail);
+			qstp_log_message(qstp_messages_create_fail);
 		}
 	}
 	else
 	{
-		qerr = qstp_error_connection_failure;
-		qstp_log_message(qstp_messages_create_fail);
+		qerr = qstp_error_invalid_input;
+		qstp_log_message(qstp_messages_invalid_request);
 	}
 
 	return qerr;

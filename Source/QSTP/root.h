@@ -77,8 +77,8 @@
  * The exported certificate is used for distribution and for verifying the signatures of
  * child certificates in the QSTP system.
  *
- * \param root [const] A pointer to the QSTP root certificate to be exported.
- * \param fpath The output file path where the root certificate will be saved.
+ * \param root: [const] A pointer to the QSTP root certificate to be exported.
+ * \param fpath: The output file path where the root certificate will be saved.
  *
  * \return Returns true if the export operation succeeds; otherwise, returns false.
  */
@@ -92,10 +92,9 @@ QSTP_EXPORT_API bool qstp_root_certificate_export(const qstp_root_certificate* r
  * with a new key, using the specified issuer name and a validity period (in days). The newly generated root key
  * is used to sign certificates for QSTP servers and clients, thus establishing a chain of trust.
  *
- * \param kset A pointer to the QSTP root signature key structure that will receive the new key.
- * \param issuer The issuer name to be associated with the new root key. The string length must be equal to 
- *        \c QSTP_CERTIFICATE_ISSUER_SIZE.
- * \param exp The number of valid days for the new root key.
+ * \param kset: A pointer to the QSTP root signature key structure that will receive the new key.
+ * \param issuer: [const] The issuer name to be associated with the new root key. The string length must be equal to \c QSTP_CERTIFICATE_ISSUER_SIZE.
+ * \param exp: The number of valid days for the new root key.
  */
 QSTP_EXPORT_API void qstp_root_key_generate(qstp_root_signature_key* kset, const char issuer[QSTP_CERTIFICATE_ISSUER_SIZE], uint32_t exp);
 
@@ -106,9 +105,30 @@ QSTP_EXPORT_API void qstp_root_key_generate(qstp_root_signature_key* kset, const
  * This function prints the details of the QSTP root certificate to the standard output or to a designated
  * logging stream. It is typically used for debugging or verification of the root certificate information.
  *
- * \param root [const] A pointer to the QSTP root certificate.
+ * \param root: [const] A pointer to the QSTP root certificate.
  */
 QSTP_EXPORT_API void qstp_root_certificate_print(const qstp_root_certificate* root);
+
+#if defined(QSTP_EXTERNAL_SIGNED_ROOT)
+/*!
+ * \brief Sign the root certificate using the signature scheme signing function.
+ * 
+ * \details The signing signature scheme must be the same type (ML-DSA or SPH-DSA) and parameter set as the
+ * root signature scheme, a mismatch will cause signing failure.
+ * 
+ * \param root: A pointer to the root certificate.
+ * \param authority: Signing authority identity
+ * \param keyid: Authority key identity linkage
+ * \param csalgorithm: Signature suite used by external authority
+ * \param scheme_sign: A pointer to the signature scheme signing function.
+ * Note: The signature scheme must be either ML-DSA or SPH-DSA, and the parameter set must match the QSC library enabled parameters.
+ *
+ * \return Returns true if the certificate is signed; otherwise, false.
+ */
+QSTP_EXPORT_API bool qstp_root_certificate_external_sign(qstp_root_certificate* root, char authority[QSTP_CERTIFICATE_ISSUER_SIZE],
+	uint8_t keyid[QSTP_CERTIFICATE_SERIAL_SIZE], qstp_configuration_sets csalgorithm, uint8_t* sigkey,
+	bool (*scheme_sign)(uint8_t*, size_t*, const uint8_t*, size_t, const uint8_t*, bool (*rng_generate)(uint8_t*, size_t)));
+#endif
 
 /**
  * \brief Print a server certificate.
@@ -117,7 +137,7 @@ QSTP_EXPORT_API void qstp_root_certificate_print(const qstp_root_certificate* ro
  * This function prints the details of a QSTP server certificate, including issuer, serial number,
  * validity period, and cryptographic parameters. It is used for debugging and verifying the server certificate.
  *
- * \param cert [const] A pointer to the QSTP server certificate.
+ * \param cert: [const] A pointer to the QSTP server certificate.
  */
 QSTP_EXPORT_API void qstp_root_server_certificate_print(const qstp_server_certificate* cert);
 
@@ -129,12 +149,21 @@ QSTP_EXPORT_API void qstp_root_server_certificate_print(const qstp_server_certif
  * The signed certificate is then exported to the file specified by the file path. Signing a child certificate
  * attests to its authenticity and establishes its chain of trust from the root.
  *
- * \param fpath The file path where the signed child certificate will be saved.
- * \param root A pointer to the QSTP root certificate.
- * \param rootkey A pointer to the root signing key.
+ * \param fpath: [const] The file path where the signed child certificate will be saved.
+ * \param root: [const] A pointer to the QSTP root certificate.
+ * \param rootkey: [const] A pointer to the root signing key.
  *
  * \return Returns true if the certificate signing is successful; otherwise, returns false.
  */
 QSTP_EXPORT_API bool qstp_root_sign_certificate(const char* fpath, const qstp_root_certificate* root, const uint8_t* rootkey);
+
+#if defined(QSTP_DEBUG_MODE)
+/**
+ * \brief Tests the root certificate signing functionality.
+ *
+ * \return Returns true on success; otherwise, returns false.
+ */
+QSTP_EXPORT_API bool qstp_root_certificate_signing_test();
+#endif
 
 #endif

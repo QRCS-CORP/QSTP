@@ -104,7 +104,7 @@
  */
 typedef struct qstp_kex_client_state
 {
-	uint8_t schash[QSTP_CERTIFICATE_HASH_SIZE];				/*!< The session token hash */
+	uint8_t schash[QSTP_CERTIFICATE_HASH_SIZE];				/*!< The session transcript hash */
 	uint8_t serial[QSTP_CERTIFICATE_SERIAL_SIZE];			/*!< The server certificate serial number */
 	uint8_t verkey[QSTP_ASYMMETRIC_VERIFICATION_KEY_SIZE];	/*!< The server asymmetric signature verification-key */
 	uint64_t expiration;									/*!< The expiration time in seconds from epoch */
@@ -147,8 +147,8 @@ typedef struct qstp_kex_server_state
  *
  * \note This is an internal non-exportable API.
  *
- * \param kss A pointer to the server key exchange state structure (\c qstp_kex_server_state).
- * \param cns A pointer to the QSTP connection state structure.
+ * \param kss: A pointer to the server key exchange state structure (\c qstp_kex_server_state).
+ * \param cns: A pointer to the QSTP connection state structure.
  *
  * \return Returns a value of type \c qstp_errors indicating the outcome of the key exchange.
  */
@@ -164,8 +164,8 @@ qstp_errors qstp_kex_server_key_exchange(qstp_kex_server_state* kss, qstp_connec
  *
  * \note This is an internal non-exportable API.
  *
- * \param kcs A pointer to the client key exchange state structure (\c qstp_kex_client_state).
- * \param cns A pointer to the QSTP connection state structure.
+ * \param kcs: A pointer to the client key exchange state structure (\c qstp_kex_client_state).
+ * \param cns: A pointer to the QSTP connection state structure.
  *
  * \return Returns a value of type \c qstp_errors indicating the success or failure of the key exchange.
  */

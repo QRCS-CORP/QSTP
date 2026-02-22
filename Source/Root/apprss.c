@@ -10,6 +10,10 @@
 #include "netutils.h"
 #include "stringutils.h"
 
+#if defined(QSTP_DEBUG_MODE)
+//#	define ROOT_SIGNATURE_TEST
+#endif
+
 static qstp_root_signature_key m_root_signature_key;
 
 static size_t root_extract_parameter(char* param, const char* command)
@@ -33,58 +37,10 @@ static size_t root_extract_parameter(char* param, const char* command)
 	return res;
 }
 
-#if defined(QSTP_FUTURE_FEATURE)
-static bool root_extract_parameters(char* param1, char* param2, const char* command)
-{
-	int64_t ilen;
-	int64_t ipos;
-	bool res;
-
-	res = false;
-	ipos = qsc_stringutils_find_string(command, " ") + 1U;
-
-	if (ipos > 0U)
-	{
-		ilen = qsc_stringutils_find_string(command + ipos, ", ");
-
-		if (ilen > 0U)
-		{
-			size_t len;
-
-			qsc_memutils_copy(param1, command + ipos, ilen);
-			len = qsc_stringutils_string_size(command + ipos + ilen);
-
-			if (len > 0U)
-			{
-				qsc_memutils_copy(param2, command + ipos + ilen + 2U, len);
-				res = true;
-			}
-		}
-	}
-
-	return res;
-}
-#endif
-
 static void root_print_prompt(void)
 {
 	qsc_consoleutils_print_safe("root> ");
 }
-
-#if defined(QSTP_FUTURE_FEATURE)
-static void root_print_error(qstp_errors error)
-{
-	const char* msg;
-
-	msg = qstp_error_to_string(error);
-
-	if (msg != NULL)
-	{
-		root_print_prompt();
-		qsc_consoleutils_print_line(msg);
-	}
-}
-#endif
 
 static void root_print_message(const char* message)
 {
@@ -112,8 +68,8 @@ static void root_print_banner(void)
 	qsc_consoleutils_print_line("Quantum Secure Messaging Protocol root server.");
 	qsc_consoleutils_print_line("Type 'quit' to exit the application, 'help' for command help.");
 	qsc_consoleutils_print_line("");
-	qsc_consoleutils_print_line("Release:   v1.1.0.0b (A1)");
-	qsc_consoleutils_print_line("Date:      May 31, 2025");
+	qsc_consoleutils_print_line("Release:   v1.4.0.0a (A4)");
+	qsc_consoleutils_print_line("Date:      February 21, 2026");
 	qsc_consoleutils_print_line("Contact:   contact@qrcscorp.ca");
 	qsc_consoleutils_print_line("");
 }
@@ -206,7 +162,7 @@ static bool root_prikey_exists(void)
 
 static bool root_certificate_export(const char* param)
 {
-	qstp_root_certificate root = { 0 };
+	qstp_root_certificate root = { 0U };
 	bool res;
 
 	res = false;
@@ -225,6 +181,8 @@ static bool root_certificate_export(const char* param)
 
 static bool root_keyset_generate(const char* param, size_t plen)
 {
+	qstp_root_certificate root = { 0U };
+	char issuer[QSTP_CERTIFICATE_ISSUER_SIZE] = { 0 };
 	char fpath[QSC_SYSTEM_MAX_PATH] = { 0 };
 	bool res;
 
@@ -256,9 +214,6 @@ static bool root_keyset_generate(const char* param, size_t plen)
 
 			if (res == true)
 			{
-				qstp_root_certificate root = { 0 };
-				char issuer[QSTP_CERTIFICATE_ISSUER_SIZE] = { 0 };
-
 				/* Note: ex. mydomain_rds1.qrc */
 				qstp_root_get_issuer(issuer);
 				/* create the master key */
@@ -288,7 +243,7 @@ static bool root_keyset_generate(const char* param, size_t plen)
 
 static bool root_certificate_print(void)
 {
-	qstp_root_certificate root = { 0 };
+	qstp_root_certificate root = { 0U };
 	bool res;
 
 	res = root_prikey_exists();
@@ -329,6 +284,7 @@ static bool root_certificate_sign(const char* param)
 {
 	QSTP_ASSERT(param != NULL);
 
+	qstp_root_certificate root = { 0U };
 	bool res;
 
 	res = false;
@@ -336,8 +292,6 @@ static bool root_certificate_sign(const char* param)
 	if (qsc_fileutils_exists(param) == true && 
 		qsc_stringutils_string_contains(param, QSTP_SERVER_CERTIFICATE_EXTENSION_NAME) == true)
 	{
-		qstp_root_certificate root = { 0 };
-
 		qstp_root_certificate_extract(&root, &m_root_signature_key);
 		res = qstp_root_sign_certificate(param, &root, m_root_signature_key.sigkey);
 	}
@@ -497,13 +451,62 @@ static void root_command_loop(void)
 	}
 }
 
+#if defined(ROOT_SIGNATURE_TEST)
+static void qstp_root_self_tests()
+{
+	qstp_root_signature_key kset = { 0U };
+	qstp_root_certificate root = { 0U };
+	char issuer[QSTP_CERTIFICATE_ISSUER_SIZE] = { 0 };
+
+	qstp_root_get_issuer(issuer);
+	/* create the master key */
+	qstp_root_key_generate(&kset, issuer, 365);
+	/* extract the root certificate */
+	qstp_root_certificate_extract(&root, &kset);
+
+	if (qstp_test_root_certificate_encoding(&root) == true)
+	{
+		root_print_message("Passed root certificate encoding test.");
+	}
+	else
+	{
+		root_print_message("Passed root certificate encoding test.");
+	}
+
+	if (qstp_test_root_certificate_serialization(&root) == true)
+	{
+		root_print_message("Passed root certificate serialization test.");
+	}
+	else
+	{
+		root_print_message("Passed root certificate serialization test.");
+	}
+
+	if (qstp_root_certificate_signing_test() == true)
+	{
+		root_print_message("Passed root certificate signing test.");
+	}
+	else
+	{
+		root_print_message("Failed root certificate signing test.");
+	}
+
+	root_print_message("");
+}
+#endif
+
 int main(void)
 {
+#if defined(ROOT_SIGNATURE_TEST)
+	qstp_root_self_tests();
+#endif
+
 	root_print_banner();
 	qsc_memutils_clear(&m_root_signature_key, sizeof(qstp_root_signature_key));
 
 	root_key_dialogue();
 	root_command_loop();
+	qsc_memutils_clear(&m_root_signature_key, sizeof(qstp_root_signature_key));
 
 	root_print_message("Press any key to close...");
 	qsc_consoleutils_get_wait();

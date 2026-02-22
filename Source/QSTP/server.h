@@ -82,11 +82,22 @@
  * \details
  * This function examines the expiration time of a given QSTP server signature key to determine if the key is still valid.
  *
- * \param kset A pointer to the QSTP server signature key to be checked.
+ * \param kset: A pointer to the QSTP server signature key to be checked.
  *
  * \return Returns true if the key is valid (i.e., not expired); otherwise, returns false.
  */
 QSTP_EXPORT_API bool qstp_server_expiration_check(const qstp_server_signature_key* kset);
+
+/**
+ * \brief Print the server certificate.
+ *
+ * \details
+ * This function prints the details of the QSTP server certificate to the standard output or to a designated
+ * logging stream. It is typically used for debugging or verification of the server certificate information.
+ *
+ * \param cert: [const] A pointer to the QSTP server certificate.
+ */
+QSTP_EXPORT_API void qstp_server_certificate_print(const qstp_server_certificate* cert);
 
 /**
  * \brief Generate a new signature key for the server.
@@ -96,9 +107,9 @@ QSTP_EXPORT_API bool qstp_server_expiration_check(const qstp_server_signature_ke
  * using the specified issuer name and expiration period (in days). The generated key will be used for signing operations
  * in the key exchange and authentication processes.
  *
- * \param kset A pointer to the QSTP server signature key structure to be generated.
- * \param issuer [const] A pointer to the issuer string; its length must match QSTP_CERTIFICATE_ISSUER_SIZE.
- * \param exp The expiration period (in days) for which the key will be valid.
+ * \param kset: A pointer to the QSTP server signature key structure to be generated.
+ * \param issuer: [const] A pointer to the issuer string; its length must match QSTP_CERTIFICATE_ISSUER_SIZE.
+ * \param exp: The expiration period (in days) for which the key will be valid.
  */
 QSTP_EXPORT_API void qstp_server_key_generate(qstp_server_signature_key* kset, const char issuer[QSTP_CERTIFICATE_ISSUER_SIZE], uint32_t exp);
 
@@ -137,10 +148,10 @@ QSTP_EXPORT_API void qstp_server_resume(void);
  * private key for authentication and key exchange. The function also accepts callback functions to process
  * incoming data and handle disconnect events.
  *
- * \param source A pointer to the listener server socket.
- * \param kset [const] A pointer to the QSTP server signature key (private key) used for authentication.
- * \param receive_callback A pointer to the callback function for processing incoming data from clients.
- * \param disconnect_callback A pointer to the callback function that is invoked when a client disconnects.
+ * \param source: A pointer to the listener server socket.
+ * \param kset: [const] A pointer to the QSTP server signature key (private key) used for authentication.
+ * \param receive_callback: A pointer to the callback function for processing incoming data from clients.
+ * \param disconnect_callback: A pointer to the callback function that is invoked when a client disconnects.
  *
  * \return Returns a value of type \c qstp_errors indicating the outcome of starting the IPv4 server.
  */
@@ -158,10 +169,10 @@ QSTP_EXPORT_API qstp_errors qstp_server_start_ipv4(qsc_socket* source,
  * private key for authentication and key exchange. The function also accepts callback functions to process
  * incoming data and handle disconnect events.
  *
- * \param source A pointer to the listener server socket.
- * \param kset [const] A pointer to the QSTP server signature key (private key) used for authentication.
- * \param receive_callback A pointer to the callback function for processing incoming data from clients.
- * \param disconnect_callback A pointer to the callback function that is invoked when a client disconnects.
+ * \param source: A pointer to the listener server socket.
+ * \param kset: [const] A pointer to the QSTP server signature key (private key) used for authentication.
+ * \param receive_callback: A pointer to the callback function for processing incoming data from clients.
+ * \param disconnect_callback: A pointer to the callback function that is invoked when a client disconnects.
  *
  * \return Returns a value of type \c qstp_errors indicating the outcome of starting the IPv6 server.
  */

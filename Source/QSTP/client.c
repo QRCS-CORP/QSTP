@@ -14,7 +14,6 @@
 typedef struct client_receiver_state
 {
 	qstp_connection_state* pcns;
-	qstp_keep_alive_state* pkpa;
 	void (*receive_callback)(qstp_connection_state*, const char*, size_t);
 	void (*disconnect_callback)(qstp_connection_state*);
 } client_receiver_state;
@@ -25,7 +24,7 @@ typedef struct client_receiver_state
 static void symmetric_ratchet(qstp_connection_state* cns, const uint8_t* secret, size_t seclen)
 {
 	qsc_keccak_state kstate = { 0 };
-	qsc_rcs_keyparams kp = { 0 };
+	qstp_cipher_keyparams kp = { 0 };
 	uint8_t prnd[QSC_KECCAK_256_RATE] = { 0U };
 
 	/* re-key the ciphers using the token, ratchet key, and configuration name */
@@ -41,7 +40,7 @@ static void symmetric_ratchet(qstp_connection_state* cns, const uint8_t* secret,
 		kp.nonce = ((uint8_t*)prnd + QSTP_SYMMETRIC_KEY_SIZE);
 		kp.info = NULL;
 		kp.infolen = 0U;
-		qsc_rcs_initialize(&cns->rxcpr, &kp, false);
+		qstp_cipher_initialize(&cns->rxcpr, &kp, false);
 
 		/* initialize for encryption, and raise client channel tx */
 		kp.key = prnd + QSTP_SYMMETRIC_KEY_SIZE + QSTP_NONCE_SIZE;
@@ -49,7 +48,7 @@ static void symmetric_ratchet(qstp_connection_state* cns, const uint8_t* secret,
 		kp.nonce = ((uint8_t*)prnd + QSTP_SYMMETRIC_KEY_SIZE + QSTP_NONCE_SIZE + QSTP_SYMMETRIC_KEY_SIZE);
 		kp.info = NULL;
 		kp.infolen = 0U;
-		qsc_rcs_initialize(&cns->txcpr, &kp, true);
+		qstp_cipher_initialize(&cns->txcpr, &kp, true);
 	}
 	else
 	{
@@ -59,7 +58,7 @@ static void symmetric_ratchet(qstp_connection_state* cns, const uint8_t* secret,
 		kp.nonce = ((uint8_t*)prnd + QSTP_SYMMETRIC_KEY_SIZE);
 		kp.info = NULL;
 		kp.infolen = 0U;
-		qsc_rcs_initialize(&cns->txcpr, &kp, true);
+		qstp_cipher_initialize(&cns->txcpr, &kp, true);
 
 		/* initialize decryption, and raise rx */
 		kp.key = prnd + QSTP_SYMMETRIC_KEY_SIZE + QSTP_NONCE_SIZE;
@@ -67,7 +66,7 @@ static void symmetric_ratchet(qstp_connection_state* cns, const uint8_t* secret,
 		kp.nonce = ((uint8_t*)prnd + QSTP_SYMMETRIC_KEY_SIZE + QSTP_NONCE_SIZE + QSTP_SYMMETRIC_KEY_SIZE);
 		kp.info = NULL;
 		kp.infolen = 0U;
-		qsc_rcs_initialize(&cns->rxcpr, &kp, false);
+		qstp_cipher_initialize(&cns->rxcpr, &kp, false);
 	}
 
 	/* permute key state and store next key */
@@ -75,7 +74,7 @@ static void symmetric_ratchet(qstp_connection_state* cns, const uint8_t* secret,
 	qsc_memutils_copy(cns->rtcs, (uint8_t*)kstate.state, QSTP_SYMMETRIC_KEY_SIZE);
 	/* erase the key array */
 	qsc_memutils_clear(prnd, sizeof(prnd));
-	qsc_memutils_clear((uint8_t*)&kp, sizeof(qsc_rcs_keyparams));
+	qsc_memutils_clear((uint8_t*)&kp, sizeof(qstp_cipher_keyparams));
 }
 
 static bool symmetric_ratchet_response(qstp_connection_state* cns, const qstp_network_packet* packetin)
@@ -92,11 +91,11 @@ static bool symmetric_ratchet_response(qstp_connection_state* cns, const qstp_ne
 	{
 		/* serialize the header and add it to the ciphers associated data */
 		qstp_packet_header_serialize(packetin, shdr);
-		qsc_rcs_set_associated(&cns->rxcpr, shdr, QSTP_PACKET_HEADER_SIZE);
+		qstp_cipher_set_associated(&cns->rxcpr, shdr, QSTP_PACKET_HEADER_SIZE);
 		mlen = packetin->msglen - (size_t)QSTP_MACTAG_SIZE;
 
 		/* authenticate then decrypt the data */
-		if (qsc_rcs_transform(&cns->rxcpr, rkey, packetin->pmessage, mlen) == true)
+		if (qstp_cipher_transform(&cns->rxcpr, rkey, packetin->pmessage, mlen) == true)
 		{
 			/* inject into key state */
 			symmetric_ratchet(cns, rkey, sizeof(rkey));
@@ -138,71 +137,6 @@ static void client_connection_dispose(client_receiver_state* prcv)
 	/* dispose of resources */
 	qstp_connection_state_dispose(prcv->pcns);
 }
-
-#if defined(QSTP_FUTURE_FEATURE)
-static qstp_errors client_send_keep_alive(qstp_keep_alive_state* kctx, const qsc_socket* sock)
-{
-	QSTP_ASSERT(kctx != NULL);
-	QSTP_ASSERT(sock != NULL);
-
-	qstp_errors qerr;
-
-	qerr = qstp_error_bad_keep_alive;
-
-	if (qsc_socket_is_connected(sock) == true)
-	{
-		uint8_t spct[QSTP_PACKET_HEADER_SIZE + QSTP_CERTIFICATE_TIMESTAMP_SIZE] = { 0U };
-		qstp_network_packet resp = { 0 };
-		uint64_t etime;
-		size_t slen;
-
-		/* set the time and store in keep-alive struct */
-		etime = qsc_timestamp_datetime_utc();
-		kctx->etime = etime;
-
-		/* assemble the keep-alive packet */
-		resp.pmessage = spct + QSTP_PACKET_HEADER_SIZE;
-		resp.flag = qstp_flag_keep_alive_request;
-		resp.sequence = kctx->seqctr;
-		resp.msglen = QSTP_CERTIFICATE_TIMESTAMP_SIZE;
-		qsc_intutils_le64to8(resp.pmessage, etime);
-		qstp_packet_header_serialize(&resp, spct);
-
-		slen = qsc_socket_send(sock, spct, sizeof(spct), qsc_socket_send_flag_none);
-
-		if (slen == QSTP_PACKET_HEADER_SIZE + QSTP_CERTIFICATE_TIMESTAMP_SIZE)
-		{
-			qerr = qstp_error_none;
-		}
-	}
-
-	return qerr;
-}
-
-static void client_keepalive_loop(qstp_keep_alive_state* kpa)
-{
-	QSTP_ASSERT(kpa != NULL);
-
-	qsc_mutex mtx;
-	qstp_errors qerr;
-
-	do
-	{
-		mtx = qsc_async_mutex_lock_ex();
-		kpa->recd = false;
-		qerr = client_send_keep_alive(kpa, &kpa->target);
-
-		if (kpa->recd == false)
-		{
-			qerr = qstp_error_keepalive_expired;
-		}
-
-		qsc_async_mutex_unlock_ex(mtx);
-		qsc_async_thread_sleep(QSTP_KEEPALIVE_TIMEOUT);
-	} 
-	while (qerr == qstp_error_none);
-}
-#endif
 
 static void client_receive_loop(void* prcv)
 {
@@ -265,15 +199,15 @@ static void client_receive_loop(void* prcv)
 									if (qerr == qstp_error_none)
 									{
 										pprcv->receive_callback(pprcv->pcns, (const char*)mstr, mlen);
+										qsc_memutils_alloc_free(mstr);
 									}
 									else
 									{
 										/* close the connection on authentication failure */
 										qstp_log_write(qstp_messages_decryption_fail, cadd);
+										qsc_memutils_alloc_free(mstr);
 										break;
 									}
-
-									qsc_memutils_alloc_free(mstr);
 								}
 								else
 								{
@@ -294,14 +228,6 @@ static void client_receive_loop(void* prcv)
 							{
 								qstp_log_write(qstp_messages_disconnect, cadd);
 								break;
-							}
-							else if (pkt.flag == qstp_flag_keep_alive_request)
-							{
-								const size_t klen = QSTP_PACKET_HEADER_SIZE + QSTP_CERTIFICATE_TIMESTAMP_SIZE;
-								/* copy the keep-alive packet and send it back */
-								pkt.flag = qstp_flag_keep_alive_response;
-								qstp_packet_header_serialize(&pkt, rbuf);
-								qsc_socket_send(&pprcv->pcns->target, rbuf, klen, qsc_socket_send_flag_none);
 							}
 							else
 							{
@@ -422,7 +348,7 @@ qstp_errors qstp_client_connect_ipv4(const qstp_root_certificate* root,
 {
 	QSTP_ASSERT(root != NULL);
 	QSTP_ASSERT(cert != NULL);
-	QSTP_ASSERT(send_func != NULL);
+	QSTP_ASSERT(address != NULL);
 	QSTP_ASSERT(send_func != NULL);
 	QSTP_ASSERT(receive_callback != NULL);
 
@@ -437,7 +363,7 @@ qstp_errors qstp_client_connect_ipv4(const qstp_root_certificate* root,
 
 	if (address != NULL && send_func != NULL && receive_callback != NULL)
 	{
-		if (qstp_root_certificate_verify(root, cert) == true)
+		if (qstp_server_root_certificate_verify(root, cert) == true)
 		{
 			kcs = (qstp_kex_client_state*)qsc_memutils_malloc(sizeof(qstp_kex_client_state));
 
@@ -558,7 +484,7 @@ qstp_errors qstp_client_connect_ipv6(const qstp_root_certificate* root,
 {
 	QSTP_ASSERT(root != NULL);
 	QSTP_ASSERT(cert != NULL);
-	QSTP_ASSERT(send_func != NULL);
+	QSTP_ASSERT(address != NULL);
 	QSTP_ASSERT(send_func != NULL);
 	QSTP_ASSERT(receive_callback != NULL);
 
@@ -573,7 +499,7 @@ qstp_errors qstp_client_connect_ipv6(const qstp_root_certificate* root,
 
 	if (address != NULL && send_func != NULL && receive_callback != NULL)
 	{
-		if (qstp_root_certificate_verify(root, cert) == true)
+		if (qstp_server_root_certificate_verify(root, cert) == true)
 		{
 			kcs = (qstp_kex_client_state*)qsc_memutils_malloc(sizeof(qstp_kex_client_state));
 

@@ -130,7 +130,7 @@ bool qstp_logger_exists(void);
  * value and creates the log file if it does not already exist, writing the default header (\c QSTP_LOGGER_HEAD)
  * to the file.
  *
- * \param path A pointer to a null-terminated string specifying the log file path.
+ * \param path: [const] A pointer to a null-terminated string specifying the log file path.
  */
 void qstp_logger_initialize(const char* path);
 
@@ -150,8 +150,8 @@ void qstp_logger_print(void);
  * This function reads the contents of the QSTP log file into the provided output array.
  * The caller must ensure that the output buffer is large enough to hold the log contents.
  *
- * \param output A pointer to the buffer where the log contents will be stored.
- * \param otplen The size of the output buffer in bytes.
+ * \param output: [const] A pointer to the buffer where the log contents will be stored.
+ * \param otplen: The size of the output buffer in bytes.
  */
 void qstp_logger_read(char* output, size_t otplen);
 
@@ -181,7 +181,7 @@ size_t qstp_logger_size(void);
  * This function appends the provided log message to the QSTP log file. The message should be a null-terminated
  * string and must not exceed \c QSTP_LOGGING_MESSAGE_MAX characters.
  *
- * \param message [const] A pointer to the log message string.
+ * \param message: [const] A pointer to the log message string.
  *
  * \return Returns true if the message was successfully written to the log file; otherwise, false.
  */

@@ -15,16 +15,8 @@
 #define KEX_CONNECT_RESPONSE_PACKET_SIZE (QSTP_PACKET_HEADER_SIZE + KEX_CONNECT_RESPONSE_MESSAGE_SIZE)
 #define KEX_EXCHANGE_REQUEST_MESSAGE_SIZE (QSTP_ASYMMETRIC_CIPHER_TEXT_SIZE)
 #define KEX_EXCHANGE_REQUEST_PACKET_SIZE (QSTP_PACKET_HEADER_SIZE + KEX_EXCHANGE_REQUEST_MESSAGE_SIZE)
-#define KEX_EXCHANGE_RESPONSE_MESSAGE_SIZE 0U
+#define KEX_EXCHANGE_RESPONSE_MESSAGE_SIZE (QSTP_CERTIFICATE_HASH_SIZE)
 #define KEX_EXCHANGE_RESPONSE_PACKET_SIZE (QSTP_PACKET_HEADER_SIZE + KEX_EXCHANGE_RESPONSE_MESSAGE_SIZE)
-
-#if defined(QSTP_FUTURE_FEATURE)
-static void kex_subheader_serialize(uint8_t* pstream, const qstp_network_packet* packetin)
-{
-	qsc_intutils_le64to8(pstream, packetin->sequence);
-	qsc_intutils_le64to8(pstream + sizeof(uint64_t), packetin->utctime);
-}
-#endif
 
 static void kex_send_network_error(const qsc_socket* sock, qstp_errors error)
 {
@@ -186,7 +178,7 @@ static qstp_errors kex_client_connect_request(qstp_kex_client_state* kcs, qstp_c
 		{
 			/* copy the serial number and configuration string to the message */
 			qsc_memutils_copy(packetout->pmessage, kcs->serial, QSTP_CERTIFICATE_SERIAL_SIZE);
-			qsc_memutils_copy(packetout->pmessage + QSTP_CERTIFICATE_SERIAL_SIZE, QSTP_PROTOCOL_SET_STRING, QSTP_PROTOCOL_SET_SIZE);
+			qsc_memutils_copy(packetout->pmessage + QSTP_CERTIFICATE_SERIAL_SIZE, QSTP_PROTOCOL_SET_STRING, QSTP_PROTOCOL_SET_SIZE - 1U);
 			/* assemble the connection-request packet */
 			qstp_header_create(packetout, qstp_flag_connect_request, cns->txseq, KEX_CONNECT_REQUEST_MESSAGE_SIZE);
 
@@ -238,7 +230,7 @@ static qstp_errors kex_client_exchange_request(const qstp_kex_client_state* kcs,
 		if (cns->exflag == qstp_flag_connect_request && packetin->flag == qstp_flag_connect_response)
 		{
 			slen = 0U;
-			mlen = QSTP_ASYMMETRIC_SIGNATURE_SIZE + QSTP_CERTIFICATE_HASH_SIZE;
+			mlen = QSTP_CERTIFICATE_SIGNED_HASH_SIZE;
 
 			/* verify the asymmetric signature */
 			if (qstp_signature_verify(khash, &slen, packetin->pmessage, mlen, kcs->verkey) == true)
@@ -258,7 +250,14 @@ static qstp_errors kex_client_exchange_request(const qstp_kex_client_state* kcs,
 				qsc_sha3_update(&kstate, qsc_keccak_rate_256, kcs->schash, QSTP_CERTIFICATE_HASH_SIZE);
 				qsc_sha3_update(&kstate, qsc_keccak_rate_256, pubk, QSTP_ASYMMETRIC_PUBLIC_KEY_SIZE);
 				qsc_sha3_finalize(&kstate, qsc_keccak_rate_256, phash);
+
+				/* add phash to transcript hash */
+				qsc_sha3_initialize(&kstate);
+				qsc_sha3_update(&kstate, qsc_keccak_rate_256, kcs->schash, QSTP_CERTIFICATE_HASH_SIZE);
+				qsc_sha3_update(&kstate, qsc_keccak_rate_256, phash, QSTP_CERTIFICATE_HASH_SIZE);
+				qsc_sha3_finalize(&kstate, qsc_keccak_rate_256, kcs->schash);
 				qsc_keccak_dispose(&kstate);
+
 
 				/* compare hashes */
 				if (qsc_intutils_verify(phash, khash, QSTP_CERTIFICATE_HASH_SIZE) == 0)
@@ -269,6 +268,13 @@ static qstp_errors kex_client_exchange_request(const qstp_kex_client_state* kcs,
 
 					/* store the cipher-text in the message */
 					qstp_cipher_encapsulate(ssec, packetout->pmessage, pubk, qsc_acp_generate);
+
+					/* add the ciphertext to the transcript hash */
+					qsc_sha3_initialize(&kstate);
+					qsc_sha3_update(&kstate, qsc_keccak_rate_256, kcs->schash, QSTP_CERTIFICATE_HASH_SIZE);
+					qsc_sha3_update(&kstate, qsc_keccak_rate_256, packetout->pmessage, KEX_EXCHANGE_REQUEST_MESSAGE_SIZE);
+					qsc_sha3_finalize(&kstate, qsc_keccak_rate_256, kcs->schash);
+					qsc_keccak_dispose(&kstate);
 
 					/* assemble the exchange-request packet */
 					qstp_header_create(packetout, qstp_flag_exchange_request, cns->txseq, KEX_EXCHANGE_REQUEST_MESSAGE_SIZE);
@@ -305,6 +311,9 @@ static qstp_errors kex_client_exchange_request(const qstp_kex_client_state* kcs,
 					kp2.info = NULL;
 					kp2.infolen = 0U;
 					qstp_cipher_initialize(&cns->rxcpr, &kp2, false);
+
+					qsc_memutils_clear(ssec, sizeof(ssec));
+					qsc_memutils_clear(prnd, sizeof(prnd));
 
 					cns->exflag = qstp_flag_exchange_request;
 					qerr = qstp_error_none;
@@ -354,8 +363,17 @@ static qstp_errors kex_client_establish_verify(const qstp_kex_client_state* kcs,
 	{
 		if (cns->exflag == qstp_flag_exchange_request && packetin->flag == qstp_flag_exchange_response)
 		{
-			cns->exflag = qstp_flag_session_established;
-			qerr = qstp_error_none;
+			/* verify the transcript hash is identical */
+			if (qsc_memutils_are_equal(kcs->schash, packetin->pmessage, QSTP_CERTIFICATE_HASH_SIZE) == true)
+			{
+				cns->exflag = qstp_flag_session_established;
+				qerr = qstp_error_none;
+			}
+			else
+			{
+				cns->exflag = qstp_flag_none;
+				qerr = qstp_error_authentication_failure;
+			}
 		}
 		else
 		{
@@ -440,6 +458,12 @@ static qstp_errors kex_server_connect_response(qstp_kex_server_state* kss, qstp_
 					qsc_sha3_update(&kstate, qsc_keccak_rate_256, kss->schash, QSTP_CERTIFICATE_HASH_SIZE);
 					qsc_sha3_update(&kstate, qsc_keccak_rate_256, kss->pubkey, QSTP_ASYMMETRIC_PUBLIC_KEY_SIZE);
 					qsc_sha3_finalize(&kstate, qsc_keccak_rate_256, phash);
+
+					/* add phash to the transcript hash */
+					qsc_sha3_initialize(&kstate);
+					qsc_sha3_update(&kstate, qsc_keccak_rate_256, kss->schash, QSTP_CERTIFICATE_HASH_SIZE);
+					qsc_sha3_update(&kstate, qsc_keccak_rate_256, phash, QSTP_CERTIFICATE_HASH_SIZE);
+					qsc_sha3_finalize(&kstate, qsc_keccak_rate_256, kss->schash);
 					qsc_keccak_dispose(&kstate);
 
 					/* sign the hash and add it to the message */
@@ -509,8 +533,15 @@ static qstp_errors kex_server_exchange_response(qstp_kex_server_state* kss, qstp
 				qsc_keccak_state kstate = { 0 };
 				uint8_t prnd[QSC_KECCAK_256_RATE] = { 0U };
 
+				/* add the ciphertext to the transcript hash */
+				qsc_sha3_initialize(&kstate);
+				qsc_sha3_update(&kstate, qsc_keccak_rate_256, kss->schash, QSTP_CERTIFICATE_HASH_SIZE);
+				qsc_sha3_update(&kstate, qsc_keccak_rate_256, packetin->pmessage, KEX_EXCHANGE_REQUEST_MESSAGE_SIZE);
+				qsc_sha3_finalize(&kstate, qsc_keccak_rate_256, kss->schash);
+
 				/* dispose of the private asymmetric key */
 				kex_dispose_private_key(kss);
+
 				/* initialize cSHAKE k = H(ssec, sch) */
 				qsc_cshake_initialize(&kstate, qsc_keccak_rate_256, ssec, sizeof(ssec), kss->schash, QSTP_CERTIFICATE_HASH_SIZE, NULL, 0U);
 				qsc_cshake_squeezeblocks(&kstate, qsc_keccak_rate_256, prnd, 1U);
@@ -546,6 +577,11 @@ static qstp_errors kex_server_exchange_response(qstp_kex_server_state* kss, qstp
 
 				/* assemble the exchange-response packet */
 				qstp_header_create(packetout, qstp_flag_exchange_response, cns->txseq, KEX_EXCHANGE_RESPONSE_MESSAGE_SIZE);
+				/* add schash to packet message */
+				qsc_memutils_copy(packetout->pmessage, kss->schash, QSTP_CERTIFICATE_HASH_SIZE);
+
+				qsc_memutils_clear(ssec, sizeof(ssec));
+				qsc_memutils_clear(prnd, sizeof(prnd));
 
 				qerr = qstp_error_none;
 				cns->exflag = qstp_flag_session_established;
@@ -643,6 +679,7 @@ qstp_errors qstp_kex_client_key_exchange(qstp_kex_client_state* kcs, qstp_connec
 
 											if (rbuf != NULL)
 											{
+												resp.pmessage = rbuf + QSTP_PACKET_HEADER_SIZE;
 												rlen = qsc_socket_receive(&cns->target, rbuf, KEX_EXCHANGE_RESPONSE_PACKET_SIZE, qsc_socket_receive_flag_wait_all);
 
 												if (rlen == KEX_EXCHANGE_RESPONSE_PACKET_SIZE)
@@ -784,11 +821,11 @@ qstp_errors qstp_kex_server_key_exchange(qstp_kex_server_state* kss, qstp_connec
 						if (slen == KEX_CONNECT_RESPONSE_PACKET_SIZE)
 						{
 							cns->txseq += 1U;
-
 							rbuf = qsc_memutils_realloc(rbuf, KEX_EXCHANGE_REQUEST_PACKET_SIZE);
 
 							if (rbuf != NULL)
 							{
+								reqt.pmessage = rbuf + QSTP_PACKET_HEADER_SIZE;
 								qsc_memutils_clear(rbuf, KEX_EXCHANGE_REQUEST_PACKET_SIZE);
 
 								rlen = qsc_socket_receive(&cns->target, rbuf, KEX_EXCHANGE_REQUEST_PACKET_SIZE, qsc_socket_receive_flag_wait_all);

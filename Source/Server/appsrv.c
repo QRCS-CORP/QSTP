@@ -50,6 +50,10 @@
 #include "sha3.h"
 #include "stringutils.h"
 
+#if defined(QSTP_DEBUG_MODE)
+//#	define SERVER_ENCODING_TEST
+#endif
+
 static qstp_server_signature_key m_server_signature_key;
 
 static void server_print_prompt(void)
@@ -94,8 +98,8 @@ static void server_print_banner(void)
 {
 	qsc_consoleutils_print_line("QSTP: Server Example Project");
 	qsc_consoleutils_print_line("Quantum Secure Messaging Protocol server.");
-	qsc_consoleutils_print_line("Release:   v1.3.0.0b (A3)");
-	qsc_consoleutils_print_line("Date:      May 31, 2025");
+	qsc_consoleutils_print_line("Release:   v1.4.0.0a (A4)");
+	qsc_consoleutils_print_line("Date:      February 21, 2026");
 	qsc_consoleutils_print_line("Contact:   contact@qrcscorp.ca");
 	qsc_consoleutils_print_line("");
 }
@@ -213,6 +217,45 @@ static bool server_key_generate(void)
 	return res;
 }
 
+#if defined(SERVER_ENCODING_TEST)
+static void qstp_server_self_tests(qstp_server_certificate* cert)
+{
+
+	if (qstp_test_server_certificate_serialization(cert) == true)
+	{
+		server_print_message("Passed server certificate serialization test.");
+	}
+	else
+	{
+		server_print_message("Failed server certificate serialization test.");
+	}
+
+	if (qstp_test_server_certificate_encoding(cert) == true)
+	{
+		server_print_message("Passed server certificate encoding test.");
+		qstp_server_certificate_print(cert);
+	}
+	else
+	{
+		server_print_message("Failed server certificate encoding test.");
+	}
+
+	server_print_message("");
+}
+#endif
+
+static bool server_root_fetch_verification_key(qstp_root_certificate* root, uint8_t* exverkey)
+{
+	/* Beyond example scope. This is where you would use the root certificate's
+	* authority field to lookup a certificate domain, and the keyid serial number 
+	* to fetch and external signature verification key that anchors the root certificate.
+	* The external signature scheme must match the algorithm and parameters of 
+	* the signature scheme selected for QSTP. Alternatively, the authority signature 
+	* verification key can be embedded in the application itself. */
+	
+	return false;
+}
+
 static bool server_key_dialogue(void)
 {
 	qstp_root_certificate root = { 0 };
@@ -246,8 +289,39 @@ static bool server_key_dialogue(void)
 					{
 						if (qstp_root_file_to_certificate(&root, fpath) == true)
 						{
-							qstp_server_root_certificate_hash(m_server_signature_key.schash, &root, &cert);
-							res = true;
+#if defined(QSTP_EXTERNAL_SIGNED_ROOT)
+							/* External signed certificate check: externally signed test requires the 
+							* verification key as a parameter. The server looks up the authority tag
+							* of the root certificate to get the yyyyyyyyyyyyy, then the keyid field to get
+							* the certificate signature verification key. A root certificate failure 
+							* must halt the connection process and propagate the error.
+							* Look up the authority and keyid fields on the root certificate
+							* and fetch the verification key, then load the key and verify the 
+							* root certificate using the external verification key. */
+							
+							/* uint8_t exverkey[QSTP_ASYMMETRIC_VERIFICATION_KEY_SIZE] = { 0U };
+
+							if (server_root_fetch_verification_key(&root, exverkey) == true && 
+								qstp_root_certificate_verify(&root, exverkey) == true) */
+#else
+							/* Self signed root certificate check: verifies the signature against the 
+							* root certificates verification key, then hashes the root certificate and 
+							* compares the hash to the signed message.
+							*/
+							if (qstp_root_certificate_verify(&root) == true)
+#endif
+							{
+								/* Important! create the session transcript hash
+								* This hash must be created when the signature key is loaded by the application.
+								*/
+								qstp_server_root_certificate_hash(m_server_signature_key.schash, &root, &cert);
+								res = true;
+
+#if defined(SERVER_ENCODING_TEST)
+								/* local encoding and serialization tests */
+								qstp_server_self_tests(&cert);
+#endif
+							}
 						}
 					}
 				}
@@ -358,8 +432,10 @@ int main(void)
 	{
 		if (qstp_server_expiration_check(&m_server_signature_key) == true)
 		{
-			server_print_message("Waiting for a connection...");
+			qsc_consoleutils_print_line("Waiting for a connection...");
 			qerr = qstp_server_start_ipv4(&source, &m_server_signature_key, &server_receive_callback, &server_disconnect_callback);
+
+			qsc_memutils_clear(&m_server_signature_key, sizeof(qstp_server_signature_key));
 
 			if (qerr != qstp_error_none)
 			{

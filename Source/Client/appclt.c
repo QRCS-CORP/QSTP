@@ -52,21 +52,6 @@ static void client_print_prompt(void)
 	qsc_consoleutils_print_safe("client> ");
 }
 
-#if defined(QSTP_FUTURE_FEATURE)
-static void client_print_error(qstp_errors error)
-{
-	const char* msg;
-
-	msg = qstp_error_to_string(error);
-
-	if (msg != NULL)
-	{
-		client_print_prompt();
-		qsc_consoleutils_print_line(msg);
-	}
-}
-#endif
-
 static void client_print_message(const char* message)
 {
 	size_t slen;
@@ -112,8 +97,8 @@ static void client_print_banner(void)
 	qsc_consoleutils_print_line("Enter the IP address and the server public key to connect.");
 	qsc_consoleutils_print_line("Type 'qstp quit' to close the connection and exit the application.");
 	qsc_consoleutils_print_line("");
-	qsc_consoleutils_print_line("Release:   v1.0.0.0b");
-	qsc_consoleutils_print_line("Date:      May 31, 2025");
+	qsc_consoleutils_print_line("Release:   v1.4.0.0a (A4)");
+	qsc_consoleutils_print_line("Date:      February 21, 2026");
 	qsc_consoleutils_print_line("Contact:   contact@qrcscorp.ca");
 	qsc_consoleutils_print_line("");
 }
@@ -175,38 +160,6 @@ static bool client_root_certificate_exists(void)
 
 	return res;
 }
-
-#if defined(QSTP_FUTURE_FEATURE)
-static bool client_server_certificate_path(char* fpath, size_t pathlen)
-{
-	bool res;
-
-	res = client_get_storage_path(fpath, pathlen);
-
-	if (res == true)
-	{
-		qsc_folderutils_append_delimiter(fpath);
-		qsc_stringutils_concat_strings(fpath, pathlen, QSTP_SERVER_PUBLIC_CERTIFICATE_NAME);
-	}
-	
-	return res;
-}
-
-static bool client_server_certificate_exists(void)
-{
-	char fpath[QSC_SYSTEM_MAX_PATH] = { 0 };
-	bool res;
-
-	res = client_server_certificate_path(fpath, sizeof(fpath));
-
-	if (res == true)
-	{
-		res = qsc_fileutils_exists(fpath);
-	}
-
-	return res;
-}
-#endif
 
 static bool client_ipv4_dialogue(qsc_ipinfo_ipv4_address* address, qstp_root_certificate* root, qstp_server_certificate* cert)
 {
@@ -329,6 +282,7 @@ static void client_send_loop(qstp_connection_state* cns)
 	uint8_t msgstr[QSTP_CONNECTION_MTU] = { 0U };
 	char sin[QSTP_CONNECTION_MTU + 1U] = { 0 };
 	size_t mlen;
+	size_t slen;
 
 	mlen = 0U;
 
@@ -355,7 +309,8 @@ static void client_send_loop(qstp_connection_state* cns)
 			}
 		}
 
-		mlen = qsc_consoleutils_get_line(sin, sizeof(sin)) - 1U;
+		slen = qsc_consoleutils_get_line(sin, sizeof(sin));
+		mlen = (slen > 0U) ? slen - 1U : 0U;
 
 		if (mlen > 0U && (sin[0] == '\n' || sin[0U] == '\r'))
 		{

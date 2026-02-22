@@ -83,7 +83,7 @@
  * updating the symmetric session keys, it maintains forward secrecy and ensures that any compromise
  * of past keys does not affect the security of future communications.
  *
- * \param cns A pointer to the current QSTP connection state structure.
+ * \param cns: A pointer to the current QSTP connection state structure.
  *
  * \return Returns true if the symmetric ratchet request was successfully sent, otherwise false.
  */
@@ -99,12 +99,12 @@ QSTP_EXPORT_API bool qstp_send_symmetric_ratchet_request(qstp_connection_state* 
  * provided callback functions: one for managing the outgoing message send loop and another for processing the incoming
  * server data stream.
  *
- * \param root [const] A pointer to the QSTP root certificate, serving as the trust anchor for server authentication.
- * \param cert [const] A pointer to the QSTP server certificate used for authenticating the server.
- * \param address [const] A pointer to the server's IPv4 network address.
- * \param port The QSTP application port number (typically defined by QSTP_SERVER_PORT).
- * \param send_func A pointer to the callback function responsible for the message send loop.
- * \param receive_callback A pointer to the callback function used to process the server's incoming data stream.
+ * \param root: [const] A pointer to the QSTP root certificate, serving as the trust anchor for server authentication.
+ * \param cert: [const] A pointer to the QSTP server certificate used for authenticating the server.
+ * \param address: [const] A pointer to the server's IPv4 network address.
+ * \param port: The QSTP application port number (typically defined by QSTP_SERVER_PORT).
+ * \param send_func: A pointer to the callback function responsible for the message send loop.
+ * \param receive_callback: A pointer to the callback function used to process the server's incoming data stream.
  *
  * \return Returns a value of type \c qstp_errors indicating the success or failure of the connection attempt.
  */
@@ -123,12 +123,12 @@ QSTP_EXPORT_API qstp_errors qstp_client_connect_ipv4(const qstp_root_certificate
  * successful authentication and key exchange, a secure tunnel is established. The provided callback functions are then
  * used to manage the outgoing message send loop and to process incoming server data.
  *
- * \param root [const] A pointer to the QSTP root certificate used as the trust anchor.
- * \param cert [const] A pointer to the QSTP server certificate.
- * \param address [const] A pointer to the server's IPv6 network address.
- * \param port The QSTP application port number (typically defined by QSTP_SERVER_PORT).
- * \param send_func A pointer to the callback function responsible for the message send loop.
- * \param receive_callback A pointer to the callback function used to process the server's incoming data stream.
+ * \param root: [const] A pointer to the QSTP root certificate used as the trust anchor.
+ * \param cert: [const] A pointer to the QSTP server certificate.
+ * \param address: [const] A pointer to the server's IPv6 network address.
+ * \param port: The QSTP application port number (typically defined by QSTP_SERVER_PORT).
+ * \param send_func: A pointer to the callback function responsible for the message send loop.
+ * \param receive_callback: A pointer to the callback function used to process the server's incoming data stream.
  *
  * \return Returns a value of type \c qstp_errors representing the outcome of the connection and key exchange.
  */

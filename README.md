@@ -1,6 +1,6 @@
-# Quantum Secure Tunneling Protocol (QSTP)
+# Quantum Secure Tunneling Protocol V1.4 (QSTP)
 
-## Introduction 
+## Introduction
 
 [![Build](https://github.com/QRCS-CORP/QSTP/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/QRCS-CORP/QSTP/actions/workflows/build.yml)
 [![CodeQL](https://github.com/QRCS-CORP/QSTP/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/QRCS-CORP/QSTP/actions/workflows/codeql-analysis.yml)
@@ -8,157 +8,308 @@
 [![Platforms](https://img.shields.io/badge/platforms-Linux%20|%20macOS%20|%20Windows-blue)](#)
 [![docs](https://img.shields.io/badge/docs-online-brightgreen)](https://qrcs-corp.github.io/QSTP/)
 [![Security Policy](https://img.shields.io/badge/security-policy-blue)](https://github.com/QRCS-CORP/QSTP/security/policy)
-[![License: Private](https://img.shields.io/badge/License-Private-blue.svg)](https://github.com/QRCS-CORP/QSTP/blob/main/License.txt)  
+[![License: Private](https://img.shields.io/badge/License-Private-blue.svg)](https://github.com/QRCS-CORP/QSTP/blob/main/License.txt)
 [![Language](https://img.shields.io/static/v1?label=Language&message=C%2023&color=blue)](https://www.open-std.org/jtc1/sc22/wg14/www/docs/n3220.pdf)
 [![GitHub release](https://img.shields.io/github/v/release/QRCS-CORP/QSTP)](https://github.com/QRCS-CORP/QSTP/releases/tag/2025-06-04)
 [![GitHub Last Commit](https://img.shields.io/github/last-commit/QRCS-CORP/QSTP.svg)](https://github.com/QRCS-CORP/QSTP/commits/main)
 [![Custom: Standard](https://img.shields.io/static/v1?label=Security%20Standard&message=MISRA&color=blue)](https://misra.org.uk/)
 [![Custom: Target](https://img.shields.io/static/v1?label=Target%20Industry&message=Financial/Defense&color=brightgreen)](#)
 
-**QSTP: A Post-Quantum Secure root-anchored Tunnel Protocol with Integrated Key Exchange and Authentication**
+**QSTP** is a post-quantum secure tunneling protocol that integrates key exchange, authentication, and encrypted communications into a single, self-contained specification. Engineered from the ground up to address the cryptographic challenges posed by quantum computing, QSTP avoids the design compromises and legacy constraints of protocols such as TLS, SSH, and PGP. There is no algorithm negotiation, no versioning attack surface, and no backward compatibility with classical-only primitives.
+
+---
+
+## Documentation
+
+| Resource | Description |
+|---|---|
+| [Help Documentation](https://qrcs-corp.github.io/QSTP/) | Full API and usage reference |
+| [Summary Document](https://qrcs-corp.github.io/QSTP/pdf/qstp_summary.pdf) | Protocol overview and design rationale |
+| [Protocol Specification](https://qrcs-corp.github.io/QSTP/pdf/qstp_specification.pdf) | Complete formal protocol definition |
+| [Formal Analysis](https://qrcs-corp.github.io/QSTP/pdf/qstp_formal.pdf) | Security proofs and formal verification |
+| [Implementation Analysis](https://qrcs-corp.github.io/QSTP/pdf/qstp_analysis.pdf) | Implementation security considerations |
+| [Integration Guide](https://qrcs-corp.github.io/QSTP/pdf/qstp_integration.pdf) | Deployment and integration instructions |
+
+---
 
 ## Overview
 
-QSTP is a next-generation cryptographic protocol designed to enable secure communication between clients and servers by establishing an encrypted tunnel using a root trust anchor. Unlike traditional key exchange protocols (e.g., TLS, PGP, SSH) that are components of larger systems, QSTP provides a complete specification that integrates a key exchange function, robust authentication mechanisms, and an encrypted tunnel within a single protocol.
+QSTP establishes an encrypted tunnel between a client and server using a three-party, root-anchored trust model. A **Root Domain Security Server (RDS)** acts as the certificate authority, issuing signed certificates to servers and distributing its public verification certificate to all clients in the domain. Clients authenticate servers against the root certificate before any key material is exchanged, providing strong identity assurance prior to the handshake.
 
-Engineered to address the challenges posed by quantum computing threats, QSTP introduces entirely new mechanisms—designed from the ground up for both security and performance in a post-quantum context. This design avoids the legacy issues of backward compatibility, complex versioning, and outdated APIs.
+The protocol is complete and self-contained. It does not depend on external PKI infrastructure, certificate revocation services, or runtime algorithm negotiation. All cryptographic parameters are fixed at compile time for a given configuration, eliminating downgrade attacks and cipher-suite confusion by construction.
 
-[QSTP Help Documentation](https://qrcs-corp.github.io/QSTP/)  
-[QSTP Summary Document](https://qrcs-corp.github.io/QSTP/pdf/qstp_summary.pdf)  
-[QSTP Protocol Specification](https://qrcs-corp.github.io/QSTP/pdf/qstp_specification.pdf)  
-[QSTP Formal Analysis](https://qrcs-corp.github.io/QSTP/pdf/qstp_formal.pdf)  
-[QSTP Implementation Analysis](https://qrcs-corp.github.io/QSTP/pdf/qstp_analysis.pdf)  
-[QSTP Integration Guide](https://qrcs-corp.github.io/QSTP/pdf/qstp_integration.pdf)  
+### Key Properties
+
+- **Post-quantum security** — all asymmetric operations use NIST-standardized post-quantum algorithms
+- **Transcript binding** — session keys are derived from a running hash of the complete protocol transcript, cryptographically committing them to every exchanged message
+- **Forward secrecy** — ephemeral encapsulation keys are generated per-session and securely destroyed immediately after use
+- **Explicit key confirmation** — the server's final transcript hash is sent to the client; the session is not established unless both parties hold an identical transcript
+- **Minimal attack surface** — no algorithm negotiation, no fallback cipher paths, no protocol versioning surface
+- **MISRA-C aligned** — structured for deployment in safety-critical and high-assurance environments
+
+---
 
 ## Cryptographic Primitives
 
-QSTP employs state-of-the-art cryptographic algorithms to deliver strong security:
+QSTP is built exclusively on algorithms from the NIST Post-Quantum Cryptography standardization process and NIST FIPS standards.
 
-- **Asymmetric Ciphers:**  
-  QSTP supports either **Kyber** or **McEliece** as its key encapsulation mechanisms.
+### Key Encapsulation (KEM)
 
-- **Digital Signatures:**  
-  The protocol uses the asymmetric signature schemes **Dilithium** or **Sphincs+** for signing.
+| Algorithm | NIST Security Level | Standard |
+|---|---|---|
+| ML-KEM (Kyber) | 1 / 3 / 5 | NIST FIPS 203 |
+| Classic McEliece | 1 / 3 / 5 | NIST PQC Selected |
 
-- **Symmetric Cipher:**  
-  QSTP utilizes the Rijndael-based Cryptographic Stream (RCS) cipher. This cipher is enhanced with:
-  - Uses the wide-block form of Rigndael with a 256-bit state. 
-  - An increased number of rounds
-  - A cryptographically strong key schedule
-  - Integrated AEAD authentication via post-quantum secure KMAC or QMAC
+Encapsulation keys are ephemeral — a fresh key pair is generated for every session and the private key is destroyed immediately after decapsulation.
 
-## QSTP Key Exchange
+### Digital Signatures
 
-The key exchange in QSTP follows a three-party, one-way trust model in which the client trusts the server based on certificate authentication provided by a root domain security server (RDS). A single shared secret is securely exchanged between the server and the client, which is then used to create an encrypted tunnel.
+| Algorithm | NIST Security Level | Standard |
+|---|---|---|
+| ML-DSA (Dilithium) | 2 / 3 / 5 | NIST FIPS 204 |
 
-Key features include:
+Dilithium is used to authenticate the server's ephemeral public encapsulation key during the handshake and to sign the root and server certificates offline.
 
-- **Efficiency:**  
-  The QSTP exchange is fast and lightweight, providing 256-bit post-quantum security to protect against future quantum-based threats.
+### Symmetric AEAD Cipher
 
-- **Versatility:**  
-  QSTP is suitable for applications such as:
-  - Client registration on networks
-  - Secure cloud storage
-  - Hub-and-spoke model communications
-  - Commodity trading
-  - Electronic currency exchange
+Two AEAD cipher options are supported, selectable at compile time:
 
-- **Scalability:**  
-  The QSTP server is implemented as a multi-threaded communications platform capable of generating a uniquely keyed encrypted tunnel for each connected client. With a lightweight state footprint of less than 4 kilobytes per client, a single server can handle potentially hundreds of thousands of simultaneous connections.  
-  The cipher encapsulation keys used in each exchange are ephemeral and unique, ensuring each key exchange remains secure and independent of previous sessions.
+| Cipher | Construction | Authentication |
+|---|---|---|
+| **RCS** (Rijndael Cryptographic Stream) | Wide-block Rijndael, 256-bit state, increased rounds, strengthened key schedule | KMAC or QMAC (post-quantum secure) |
+| **AES-256-GCM** | AES-256 in Galois/Counter Mode | GHASH |
 
-- **Certificate Management:**  
-  The root domain security server (RDS) distributes a public signature verification certificate to every client in its domain. This certificate is used to authenticate the QSTP server's signed public certificate, which in turn is used to verify signed messages from the server to the client. This robust certificate management establishes a chain of trust that is crucial for verifying identities and securing the key exchange process.
+RCS is the recommended option for post-quantum deployments. It operates on a 256-bit wide Rijndael state with a cryptographically strengthened key schedule and integrates authentication natively via post-quantum secure KMAC or QMAC, requiring no separate MAC computation.
+
+AES-256-GCM is provided for environments requiring interoperability with existing hardware acceleration or compliance requirements.
+
+### Hash and Key Derivation
+
+| Primitive | Algorithm | Purpose |
+|---|---|---|
+| Hash | SHA3-256 (Keccak) | Certificate binding, transcript hashing |
+| KDF | cSHAKE-256 | Session key derivation from shared secret and transcript |
+
+---
+
+## Key Exchange Protocol
+
+The QSTP handshake is a three-round authenticated key exchange between client and server, with the root domain security server participating offline through certificate issuance.
+
+### Trust Model
+```
+Root Domain Security Server (RDS)
+        │
+        │  Signs server certificate (offline)
+        ▼
+    QSTP Server ──── presents signed certificate ────► Client
+                                                          │
+                                               Authenticates server using
+                                               root public certificate
+```
+
+The client holds only the root public verification certificate. It uses this to authenticate the server's certificate, which in turn authenticates the server's ephemeral encapsulation key for the current session.
+
+### Exchange Sequence
+```
+Legend:
+  C        = Client
+  S        = Server
+  H        = SHA3-256
+  KEM      = Key Encapsulation Mechanism
+  SIG      = Dilithium Signature
+  cSHAKE   = Customizable SHAKE-256 KDF
+  sch      = Running transcript hash
+  phdr     = Serialized packet header
+  pk_kem   = Ephemeral public encapsulation key
+
+Round 1  C → S :  serial || cfg
+                  sch₀ = H(cfg || serial || root_verkey)
+
+Round 2  S → C :  SIG(H(phdr || sch₀ || pk_kem)) || pk_kem
+                  sch₁ = H(sch₀ || H(phdr || sch₀ || pk_kem))
+
+Round 3  C → S :  KEM_Encaps(pk_kem) → ciphertext || secret
+                  sch₂ = H(sch₁ || ciphertext)
+                  session_keys = cSHAKE(secret, sch₂)
+
+Confirm  S → C :  sch₂
+                  C verifies sch₂ matches local transcript
+                  Session established only on exact match
+```
+
+Session keys are derived from `cSHAKE(shared_secret, transcript_hash)`, binding them cryptographically to the complete protocol exchange. The server transmits its final transcript hash as an explicit key confirmation — a mismatch immediately terminates the connection on both sides before any application data is processed.
+
+### Security Properties
+
+| Property | Mechanism |
+|---|---|
+| Server authentication | Root-signed certificate verified before key exchange begins |
+| Forward secrecy | Ephemeral KEM keys generated per-session, destroyed after decapsulation |
+| Transcript integrity | SHA3-256 running hash commits every protocol message into derived keys |
+| Key confirmation | Server returns transcript hash; client verifies before accepting session |
+| Replay resistance | Per-session ephemeral keys with packet sequence number validation |
+| Downgrade resistance | No algorithm negotiation; all parameters fixed at compile time |
+
+---
+
+## Applications
+
+QSTP is well-suited for any environment requiring strong mutual authentication and encrypted communications, particularly where quantum-era adversaries must be considered:
+
+- Client registration and onboarding on managed networks
+- Secure cloud storage access
+- Hub-and-spoke enterprise communications
+- Financial services: commodity trading and electronic currency exchange
+- Defense and government classified communications
+- IoT device provisioning and secure telemetry
+
+---
+
+## Performance and Scalability
+
+The QSTP server is implemented as a multi-threaded platform capable of maintaining a uniquely keyed encrypted tunnel for each connected client. The per-client connection state is under 4 kilobytes, enabling a single server instance to sustain hundreds of thousands of simultaneous connections. Ephemeral encapsulation keys are generated and destroyed within each exchange, ensuring complete session isolation with no shared key material between connections.
+
+---
 
 ## Compilation
 
-QSTP uses the QSC cryptographic library. QSC is a standalone, portable, and MISRA-aligned cryptographic library written in C. It supports platform-optimized builds across **Windows**, **macOS**, and **Linux** via [CMake](https://cmake.org/), and includes support for modern hardware acceleration such as AES-NI, AVX2/AVX-512, and RDRAND.
+QSTP uses the [QSC Cryptographic Library](https://github.com/QRCS-CORP/QSC) — a standalone, portable, MISRA-aligned cryptographic library written in C23. QSC supports platform-optimized builds across Windows, macOS, and Linux, with hardware acceleration for AES-NI, AVX2/AVX-512, and RDRAND where available.
 
 ### Prerequisites
 
-- **CMake**: 3.15 or newer
-- **Windows**: Visual Studio 2022 or newer
-- **macOS**: Clang via Xcode or Homebrew
-- **Ubuntu**: GCC or Clang  
+| Tool | Requirement |
+|---|---|
+| CMake | 3.15 or newer |
+| Windows | Visual Studio 2022 or newer |
+| macOS | Clang via Xcode or Homebrew |
+| Linux | GCC or Clang |
+| Dependency | [QSC Library](https://github.com/QRCS-CORP/QSC) |
 
-### Building QSTP library and the Client/Root/Server projects
+---
 
-#### Windows (MSVC)
+### Windows (MSVC)
 
-Use the Visual Studio solution to create the library and the Server and Client projects: QSTP, Root, Server, and Client.
-Extract the files, and open the Server and Client projects. The QSTP library has a default location in a folder parallel to the Server, Root, and Client project folders.  
-The server, root, and client projects additional files folder are set to: **$(SolutionDir)QSTP** and **$(SolutionDir)..\QSC\QSC**, if this is not the location of the library files, change it by going to server/client project properties **Configuration Properties->C/C++->General->Additional Include Directories** and set the library files location.  
-Ensure that the **[server/root/client]->References** property contains a reference to the QSTP library, and that the QSTP library contains a valid reference to the QSC library.  
-QSC and QSTP support every AVX instruction family (AVX/AVX2/AVX-512).  
-Set the QSC and QSTP libries and every server/client project to the same AVX family setting in **Configuration Properties->C/C++->All Options->Enable Enhanced Instruction Set**.  
-Set both QSC and QSTP to the same instruction set in Debug and Release Solution Configurations.  
-Compile the QSC library (right-click and choose build), build the QSTP library, then build the Server and Client projects.
+The Visual Studio solution contains four projects: **QSTP** (library), **Root**, **Server**, and **Client**. The QSTP library is expected in a folder parallel to the Root, Server, and Client project folders.
 
-#### MacOS / Ubuntu (Eclipse)
+> **Critical:** The `Enable Enhanced Instruction Set` property must be set to the **same value** across the QSC library, the QSTP library, and every application project (Root, Server, Client) in both Debug and Release configurations. Mismatched intrinsics settings produce ABI-incompatible struct layouts and are a source of undefined behavior.
 
-The QSC and the QSTP library projects, along with the Server, Root, and Client projects have been tested using the Eclipse IDE on Ubuntu and MacOS.  
-In the Eclipse folder there are subfolders for Ubuntu and MacOS that contain the **.project**, **.cproject**, and **.settings** Eclipse project files.  Copy those files directly into the folders containing the code files; move the files in the **Eclipse\Ubuntu\project-name** or **Eclipse\MacOS\project-name** folder to the folder containing the project's header and implementation files on QSTP, Server, Root, and Client projects.  
-Create a new project for QSC, select C/C++ project, and then **Create an empty project** with the same name as the folder with the files, 'QSC'. Repeat for every additional project.  
-Eclipse should load the project with all of the settings into the project view window. The same proceedure is true for **MacOS and Ubuntu**, but some settings are different (GCC/Clang), so choose the project files that correspond to the operating system.  
-The default projects use minimal flags, and is set to No Enhanced Instructions by default.
+**Build order:**
+1. Build the **QSC** library
+2. Build the **QSTP** library
+3. Build **Root**, **Server**, and **Client**
 
-Sample flag sets and their meanings:  
--**AVX Support**: -msse2 -mavx -maes -mpclmul -mrdrnd -mbmi2  
--**msse2**        # baseline for x86_64  
--**mavx**         # 256-bit FP/SIMD  
--**maes**         # AES-NI (128-bit AES rounds)  
--**mpclmul**      # PCLMUL (carry-less multiply)  
--**mrdrnd**       # RDRAND (hardware RNG)  
--**mbmi2**        # BMI2 (PEXT/PDEP, bit-manipulation)  
+**Include path configuration:**
+If the library files are not at their default locations, update the include paths in each project under:
+`Configuration Properties → C/C++ → General → Additional Include Directories`
 
--**AVX2 Support**: -msse2 -mavx -mavx2 -mpclmul -maes -mrdrnd -mbmi2  
--**msse2**        # baseline for x86_64  
--**mavx**         # AVX baseline  
--**mavx2**        # 256-bit integer + FP SIMD  
--**mpclmul**      # PCLMUL (carry-less multiply for AES-GCM, GHASH, etc.)  
--**maes**         # AES-NI (128-bit AES rounds)  
--**mrdrnd**       # RDRAND (hardware RNG)  
--**mbmi2**        # BMI2 (PEXT/PDEP, bit-manipulation)  
+Default paths:
+- `$(SolutionDir)QSTP`
+- `$(SolutionDir)..\QSC\QSC`
 
--**AVX-512 Support**: -msse2 -mavx -mavx2 -mavx512f -mavx512bw -mvaes -mpclmul -mrdrnd -mbmi2 -maes  
--**msse2**        # baseline for x86_64  
--**mavx**         # AVX baseline  
--**mavx2**        # AVX2 baseline (implied by AVX-512 but explicit is safer)  
--**mavx512f**     # 512-bit Foundation instructions  
--**mavx512bw**    # 512-bit Byte/Word integer instructions  
--**mvaes**        # Vector-AES (VAES) in 512-bit registers  
--**mpclmul**      # PCLMUL (carry-less multiply for GF(2ⁿ))  
--**mrdrnd**       # RDRAND (hardware RNG)  
--**mbmi2**        # BMI2 (PEXT/PDEP, bit-manipulation)  
--**maes**         # AES-NI (128-bit AES rounds; optional if VAES covers your AES use)  
+Ensure each application project's **References** property includes the QSTP library, and that the QSTP library references the QSC library.
 
+#### Local Protocol Test (Visual Studio)
+```
+1. Right-click QSTP Root → Debug → Start New Instance
+   root> generate <days>
+   Note the certificate path.
 
-## Conclusion
+2. Right-click QSTP Server → Debug → Start New Instance
+   Paste the root certificate path when prompted.
+   The server generates its key pair. Note the server certificate path.
+   Close the Server console.
 
-By integrating cutting-edge cryptographic primitives, an efficient key exchange mechanism, and robust certificate management, QSTP provides flexible, high-performance, and quantum-resistant security for networked communications. It represents a significant leap forward over legacy protocols, offering strong post-quantum security without the complexity and limitations of older systems.
+3. In the Root console:
+   root> sign C:\Users\<username>\Documents\QSTP\Server\qstp_<computername>.qrc
+   Close the Root console.
+
+4. Reopen the QSTP Server console.
+   server> waiting for a connection
+
+5. Right-click QSTP Client → Debug → Start New Instance
+   Enter address: 127.0.0.1
+   Enter root certificate path when prompted.
+   Enter server certificate path when prompted.
+   The client is now connected over a post-quantum secure channel.
+   Messages typed in the client are echoed back by the server.
+```
+
+---
+
+### macOS / Linux (Eclipse)
+
+The QSC and QSTP library projects, along with the Root, Server, and Client projects, have been tested with the Eclipse IDE on Ubuntu and macOS.
+
+Eclipse project files (`.project`, `.cproject`, `.settings`) are located in platform-specific subdirectories under the `Eclipse` folder. Copy the files from `Eclipse/Ubuntu/<project-name>` or `Eclipse/MacOS/<project-name>` directly into the folder containing each project's source files.
+
+To create a project in Eclipse: select **C/C++ Project → Create an empty project** and use the same name as the source folder. Eclipse will load all settings automatically. Repeat for each project. GCC and Clang project files differ — select the set that matches your platform.
+
+The default Eclipse projects are configured with no enhanced instruction extensions. Add flags as needed for your target hardware.
+
+#### Compiler Flag Reference
+
+**AVX (256-bit FP/SIMD)**
+```
+-msse2 -mavx -maes -mpclmul -mrdrnd -mbmi2
+```
+| Flag | Purpose |
+|---|---|
+| `-msse2` | Baseline x86_64 SSE2 |
+| `-mavx` | 256-bit FP/SIMD |
+| `-maes` | AES-NI hardware acceleration |
+| `-mpclmul` | Carry-less multiply (GHASH) |
+| `-mrdrnd` | RDRAND hardware RNG |
+| `-mbmi2` | Bit manipulation (PEXT/PDEP) |
+
+**AVX2 (256-bit integer SIMD)**
+```
+-msse2 -mavx -mavx2 -maes -mpclmul -mrdrnd -mbmi2
+```
+| Flag | Purpose |
+|---|---|
+| `-mavx2` | 256-bit integer and FP SIMD |
+| *(others as above)* | |
+
+**AVX-512 (512-bit SIMD)**
+```
+-msse2 -mavx -mavx2 -mavx512f -mavx512bw -mvaes -maes -mpclmul -mrdrnd -mbmi2
+```
+| Flag | Purpose |
+|---|---|
+| `-mavx512f` | 512-bit Foundation instructions |
+| `-mavx512bw` | 512-bit byte/word integer operations |
+| `-mvaes` | Vector-AES in 512-bit registers |
+| *(others as above)* | |
+
+---
 
 ## Cryptographic Dependencies
 
-QSTP relies on the [QSC Cryptographic Library](https://github.com/QRCS-CORP/QSC) for its underlying cryptographic functions.
+QSTP depends on the [QSC Cryptographic Library](https://github.com/QRCS-CORP/QSC) for all underlying cryptographic operations, including post-quantum primitives, symmetric ciphers, hash functions, and random number generation.
+
+---
 
 ## License
 
-INVESTMENT INQUIRIES:
-QRCS is currently seeking a corporate investor for this technology.
-Parties interested in licensing or investment should connect to us at: contact@qrcscorp.ca  
-Visit https://www.qrcscorp.ca for a full inventory of our products and services.  
+> **Investment Inquiries:**  
+> QRCS is currently seeking a corporate investor for this technology. Parties interested in licensing or investment are invited to contact us at [contact@qrcscorp.ca](mailto:contact@qrcscorp.ca) or visit [https://www.qrcscorp.ca](https://www.qrcscorp.ca) for a full inventory of our products and services.
 
-PATENT NOTICE:
-One or more patent applications (provisional and/or non-provisional) covering aspects of this software have been filed with the United States Patent and 
-Trademark Office (USPTO). Unauthorized use may result in patent infringement liability.  
+> **Patent Notice:**  
+> One or more patent applications (provisional and/or non-provisional) covering aspects of this software have been filed with the United States Patent and Trademark Office (USPTO). Unauthorized use may result in patent infringement liability.
 
-License and Use Notice (2025-2026)  
-This repository contains cryptographic reference implementations, test code, and supporting materials published by Quantum Resistant Cryptographic Solutions Corporation (QRCS) for the purposes of public review, cryptographic analysis, interoperability testing, and evaluation.  
-All source code and materials in this repository are provided under the Quantum Resistant Cryptographic Solutions Public Research and Evaluation License (QRCS-PREL), 2025-2026, unless explicitly stated otherwise.  
-This license permits public access and non commercial research, evaluation, and testing use only. It does not permit production deployment, operational use, or incorporation into any commercial product or service without a separate written agreement executed with QRCS.  
-The public availability of this repository is intentional and is provided to support cryptographic transparency, independent security assessment, and compliance with applicable cryptographic publication and export regulations.  
-Commercial use, production deployment, supported builds, certified implementations, and integration into products or services require a separate commercial license and support agreement.  
-For licensing inquiries, supported implementations, or commercial use, contact: licensing@qrcscorp.ca  
-Quantum Resistant Cryptographic Solutions Corporation, 2026.  
-_All rights reserved by QRCS Corp. 2026._
+**License and Use Notice (2025–2026)**
+
+This repository contains cryptographic reference implementations, test code, and supporting materials published by Quantum Resistant Cryptographic Solutions Corporation (QRCS) for the purposes of public review, cryptographic analysis, interoperability testing, and evaluation.
+
+All source code and materials in this repository are provided under the **Quantum Resistant Cryptographic Solutions Public Research and Evaluation License (QRCS-PREL), 2025–2026**, unless explicitly stated otherwise.
+
+This license permits non-commercial research, evaluation, and testing use only. It does not permit production deployment, operational use, or incorporation into any commercial product or service without a separate written agreement executed with QRCS.
+
+The public availability of this repository is intentional and is provided to support cryptographic transparency, independent security assessment, and compliance with applicable cryptographic publication and export regulations.
+
+Commercial use, production deployment, supported builds, certified implementations, and integration into products or services require a separate commercial license and support agreement.
+
+For licensing inquiries, supported implementations, or commercial use, contact: [licensing@qrcscorp.ca](mailto:licensing@qrcscorp.ca)
+
+*Quantum Resistant Cryptographic Solutions Corporation, 2026. All rights reserved.*

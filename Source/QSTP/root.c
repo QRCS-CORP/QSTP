@@ -71,6 +71,33 @@ void qstp_root_key_generate(qstp_root_signature_key* kset, const char issuer[QST
 	}
 }
 
+#if defined(QSTP_EXTERNAL_SIGNED_ROOT)
+bool qstp_root_certificate_external_sign(qstp_root_certificate* root, char authority[QSTP_CERTIFICATE_ISSUER_SIZE],
+	uint8_t keyid[QSTP_CERTIFICATE_SERIAL_SIZE], qstp_signature_schemes scheme, uint8_t* sigkey,
+	bool (*scheme_sign)(uint8_t*, size_t*, const uint8_t*, size_t, const uint8_t*, bool (*rng_generate)(uint8_t*, size_t)))
+{
+	uint8_t hash[QSTP_CERTIFICATE_HASH_SIZE] = { 0U };
+	size_t slen;
+	bool res;
+
+	res = false;
+
+	if (root != NULL && sigkey != NULL && scheme_sign != NULL && scheme == QSTP_ACTIVE_SIGNATURE_SCHEME)
+	{
+		slen = 0U;
+		qsc_memutils_copy(root->authority, authority, QSTP_CERTIFICATE_ISSUER_SIZE);
+		qsc_memutils_copy(root->keyid, keyid, QSTP_CERTIFICATE_SERIAL_SIZE);
+		root->scheme = scheme;
+		qstp_root_certificate_hash(hash, root);
+		qstp_signature_sign(root->csig, &slen, hash, sizeof(hash), sigkey, qsc_acp_generate);
+
+		res = (slen == QSTP_CERTIFICATE_SIGNED_HASH_SIZE);
+	}
+
+	return res;
+}
+#endif
+
 void qstp_root_certificate_print(const qstp_root_certificate* root)
 {
 	QSTP_ASSERT(root != NULL);
@@ -87,7 +114,7 @@ void qstp_root_certificate_print(const qstp_root_certificate* root)
 		qsc_memutils_clear(penk, elen);
 		slen = qstp_root_certificate_encode(penk, elen, root);
 
-		if (slen == elen)
+		if (slen <= elen)
 		{
 			qsc_consoleutils_print_safe(penk);
 			qsc_consoleutils_print_line("");
@@ -142,7 +169,7 @@ bool qstp_root_sign_certificate(const char* fpath, const qstp_root_certificate* 
 
 			if (qstp_server_file_to_certificate(&cert, fpath) == true)
 			{
-				if (qstp_root_certificate_sign(&cert, root, rootkey) == QSTP_CERTIFICATE_SIGNED_HASH_SIZE)
+				if (qstp_server_root_certificate_sign(&cert, root, rootkey) == QSTP_CERTIFICATE_SIGNED_HASH_SIZE)
 				{
 					res = qstp_server_certificate_to_file(&cert, fpath);
 				}
@@ -152,3 +179,54 @@ bool qstp_root_sign_certificate(const char* fpath, const qstp_root_certificate* 
 
 	return res;
 }
+
+#if defined(QSTP_DEBUG_MODE)
+bool qstp_root_certificate_signing_test()
+{
+	qstp_root_signature_key kset = { 0U };
+	qstp_root_certificate root = { 0U };
+	char issuer[QSTP_CERTIFICATE_ISSUER_SIZE] = { 0 };
+	bool res;
+
+	res = false;
+
+#if defined(QSTP_EXTERNAL_SIGNED_ROOT)
+
+	qstp_root_signature_key ksetex = { 0U };
+	char auth[QSTP_CERTIFICATE_ISSUER_SIZE] = { "domain-xyz" };
+	uint8_t keyid[QSTP_CERTIFICATE_SERIAL_SIZE] = { 0U };
+
+	qsc_acp_generate(keyid, sizeof(keyid));
+
+	qstp_root_get_issuer(issuer);
+	/* create the master key */
+	qstp_root_key_generate(&kset, issuer, 365);
+	/* extract the root certificate */
+	qstp_root_certificate_extract(&root, &kset);
+	/* create the external master key */
+	qstp_root_key_generate(&ksetex, issuer, 365);
+	/* sign the root certificate */
+	qstp_root_certificate_external_sign(&root, auth, keyid, QSTP_ACTIVE_SIGNATURE_SCHEME, ksetex.sigkey, qstp_signature_sign);
+	/* verify the signature */
+	res = qstp_root_certificate_verify(&root, ksetex.verkey);
+
+	if (res == true)
+	{
+		qstp_root_certificate_print(&root);
+	}
+
+#else
+
+	qstp_root_get_issuer(issuer);
+	/* create the master key */
+	qstp_root_key_generate(&kset, issuer, 365);
+	/* extract the root certificate */
+	qstp_root_certificate_extract(&root, &kset);
+	/* verify the signature */
+	res = qstp_root_certificate_verify(&root);
+
+#endif
+
+	return res;
+}
+#endif

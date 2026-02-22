@@ -84,7 +84,7 @@
  * This function checks whether the connection state at the specified index in the connection collection
  * is currently marked as active.
  *
- * \param index The index (zero-based) in the connections collection.
+ * \param index: The index (zero-based) in the connections collection.
  *
  * \return Returns true if the connection at the given index is active; otherwise, returns false.
  */
@@ -119,7 +119,7 @@ size_t qstp_connections_available(void);
  * This function locates and returns the connection state object corresponding to the provided instance number.
  * The instance number uniquely identifies a connection within the collection.
  *
- * \param instance The unique instance number associated with a connection.
+ * \param instance: The unique instance number associated with a connection.
  *
  * \return Returns a pointer to the QSTP connection state if found; otherwise, returns NULL.
  */
@@ -134,8 +134,8 @@ qstp_connection_state* qstp_connections_get(uint32_t instance);
  * and the \a maximum parameter defines the maximum capacity of the collection. The maximum must be greater than
  * or equal to the count.
  *
- * \param count The initial number of connection state objects to allocate.
- * \param maximum The maximum number of connection states the collection can hold.
+ * \param count: The initial number of connection state objects to allocate.
+ * \param maximum: The maximum number of connection states the collection can hold.
  */
 void qstp_connections_initialize(size_t count, size_t maximum);
 
@@ -175,7 +175,7 @@ bool qstp_connections_full(void);
  * This function returns the connection state object located at the specified index in the collection.
  * If the index is out of bounds or invalid, the function returns NULL.
  *
- * \param index The index of the connection state within the collection.
+ * \param index: The index of the connection state within the collection.
  *
  * \return Returns a pointer to the QSTP connection state, or NULL if the index is invalid.
  */
@@ -199,7 +199,7 @@ qstp_connection_state* qstp_connections_next(void);
  * This function resets the connection state identified by the given instance number. Resetting a connection
  * typically clears its data and marks it as inactive so that the slot can be reused.
  *
- * \param instance The unique instance number of the connection to reset.
+ * \param instance: The unique instance number of the connection to reset.
  */
 void qstp_connections_reset(uint32_t instance);
 
