@@ -213,7 +213,7 @@ The receive and transmit channel ciphers are initialized.
 cprrx(k2,n2)
 cprtx(k1,n1)
 */
-static qstp_errors kex_client_exchange_request(const qstp_kex_client_state* kcs, qstp_connection_state* cns, const qstp_network_packet* packetin, qstp_network_packet* packetout)
+static qstp_errors kex_client_exchange_request(qstp_kex_client_state* kcs, qstp_connection_state* cns, const qstp_network_packet* packetin, qstp_network_packet* packetout)
 {
 	QSTP_ASSERT(kcs != NULL);
 	QSTP_ASSERT(cns != NULL);
