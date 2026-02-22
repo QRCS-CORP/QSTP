@@ -246,6 +246,8 @@ static void qstp_server_self_tests(qstp_server_certificate* cert)
 
 static bool server_root_fetch_verification_key(qstp_root_certificate* root, uint8_t* exverkey)
 {
+	(void)root;
+	(void)exverkey;
 	/* Beyond example scope. This is where you would use the root certificate's
 	* authority field to lookup a certificate domain, and the keyid serial number 
 	* to fetch and external signature verification key that anchors the root certificate.
