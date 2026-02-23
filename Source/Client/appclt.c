@@ -311,7 +311,7 @@ static void client_send_loop(qstp_connection_state* cns)
 		slen = qsc_consoleutils_get_line(sin, sizeof(sin));
 		mlen = (slen > 0U) ? slen - 1U : 0U;
 
-		if (slen == 1 && mlen == 0U)
+		if (slen > 0U)
 		{
 			client_print_prompt();
 		}

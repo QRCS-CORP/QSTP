@@ -133,8 +133,6 @@ bool qstp_decrypt_error_message(qstp_errors* merr, qstp_connection_state* cns, c
 
 			if (pkt.sequence == cns->rxseq + 1U)
 			{
-				cns->rxseq += 1U;
-
 				if (cns->exflag == qstp_flag_session_established)
 				{
 					/* anti-replay; verify the packet time */
@@ -148,6 +146,7 @@ bool qstp_decrypt_error_message(qstp_errors* merr, qstp_connection_state* cns, c
 							/* authenticate then decrypt the data */
 							if (qstp_cipher_transform(&cns->rxcpr, dmsg, emsg, mlen) == true)
 							{
+								cns->rxseq += 1U;
 								err = (qstp_errors)dmsg[0U];
 								res = true;
 							}
@@ -197,8 +196,6 @@ qstp_errors qstp_decrypt_packet(qstp_connection_state* cns, uint8_t* message, si
 	{
 		if (packetin->sequence == cns->rxseq + 1U)
 		{
-			cns->rxseq += 1U;
-
 			if (cns->exflag == qstp_flag_session_established)
 			{
 				if (qstp_packet_time_valid(packetin) == true)
@@ -214,6 +211,7 @@ qstp_errors qstp_decrypt_packet(qstp_connection_state* cns, uint8_t* message, si
 						/* authenticate then decrypt the data */
 						if (qstp_cipher_transform(&cns->rxcpr, message, packetin->pmessage, *msglen) == true)
 						{
+							cns->rxseq += 1U;
 							qerr = qstp_error_none;
 						}
 						else
