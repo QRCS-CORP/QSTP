@@ -285,12 +285,11 @@ static void client_send_loop(qstp_connection_state* cns)
 	size_t slen;
 
 	mlen = 0U;
+	client_print_prompt();
 
 	/* start the sender loop */
 	while (true)
 	{
-		client_print_prompt();
-
 		if (qsc_consoleutils_line_contains(sin, "qstp quit"))
 		{
 			qstp_connection_close(cns, qstp_error_none, true);
@@ -312,10 +311,9 @@ static void client_send_loop(qstp_connection_state* cns)
 		slen = qsc_consoleutils_get_line(sin, sizeof(sin));
 		mlen = (slen > 0U) ? slen - 1U : 0U;
 
-		if (mlen > 0U && (sin[0] == '\n' || sin[0U] == '\r'))
+		if (slen == 1 && mlen == 0U)
 		{
-			client_print_message("");
-			mlen = 0U;
+			client_print_prompt();
 		}
 	}
 }
