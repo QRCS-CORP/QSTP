@@ -288,7 +288,7 @@ const char* qstp_error_to_string(qstp_errors error)
 
 	dsc = NULL;
 
-	if ((int)error < QSTP_ERROR_STRING_DEPTH && (int)error >= 0)
+	if ((uint32_t)error < (uint32_t)QSTP_ERROR_STRING_DEPTH && (uint32_t)error >= 0U)
 	{
 		dsc = QSTP_ERROR_STRINGS[(size_t)error];
 	}
@@ -455,7 +455,7 @@ const char* qstp_get_error_description(qstp_messages message)
 
 	dsc = NULL;
 
-	if ((int)message < QSTP_MESSAGE_STRING_DEPTH && (int)message >= 0)
+	if ((uint32_t)message < (uint32_t)QSTP_MESSAGE_STRING_DEPTH && (uint32_t)message >= 0U)
 	{
 		dsc = QSTP_MESSAGE_STRINGS[(size_t)message];
 
