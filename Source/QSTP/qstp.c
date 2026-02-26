@@ -170,7 +170,7 @@ void qstp_connection_state_dispose(qstp_connection_state* cns)
 	{
 		qstp_cipher_dispose(&cns->rxcpr);
 		qstp_cipher_dispose(&cns->txcpr);
-		qsc_memutils_clear(&cns->rtcs, QSTP_SYMMETRIC_KEY_SIZE);
+		qsc_memutils_secure_erase(&cns->rtcs, QSTP_SYMMETRIC_KEY_SIZE);
 		qsc_memutils_clear((uint8_t*)&cns->target, sizeof(qsc_socket));
 		cns->rxseq = 0U;
 		cns->txseq = 0U;

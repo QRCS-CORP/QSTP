@@ -73,8 +73,8 @@ static void symmetric_ratchet(qstp_connection_state* cns, const uint8_t* secret,
 	qsc_keccak_permute(&kstate, QSC_KECCAK_PERMUTATION_ROUNDS);
 	qsc_memutils_copy(cns->rtcs, (uint8_t*)kstate.state, QSTP_SYMMETRIC_KEY_SIZE);
 	/* erase the key array */
-	qsc_memutils_clear(prnd, sizeof(prnd));
-	qsc_memutils_clear((uint8_t*)&kp, sizeof(qstp_cipher_keyparams));
+	qsc_memutils_secure_erase(prnd, sizeof(prnd));
+	qsc_memutils_secure_erase((uint8_t*)&kp, sizeof(qstp_cipher_keyparams));
 }
 
 static bool symmetric_ratchet_response(qstp_connection_state* cns, const qstp_network_packet* packetin)
@@ -103,7 +103,7 @@ static bool symmetric_ratchet_response(qstp_connection_state* cns, const qstp_ne
 		}
 	}
 
-	qsc_memutils_clear(rkey, sizeof(rkey));
+	qsc_memutils_secure_erase(rkey, sizeof(rkey));
 	qsc_memutils_clear(shdr, sizeof(shdr));
 
 	return res;
@@ -334,7 +334,7 @@ bool qstp_send_symmetric_ratchet_request(qstp_connection_state* cns)
 		}
 
 		qsc_memutils_clear(pmsg, sizeof(pmsg));
-		qsc_memutils_clear(rkey, sizeof(rkey));
+		qsc_memutils_secure_erase(rkey, sizeof(rkey));
 	}
 
 	return res;

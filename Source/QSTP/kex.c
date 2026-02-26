@@ -40,9 +40,9 @@ static void kex_client_reset(qstp_kex_client_state* kcs)
 
 	if (kcs != NULL)
 	{
-		qsc_memutils_clear(kcs->serial, QSTP_CERTIFICATE_SERIAL_SIZE);
-		qsc_memutils_clear(kcs->schash, QSTP_CERTIFICATE_HASH_SIZE);
-		qsc_memutils_clear(kcs->verkey, QSTP_ASYMMETRIC_VERIFICATION_KEY_SIZE);
+		qsc_memutils_secure_erase(kcs->serial, QSTP_CERTIFICATE_SERIAL_SIZE);
+		qsc_memutils_secure_erase(kcs->schash, QSTP_CERTIFICATE_HASH_SIZE);
+		qsc_memutils_secure_erase(kcs->verkey, QSTP_ASYMMETRIC_VERIFICATION_KEY_SIZE);
 		kcs->expiration = 0U;
 	}
 }
@@ -62,10 +62,10 @@ static void kex_server_reset(qstp_kex_server_state* kss)
 
 	if (kss != NULL)
 	{
-		qsc_memutils_clear(kss->schash, QSTP_CERTIFICATE_HASH_SIZE);
-		qsc_memutils_clear(kss->serial, QSTP_CERTIFICATE_SERIAL_SIZE);
-		qsc_memutils_clear(kss->sigkey, QSTP_ASYMMETRIC_SIGNING_KEY_SIZE);
-		qsc_memutils_clear(kss->verkey, QSTP_ASYMMETRIC_VERIFICATION_KEY_SIZE);
+		qsc_memutils_secure_erase(kss->schash, QSTP_CERTIFICATE_HASH_SIZE);
+		qsc_memutils_secure_erase(kss->serial, QSTP_CERTIFICATE_SERIAL_SIZE);
+		qsc_memutils_secure_erase(kss->sigkey, QSTP_ASYMMETRIC_SIGNING_KEY_SIZE);
+		qsc_memutils_secure_erase(kss->verkey, QSTP_ASYMMETRIC_VERIFICATION_KEY_SIZE);
 		kss->expiration = 0U;
 	}
 }
@@ -78,6 +78,7 @@ static void kex_dispose_private_key(qstp_kex_server_state* kss)
 	{
 		if (kss->prikey != NULL)
 		{
+			qsc_memutils_secure_erase(kss->prikey, QSTP_ASYMMETRIC_PRIVATE_KEY_SIZE);
 			qsc_memutils_alloc_free(kss->prikey);
 			kss->prikey = NULL;
 		}
@@ -92,6 +93,7 @@ static void kex_dispose_public_key(qstp_kex_server_state* kss)
 	{
 		if (kss->pubkey != NULL)
 		{
+			qsc_memutils_secure_erase(kss->pubkey, QSTP_ASYMMETRIC_PUBLIC_KEY_SIZE);
 			qsc_memutils_alloc_free(kss->pubkey);
 			kss->pubkey = NULL;
 		}
@@ -312,8 +314,8 @@ static qstp_errors kex_client_exchange_request(qstp_kex_client_state* kcs, qstp_
 					kp2.infolen = 0U;
 					qstp_cipher_initialize(&cns->rxcpr, &kp2, false);
 
-					qsc_memutils_clear(ssec, sizeof(ssec));
-					qsc_memutils_clear(prnd, sizeof(prnd));
+					qsc_memutils_secure_erase(ssec, sizeof(ssec));
+					qsc_memutils_secure_erase(prnd, sizeof(prnd));
 
 					cns->exflag = qstp_flag_exchange_request;
 					qerr = qstp_error_none;
@@ -580,8 +582,8 @@ static qstp_errors kex_server_exchange_response(qstp_kex_server_state* kss, qstp
 				/* add schash to packet message */
 				qsc_memutils_copy(packetout->pmessage, kss->schash, QSTP_CERTIFICATE_HASH_SIZE);
 
-				qsc_memutils_clear(ssec, sizeof(ssec));
-				qsc_memutils_clear(prnd, sizeof(prnd));
+				qsc_memutils_secure_erase(ssec, sizeof(ssec));
+				qsc_memutils_secure_erase(prnd, sizeof(prnd));
 
 				qerr = qstp_error_none;
 				cns->exflag = qstp_flag_session_established;
@@ -661,7 +663,7 @@ qstp_errors qstp_kex_client_key_exchange(qstp_kex_client_state* kcs, qstp_connec
 								if (sbuf != NULL)
 								{
 									/* clear the request packet */
-									qsc_memutils_clear(sbuf, KEX_EXCHANGE_REQUEST_PACKET_SIZE);
+									qsc_memutils_secure_erase(sbuf, KEX_EXCHANGE_REQUEST_PACKET_SIZE);
 									reqt.pmessage = sbuf + QSTP_PACKET_HEADER_SIZE;
 
 									/* create the exstart request packet */
