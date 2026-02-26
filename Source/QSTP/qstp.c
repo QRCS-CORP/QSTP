@@ -43,7 +43,7 @@ const char* qstp_configuration_to_string(qstp_configuration_sets cset)
 
 	cres = NULL;
 
-	if ((int)cset < QSTP_PROTOCOL_SET_DEPTH && (int)cset >= 0)
+	if ((uint32_t)cset < (uint32_t)QSTP_PROTOCOL_SET_DEPTH && (uint32_t)cset >= 0U)
 	{
 		cres = QSTP_PARAMETER_STRINGS[(size_t)cset];
 	}
