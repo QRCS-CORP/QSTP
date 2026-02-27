@@ -155,7 +155,7 @@
     <ProjectReference Include="..\..\QSC\QSC\QSC.vcxproj">
       <Project>{7b7f8e47-0f7c-4273-a229-a7ab2a452ea9}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\QSTP\MPTP.vcxproj">
+    <ProjectReference Include="..\QSTP\QSTP.vcxproj">
       <Project>{7044c00f-cf2f-49af-b1e9-4affc903ea41}</Project>
     </ProjectReference>
   </ItemGroup>

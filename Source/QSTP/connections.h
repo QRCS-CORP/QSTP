@@ -91,17 +91,6 @@
 bool qstp_connections_active(size_t index);
 
 /**
- * \brief Add a new connection state to the collection and mark it as active.
- *
- * \details
- * This function creates a new connection state object, adds it to the connections collection, and sets its
- * status to active. If the collection is full or memory allocation fails, the function returns NULL.
- *
- * \return Returns a pointer to the newly added QSTP connection state, or NULL on failure.
- */
-qstp_connection_state* qstp_connections_add(void);
-
-/**
  * \brief Get the number of available (inactive) connection states in the collection.
  *
  * \details
@@ -134,10 +123,11 @@ qstp_connection_state* qstp_connections_get(uint32_t instance);
  * and the \a maximum parameter defines the maximum capacity of the collection. The maximum must be greater than
  * or equal to the count.
  *
- * \param count: The initial number of connection state objects to allocate.
- * \param maximum: The maximum number of connection states the collection can hold.
+ * \param count: The maximum number of connection states the collection can hold.
+ *
+ * \return Returns true if the connection array was allocated successfully, otherwise false
  */
-void qstp_connections_initialize(size_t count, size_t maximum);
+bool qstp_connections_initialize(size_t count);
 
 /**
  * \brief Erase all connection states in the collection.
@@ -212,19 +202,5 @@ void qstp_connections_reset(uint32_t instance);
  * \return Returns the total number of connection state items in the collection.
  */
 size_t qstp_connections_size(void);
-
-#if defined(QSTP_DEBUG_MODE)
-/**
- * \brief Run the self-test for the connection collection.
- *
- * \details
- * This function performs a series of tests on the connection collection to verify its proper functioning.
- * The self-test exercises various operations, such as adding new connection states, checking active status,
- * retrieving connection states by index and instance, resetting connections, and ensuring that the reported
- * sizes (available and total) are correct. This helps confirm the robustness and correctness of the connection
- * management routines.
- */
-void qstp_connections_self_test(void);
-#endif
 
 #endif

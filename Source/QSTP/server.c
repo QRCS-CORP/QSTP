@@ -23,8 +23,9 @@ typedef struct server_receiver_state
 /** \endcond */
 
 /** \cond */
-static bool m_server_pause;
-static bool m_server_run;
+
+volatile bool m_server_pause = false;
+volatile bool m_server_run = false;
 
 static void server_state_initialize(qstp_kex_server_state* kss, const server_receiver_state* prcv)
 {
@@ -82,7 +83,7 @@ static void server_receive_loop(void* prcv)
 
 	if (pkss != NULL)
 	{
-		server_state_initialize(pkss, prcv);
+		server_state_initialize(pkss, pprcv);
 		qerr = qstp_kex_server_key_exchange(pkss, pprcv->pcns);
 		qsc_memutils_alloc_free(pkss);
 		pkss = NULL;
@@ -104,13 +105,16 @@ static void server_receive_loop(void* prcv)
 					{
 						qstp_packet_header_deserialize(rbuf, &pkt);
 
-						if (pkt.msglen > 0U && pkt.msglen <= QSTP_PACKET_MESSAGE_MAX)
+						if (pkt.msglen > QSTP_MACTAG_SIZE && pkt.msglen <= QSTP_PACKET_MESSAGE_MAX)
 						{
-							plen = pkt.msglen + QSTP_PACKET_HEADER_SIZE;
-							rbuf = (uint8_t*)qsc_memutils_realloc(rbuf, plen);
+							uint8_t* rtmp;
 
-							if (rbuf != NULL)
+							plen = pkt.msglen + QSTP_PACKET_HEADER_SIZE;
+							rtmp = (uint8_t*)qsc_memutils_realloc(rbuf, plen);
+
+							if (rtmp != NULL)
 							{
+								rbuf = rtmp;
 								qsc_memutils_clear(rbuf, plen);
 								mlen = qsc_socket_receive(&pprcv->pcns->target, rbuf, plen, qsc_socket_receive_flag_wait_all);
 
@@ -122,7 +126,7 @@ static void server_receive_loop(void* prcv)
 									{
 										uint8_t* mstr;
 
-										slen = pkt.msglen + QSTP_MACTAG_SIZE;
+										slen = pkt.msglen - QSTP_MACTAG_SIZE;
 										mstr = (uint8_t*)qsc_memutils_malloc(slen);
 
 										if (mstr != NULL)
@@ -134,6 +138,7 @@ static void server_receive_loop(void* prcv)
 											if (qerr == qstp_error_none)
 											{
 												pprcv->receive_callback(pprcv->pcns, (char*)mstr, mlen);
+												qsc_memutils_secure_erase(mstr, mlen);
 												qsc_memutils_alloc_free(mstr);
 											}
 											else
@@ -206,6 +211,7 @@ static void server_receive_loop(void* prcv)
 						{
 							/* message size exceeds maximum allowable */
 							qstp_log_write(qstp_messages_invalid_request, cadd);
+							break;
 						}
 					}
 				}
@@ -254,61 +260,66 @@ static qstp_errors server_start(const qstp_server_signature_key* kset,
 	qstp_errors qerr;
 
 	qerr = qstp_error_none;
-	m_server_pause = false;
-	m_server_run = true;
+
+	qsc_async_atomic_bool_store(&m_server_pause, false);
+	qsc_async_atomic_bool_store(&m_server_run, true);
+
 	qstp_logger_initialize(NULL);
-	qstp_connections_initialize(QSTP_CONNECTIONS_INIT, QSTP_CONNECTIONS_MAX);
 
-	do
+	/* allocate the connection stack */
+	if (qstp_connections_initialize(QSTP_CONNECTIONS_MAX) == true)
 	{
-		qstp_connection_state* cns = qstp_connections_next();
-
-		if (cns != NULL)
+		do
 		{
-			res = qsc_socket_accept(source, &cns->target);
+			qstp_connection_state* cns = qstp_connections_next();
 
-			if (res == qsc_socket_exception_success)
+			if (cns)
 			{
-				server_receiver_state* prcv = (server_receiver_state*)qsc_memutils_malloc(sizeof(server_receiver_state));
+				res = qsc_socket_accept(source, &cns->target);
 
-				if (prcv != NULL)
+				if (res == qsc_socket_exception_success)
 				{
-					cns->target.connection_status = qsc_socket_state_connected;
-					prcv->pcns = cns;
-					prcv->kset = kset;
-					prcv->disconnect_callback = disconnect_callback;
-					prcv->receive_callback = receive_callback;
+					server_receiver_state* prcv = (server_receiver_state*)qsc_memutils_malloc(sizeof(server_receiver_state));
 
-					qstp_log_write(qstp_messages_connect_success, (const char*)cns->target.address);
-					qsc_async_thread_create(&server_receive_loop, prcv);
-					server_poll_sockets();
+					if (prcv != NULL)
+					{
+						cns->target.connection_status = qsc_socket_state_connected;
+						prcv->pcns = cns;
+						prcv->kset = kset;
+						prcv->disconnect_callback = disconnect_callback;
+						prcv->receive_callback = receive_callback;
+
+						qstp_log_write(qstp_messages_connect_success, (const char*)cns->target.address);
+						qsc_async_thread_create(&server_receive_loop, prcv);
+						server_poll_sockets();
+					}
+					else
+					{
+						qstp_connections_reset(cns->cid);
+						qerr = qstp_error_memory_allocation;
+						qstp_log_message(qstp_messages_sockalloc_fail);
+					}
 				}
 				else
 				{
 					qstp_connections_reset(cns->cid);
-					qerr = qstp_error_memory_allocation;
-					qstp_log_message(qstp_messages_sockalloc_fail);
+					qerr = qstp_error_accept_fail;
+					qstp_log_message(qstp_messages_accept_fail);
 				}
 			}
 			else
 			{
-				qstp_connections_reset(cns->cid);
-				qerr = qstp_error_accept_fail;
-				qstp_log_message(qstp_messages_accept_fail);
+				qerr = qstp_error_hosts_exceeded;
+				qstp_log_message(qstp_messages_queue_empty);
 			}
-		}
-		else
-		{
-			qerr = qstp_error_hosts_exceeded;
-			qstp_log_message(qstp_messages_queue_empty);
-		}
 
-		while (m_server_pause == true)
-		{
-			qsc_async_thread_sleep(QSTP_SERVER_PAUSE_INTERVAL);
-		}
-	} 
-	while (m_server_run == true);
+			while (qsc_async_atomic_bool_load(&m_server_pause) == true)
+			{
+				qsc_async_thread_sleep(QSTP_SERVER_PAUSE_INTERVAL);
+			}
+		} 
+		while (qsc_async_atomic_bool_load(&m_server_run) == true);
+	}
 
 	return qerr;
 }
@@ -377,7 +388,7 @@ void qstp_server_key_generate(qstp_server_signature_key* kset, const char issuer
 
 void qstp_server_pause(void)
 {
-	m_server_pause = true;
+	qsc_async_atomic_bool_store(&m_server_pause, true);
 }
 
 void qstp_server_quit(void)
@@ -406,13 +417,13 @@ void qstp_server_quit(void)
 		}
 	}
 
+	qsc_async_atomic_bool_store(&m_server_run, false);
 	qstp_connections_dispose();
-	m_server_run = false;
 }
 
 void qstp_server_resume(void)
 {
-	m_server_pause = false;
+	qsc_async_atomic_bool_store(&m_server_pause, false);
 }
 
 qstp_errors qstp_server_start_ipv4(qsc_socket* source, 

@@ -354,6 +354,7 @@ qstp_errors qstp_client_connect_ipv4(const qstp_root_certificate* root,
 
 	qstp_kex_client_state* kcs;
 	client_receiver_state* prcv;
+	qsc_thread trcv;
 	qsc_socket_exceptions serr;
 	qstp_errors qerr;
 
@@ -398,10 +399,13 @@ qstp_errors qstp_client_connect_ipv4(const qstp_root_certificate* root,
 							if (qerr == qstp_error_none)
 							{
 								/* start the receive loop on a new thread */
-								qsc_async_thread_create(&client_receive_loop, prcv);
+								trcv = qsc_async_thread_create(&client_receive_loop, prcv);
 
 								/* start the send loop on the main thread */
 								send_func(prcv->pcns);
+
+								/* terminate the receiver thread */
+								(void)qsc_async_thread_terminate(trcv);
 
 								/* disconnect the socket */
 								client_connection_dispose(prcv);
@@ -490,6 +494,7 @@ qstp_errors qstp_client_connect_ipv6(const qstp_root_certificate* root,
 
 	qstp_kex_client_state* kcs;
 	client_receiver_state* prcv;
+	qsc_thread trcv;
 	qsc_socket_exceptions serr;
 	qstp_errors qerr;
 
@@ -531,10 +536,13 @@ qstp_errors qstp_client_connect_ipv6(const qstp_root_certificate* root,
 							if (qerr == qstp_error_none)
 							{
 								/* start the receive loop on a new thread */
-								qsc_async_thread_create(&client_receive_loop, prcv);
+								trcv = qsc_async_thread_create(&client_receive_loop, prcv);
 
 								/* start the send loop on the main thread */
 								send_func(prcv->pcns);
+
+								/* terminate the receiver thread */
+								(void)qsc_async_thread_terminate(trcv);
 
 								/* disconnect the socket */
 								client_connection_dispose(prcv);

@@ -484,19 +484,15 @@ typedef enum qstp_signature_schemes
 #define QSTP_CERTIFICATE_VERSION_SIZE 1U
 
 /*!
- * \def QSTP_CONNECTIONS_INIT
- * \brief The initial QSTP connections queue size.
- */
-#define QSTP_CONNECTIONS_INIT 1000U
-
-/*!
  * \def QSTP_CONNECTIONS_MAX
  * \brief The maximum number of QSTP connections.
+ * \details This is a modifiable constant: set to the desired number of maximum connections.
  *
- * Calculated based on approximately 5k bytes per connection (3480 for connection state + 1500 for MTU + overhead)
- * on a system with 256GB of DRAM. Can be increased if supported by the hardware.
+* \details Modifiable constant: calculated given approx 5k
+* (3480 connection state + 1500 mtu + overhead), per connection on 256GB of DRAM.
+* Can be scaled to a greater number provided the hardware can support it.
  */
-#define QSTP_CONNECTIONS_MAX 50000U
+#define QSTP_CONNECTIONS_MAX 50U
 
 /*!
  * \def QSTP_CONNECTION_MTU

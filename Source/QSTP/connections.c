@@ -1,14 +1,15 @@
 #include "connections.h"
-#include "qstpcommon.h"
+#include "async.h"
 #include "memutils.h"
+
+static qsc_mutex m_pool_mutex;
 
 /** \cond */
 typedef struct qstp_connection_set
 {
 	qstp_connection_state* conset;
 	bool* active;
-	size_t maximum;
-	size_t length;
+	size_t count;
 } qstp_connection_set;
 
 static qstp_connection_set m_connection_set;
@@ -20,36 +21,16 @@ bool qstp_connections_active(size_t index)
 
 	res = false;
 
-	if (index < m_connection_set.length)
+	qsc_async_mutex_lock(m_pool_mutex);
+
+	if (index < m_connection_set.count)
 	{
 		res = m_connection_set.active[index];
 	}
 
+	qsc_async_mutex_unlock(m_pool_mutex);
+
 	return res;
-}
-
-qstp_connection_state* qstp_connections_add(void)
-{
-	qstp_connection_state* cns;
-
-	cns = NULL;
-
-	if ((m_connection_set.length + 1U) <= m_connection_set.maximum)
-	{
-		m_connection_set.conset = qsc_memutils_realloc(m_connection_set.conset, (m_connection_set.length + 1U) * sizeof(qstp_connection_state));
-		m_connection_set.active = qsc_memutils_realloc(m_connection_set.active, (m_connection_set.length + 1U) * sizeof(bool));
-
-		if (m_connection_set.conset != NULL && m_connection_set.active != NULL)
-		{
-			qsc_memutils_clear(&m_connection_set.conset[m_connection_set.length], sizeof(qstp_connection_state));
-			m_connection_set.conset[m_connection_set.length].cid = (uint32_t)m_connection_set.length;
-			m_connection_set.active[m_connection_set.length] = true;
-			cns = &m_connection_set.conset[m_connection_set.length];
-			++m_connection_set.length;
-		}
-	}
-
-	return cns;
 }
 
 size_t qstp_connections_available(void)
@@ -58,26 +39,34 @@ size_t qstp_connections_available(void)
 
 	count = 0U;
 
-	for (size_t i = 0U; i < m_connection_set.length; ++i)
+	qsc_async_mutex_lock(m_pool_mutex);
+
+	for (size_t i = 0U; i < m_connection_set.count; ++i)
 	{
 		if (m_connection_set.active[i] == false)
 		{
 			++count;
 		}
 	}
+
+	qsc_async_mutex_unlock(m_pool_mutex);
 	
 	return count;
 }
 
 void qstp_connections_clear(void)
 {
-	qsc_memutils_clear(m_connection_set.conset, sizeof(qstp_connection_state) * m_connection_set.length);
+	qsc_async_mutex_lock(m_pool_mutex);
 
-	for (size_t i = 0; i < m_connection_set.length; ++i)
+	qsc_memutils_clear(m_connection_set.conset, sizeof(qstp_connection_state) * m_connection_set.count);
+
+	for (size_t i = 0; i < m_connection_set.count; ++i)
 	{
 		m_connection_set.active[i] = false;
 		m_connection_set.conset[i].cid = (uint32_t)i;
 	}
+
+	qsc_async_mutex_unlock(m_pool_mutex);
 }
 
 void qstp_connections_dispose(void)
@@ -99,8 +88,12 @@ void qstp_connections_dispose(void)
 		m_connection_set.active = NULL;
 	}
 
-	m_connection_set.length = 0U;
-	m_connection_set.maximum = 0U;
+	m_connection_set.count = 0U;
+
+	if (m_pool_mutex)
+	{
+		(void)qsc_async_mutex_destroy(m_pool_mutex);
+	}
 }
 
 qstp_connection_state* qstp_connections_index(size_t index)
@@ -109,10 +102,14 @@ qstp_connection_state* qstp_connections_index(size_t index)
 
 	res = NULL;
 
-	if (index < m_connection_set.length)
+	qsc_async_mutex_lock(m_pool_mutex);
+
+	if (index < m_connection_set.count)
 	{
 		res = &m_connection_set.conset[index];
 	}
+
+	qsc_async_mutex_unlock(m_pool_mutex);
 
 	return res;
 }
@@ -123,7 +120,9 @@ bool qstp_connections_full(void)
 
 	res = true;
 
-	for (size_t i = 0U; i < m_connection_set.length; ++i)
+	qsc_async_mutex_lock(m_pool_mutex);
+
+	for (size_t i = 0U; i < m_connection_set.count; ++i)
 	{
 		if (m_connection_set.active[i] == false)
 		{
@@ -131,6 +130,8 @@ bool qstp_connections_full(void)
 			break;
 		}
 	}
+
+	qsc_async_mutex_unlock(m_pool_mutex);
 
 	return res;
 }
@@ -141,7 +142,9 @@ qstp_connection_state* qstp_connections_get(uint32_t cid)
 
 	res = NULL;
 
-	for (size_t i = 0U; i < m_connection_set.length; ++i)
+	qsc_async_mutex_lock(m_pool_mutex);
+
+	for (size_t i = 0U; i < m_connection_set.count; ++i)
 	{
 		if (m_connection_set.conset[i].cid == cid)
 		{
@@ -149,33 +152,45 @@ qstp_connection_state* qstp_connections_get(uint32_t cid)
 		}
 	}
 
+	qsc_async_mutex_unlock(m_pool_mutex);
+
 	return res;
 }
 
-void qstp_connections_initialize(size_t count, size_t maximum)
+bool qstp_connections_initialize(size_t count)
 {
 	QSTP_ASSERT(count != 0U);
-	QSTP_ASSERT(maximum != 0U);
-	QSTP_ASSERT(count <= maximum);
-	
-	if (count != 0U && maximum != 0U && count <= maximum)
+
+	bool res;
+
+	res = false;
+
+	if (count != 0U)
 	{
-		m_connection_set.length = count;
-		m_connection_set.maximum = maximum;
-		m_connection_set.conset = (qstp_connection_state*)qsc_memutils_malloc(m_connection_set.length * sizeof(qstp_connection_state));
-		m_connection_set.active = (bool*)qsc_memutils_malloc(m_connection_set.length * sizeof(bool));
+		m_pool_mutex = qsc_async_mutex_create();
 
-		if (m_connection_set.conset != NULL && m_connection_set.active != NULL)
+		m_connection_set.count = count;
+		m_connection_set.conset = qsc_memutils_malloc(count * sizeof(qstp_connection_state));
+
+		if (m_connection_set.conset != NULL)
 		{
-			qsc_memutils_clear(m_connection_set.conset, m_connection_set.length * sizeof(qstp_connection_state));
+			qsc_memutils_clear(m_connection_set.conset, count * sizeof(qstp_connection_state));
+			m_connection_set.active = qsc_memutils_malloc(count * sizeof(bool));
 
-			for (size_t i = 0U; i < count; ++i)
+			if (m_connection_set.active != NULL)
 			{
-				m_connection_set.conset[i].cid = (uint32_t)i;
-				m_connection_set.active[i] = false;
+				for (size_t i = 0U; i < count; ++i)
+				{
+					m_connection_set.conset[i].cid = (uint32_t)i;
+					m_connection_set.active[i] = false;
+				}
+
+				res = true;
 			}
 		}
 	}
+
+	return res;
 }
 
 qstp_connection_state* qstp_connections_next(void)
@@ -184,29 +199,28 @@ qstp_connection_state* qstp_connections_next(void)
 
 	res = NULL;
 
-	if (qstp_connections_full() == false)
+	qsc_async_mutex_lock(m_pool_mutex);
+
+	for (size_t i = 0U; i < m_connection_set.count; ++i)
 	{
-		for (size_t i = 0U; i < m_connection_set.length; ++i)
+		if (m_connection_set.active[i] == false)
 		{
-			if (m_connection_set.active[i] == false)
-			{
-				res = &m_connection_set.conset[i];
-				m_connection_set.active[i] = true;
-				break;
-			}
+			res = &m_connection_set.conset[i];
+			m_connection_set.active[i] = true;
+			break;
 		}
 	}
-	else
-	{
-		res = qstp_connections_add();
-	}
+
+	qsc_async_mutex_unlock(m_pool_mutex);
 
 	return res;
 }
 
 void qstp_connections_reset(uint32_t cid)
 {
-	for (size_t i = 0U; i < m_connection_set.length; ++i)
+	qsc_async_mutex_lock(m_pool_mutex);
+
+	for (size_t i = 0U; i < m_connection_set.count; ++i)
 	{
 		if (m_connection_set.conset[i].cid == cid)
 		{
@@ -216,53 +230,17 @@ void qstp_connections_reset(uint32_t cid)
 			break;
 		}
 	}
+
+	qsc_async_mutex_unlock(m_pool_mutex);
 }
 
 size_t qstp_connections_size(void)
 {
-	return m_connection_set.length;
+	size_t res;
+
+	qsc_async_mutex_lock(m_pool_mutex);
+	res = m_connection_set.count;
+	qsc_async_mutex_unlock(m_pool_mutex);
+
+	return res;
 }
-
-#if defined(QSTP_DEBUG_MODE)
-void qstp_connections_self_test(void)
-{
-	qstp_connection_state* xn[20U] = { 0 };
-	size_t cnt;
-	bool full;
-
-	(void)cnt;
-	(void)full;
-	qstp_connections_initialize(1U, 10U); /* init with 1 */
-
-	for (size_t i = 1U; i < 10U; ++i)
-	{
-		xn[i] = qstp_connections_next(); /* init next 9 */
-	}
-
-	cnt = qstp_connections_available(); /* expected 0 */
-	full = qstp_connections_full(); /* expected true */
-
-	qstp_connections_reset(1U); /* release 5 */
-	qstp_connections_reset(3U);
-	qstp_connections_reset(5U);
-	qstp_connections_reset(7U);
-	qstp_connections_reset(9U);
-
-	full = qstp_connections_full(); /* expected false */
-
-	xn[11U] = qstp_connections_next(); /* reclaim 5 */
-	xn[12U] = qstp_connections_next();
-	xn[13U] = qstp_connections_next();
-	xn[14U] = qstp_connections_next();
-	xn[15U] = qstp_connections_next();
-
-	full = qstp_connections_full(); /* expected true */
-
-	xn[16U] = qstp_connections_next(); /* should exceed max */
-
-	cnt = qstp_connections_size(); /* expected 10 */
-
-	qstp_connections_clear();
-	qstp_connections_dispose();
-}
-#endif
