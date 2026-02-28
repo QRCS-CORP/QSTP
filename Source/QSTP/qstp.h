@@ -168,6 +168,10 @@
  */
 #define QSTP_PROTOCOL_SET_SIZE 42U
 
+ /** \cond DOXYGEN_NO_DOCUMENT */
+extern const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE];
+/** \endcond DOXYGEN_NO_DOCUMENT */
+
 /*!
  * \enum qstp_configuration_sets
  * \brief The QSTP algorithm configuration sets.
@@ -269,20 +273,20 @@ typedef enum qstp_signature_schemes
 
 /** \cond DOXYGEN_NO_DOCUMENT */
 #	if defined(QSC_DILITHIUM_S1P44) && defined(QSC_MCELIECE_S1N3488T64)
-		static const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "dilithium-s1_mceliece-s1_rcs-256_sha3-256";
 		static const qstp_configuration_sets QSTP_CONFIGURATION_SET = qstp_configuration_set_dilithium1_mceliece1_rcs256_shake256;
+		static const qstp_signature_schemes QSTP_ACTIVE_SIGNATURE_SCHEME = qstp_signature_scheme_dilithium1;
 #	elif defined(QSC_DILITHIUM_S3P65) && defined(QSC_MCELIECE_S3N4608T96)
-		static const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "dilithium-s3_mceliece-s3_rcs-256_sha3-256";
 		static const qstp_configuration_sets QSTP_CONFIGURATION_SET = qstp_configuration_set_dilithium3_mceliece3_rcs256_shake256;
+		static const qstp_signature_schemes QSTP_ACTIVE_SIGNATURE_SCHEME = qstp_signature_scheme_dilithium3;
 #	elif defined(QSC_DILITHIUM_S5P87) && defined(QSC_MCELIECE_S5N6688T128)
-		static const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "dilithium-s5_mceliece-s5_rcs-256_sha3-256";
 		static const qstp_configuration_sets QSTP_CONFIGURATION_SET = qstp_configuration_set_dilithium5_mceliece5_rcs256_shake256;
+		static const qstp_signature_schemes QSTP_ACTIVE_SIGNATURE_SCHEME = qstp_signature_scheme_dilithium5;
 #	elif defined(QSC_DILITHIUM_S5P87) && defined(QSC_MCELIECE_S6N6960T119)
-		static const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "dilithium-s5_mceliece-s6_rcs-256_sha3-256";
 		static const qstp_configuration_sets QSTP_CONFIGURATION_SET = qstp_configuration_set_dilithium5_mceliece6_rcs256_shake256;
+		static const qstp_signature_schemes QSTP_ACTIVE_SIGNATURE_SCHEME = qstp_signature_scheme_dilithium5;
 #	elif defined(QSC_DILITHIUM_S5P87) && defined(QSC_MCELIECE_S7N8192T128)
-		static const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "dilithium-s5_mceliece-s7_rcs-256_sha3-256";
 		static const qstp_configuration_sets QSTP_CONFIGURATION_SET = qstp_configuration_set_dilithium5_mceliece7_rcs256_shake256;
+		static const qstp_signature_schemes QSTP_ACTIVE_SIGNATURE_SCHEME = qstp_signature_scheme_dilithium5;
 #	else
 #		error the library parameter sets are mismatched!
 #	endif
@@ -359,19 +363,15 @@ typedef enum qstp_signature_schemes
 
 /** \cond DOXYGEN_NO_DOCUMENT */
 #	if defined(QSC_DILITHIUM_S1P44) && defined(QSC_KYBER_S1K2P512)
-		static const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "dilithium-s1_kyber-s1_rcs-256_sha3-256";
 		static const qstp_configuration_sets QSTP_CONFIGURATION_SET = qstp_configuration_set_dilithium1_kyber1_rcs256_shake256;
 		static const qstp_signature_schemes QSTP_ACTIVE_SIGNATURE_SCHEME = qstp_signature_scheme_dilithium1;
 #	elif defined(QSC_DILITHIUM_S3P65) && defined(QSC_KYBER_S3K3P768)
-		static const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "dilithium-s3_kyber-s3_rcs-256_sha3-256";
 		static const qstp_configuration_sets QSTP_CONFIGURATION_SET = qstp_configuration_set_dilithium3_kyber3_rcs256_shake256;
 		static const qstp_signature_schemes QSTP_ACTIVE_SIGNATURE_SCHEME = qstp_signature_scheme_dilithium3;
 #	elif defined(QSC_DILITHIUM_S5P87) && defined(QSC_KYBER_S5K4P1024)
-		static const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "dilithium-s5_kyber-s5_rcs-256_sha3-256";
 		static const qstp_configuration_sets QSTP_CONFIGURATION_SET = qstp_configuration_set_dilithium5_kyber5_rcs256_shake256;
 		static const qstp_signature_schemes QSTP_ACTIVE_SIGNATURE_SCHEME = qstp_signature_scheme_dilithium5;
 #	elif defined(QSC_DILITHIUM_S5P87) && defined(QSC_KYBER_S6K5P1280)
-		static const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "dilithium-s5_kyber-s6_rcs-256_sha3-256";
 		static const qstp_configuration_sets QSTP_CONFIGURATION_SET = qstp_configuration_set_dilithium5_kyber6_rcs512_shake512;
 		static const qstp_signature_schemes QSTP_ACTIVE_SIGNATURE_SCHEME = qstp_signature_scheme_dilithium5;
 #	else
@@ -488,9 +488,9 @@ typedef enum qstp_signature_schemes
  * \brief The maximum number of QSTP connections.
  * \details This is a modifiable constant: set to the desired number of maximum connections.
  *
-* \details Modifiable constant: calculated given approx 5k
-* (3480 connection state + 1500 mtu + overhead), per connection on 256GB of DRAM.
-* Can be scaled to a greater number provided the hardware can support it.
+ * \details Modifiable constant: calculated given approx 5k
+ * (3480 connection state + 1500 mtu + overhead), per connection on 256GB of DRAM.
+ * Can be scaled to a greater number provided the hardware can support it.
  */
 #define QSTP_CONNECTIONS_MAX 50U
 
@@ -698,18 +698,7 @@ typedef enum qstp_signature_schemes
 #define QSTP_PROTOCOL_SET_DEPTH 9U
 
 /* protocol set strings */
-static const char QSTP_PARAMETER_STRINGS[QSTP_PROTOCOL_SET_DEPTH][QSTP_PROTOCOL_SET_SIZE] =
-{
-	"dilithium-s1_kyber-s1_rcs-256_sha3-256",
-	"dilithium-s3_kyber-s3_rcs-256_sha3-256",
-	"dilithium-s5_kyber-s5_rcs-256_sha3-256",
-	"dilithium-s5_kyber-s6_rcs-256_sha3-256",
-	"dilithium-s1_mceliece-s1_rcs-256_sha3-256",
-	"dilithium-s3_mceliece-s3_rcs-256_sha3-256",
-	"dilithium-s5_mceliece-s5_rcs-256_sha3-256",
-	"dilithium-s5_mceliece-s6_rcs-256_sha3-256",
-	"dilithium-s5_mceliece-s7_rcs-256_sha3-256",
-};
+extern const char QSTP_PARAMETER_STRINGS[QSTP_PROTOCOL_SET_DEPTH][QSTP_PROTOCOL_SET_SIZE];
 /** \endcond DOXYGEN_NO_DOCUMENT */
 
 /* error code strings */
@@ -718,65 +707,14 @@ static const char QSTP_PARAMETER_STRINGS[QSTP_PROTOCOL_SET_DEPTH][QSTP_PROTOCOL_
 #define QSTP_MESSAGE_STRING_DEPTH 19U
 #define QSTP_MESSAGE_STRING_WIDTH 128U
 
-static const char QSTP_MESSAGE_STRINGS[QSTP_MESSAGE_STRING_DEPTH][QSTP_MESSAGE_STRING_WIDTH] =
-{
-	"No configuration was specified.",
-	"The socket accept failed.",
-	"The listener socket could not connect.",
-	"The listener socket could not bind to the address.",
-	"The listener socket could not be created.",
-	"The server connected to a host.",
-	"The socket receive function failed.",
-	"The server memory allocation request has failed.",
-	"The key exchange has experienced a failure.",
-	"The server has disconnected the client.",
-	"The server has disconnected the client due to an error.",
-	"The server has had a socket level error.",
-	"The server has reached the maximum number of connections.",
-	"The server listener socket has failed.",
-	"The server has run out of socket connections.",
-	"The message decryption has failed.",
-	"The connection failed or was interrupted.",
-	"The function received an invalid request.",
-	"The host received a symmetric ratchet request"
-};
+extern const char QSTP_MESSAGE_STRINGS[QSTP_MESSAGE_STRING_DEPTH][QSTP_MESSAGE_STRING_WIDTH];
 /** \endcond DOXYGEN_NO_DOCUMENT */
 
 /** \cond DOXYGEN_NO_DOCUMENT */
 #define QSTP_ERROR_STRING_DEPTH 28U
 #define QSTP_ERROR_STRING_WIDTH 128U
 
-static const char QSTP_ERROR_STRINGS[QSTP_ERROR_STRING_DEPTH][QSTP_ERROR_STRING_WIDTH] =
-{
-	"No error was detected",
-	"The socket accept function returned an error",
-	"The symmetric cipher had an authentication failure",
-	"The communications channel has failed",
-	"The device could not make a connection to the remote host",
-	"The transmission failed at the KEX connection phase",
-	"The asymmetric cipher failed to decapsulate the shared secret",
-	"The decryption authentication has failed",
-	"The transmission failed at the KEX establish phase",
-	"The transmission failed at the KEX exchange phase",
-	"The public key hash is invalid",
-	"The server has run out of socket connections",
-	"The expected input was invalid",
-	"The packet flag was unexpected",
-	"The QSTP public key has expired",
-	"The key identity is unrecognized",
-	"The ratchet operation has failed",
-	"The listener function failed to initialize",
-	"The server has run out of memory",
-	"The packet has valid time expired",
-	"The packet was received out of sequence",
-	"The random generator has failed",
-	"The receiver failed at the network layer",
-	"The signing function has failed",
-	"The transmitter failed at the network layer",
-	"The protocol string was not recognized",
-	"The expected data could not be verified",
-	"The remote host sent an error or disconnect message"
-};
+extern const char QSTP_ERROR_STRINGS[QSTP_ERROR_STRING_DEPTH][QSTP_ERROR_STRING_WIDTH];
 /** \endcond DOXYGEN_NO_DOCUMENT */
 
 /*!

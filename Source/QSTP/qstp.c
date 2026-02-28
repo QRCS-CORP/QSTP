@@ -11,6 +11,102 @@
 #include "stringutils.h"
 #include "timestamp.h"
 
+#if defined(QSTP_CONFIG_DILITHIUM_MCELIECE)
+#	if defined(QSC_DILITHIUM_S1P44) && defined(QSC_MCELIECE_S1N3488T64)
+		const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "dilithium-s1_mceliece-s1_rcs-256_sha3-256";
+#	elif defined(QSC_DILITHIUM_S3P65) && defined(QSC_MCELIECE_S3N4608T96)
+		const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "dilithium-s3_mceliece-s3_rcs-256_sha3-256";
+#	elif defined(QSC_DILITHIUM_S5P87) && defined(QSC_MCELIECE_S5N6688T128)
+		const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "dilithium-s5_mceliece-s5_rcs-256_sha3-256";
+#	elif defined(QSC_DILITHIUM_S5P87) && defined(QSC_MCELIECE_S6N6960T119)
+		const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "dilithium-s5_mceliece-s6_rcs-256_sha3-256";
+#	elif defined(QSC_DILITHIUM_S5P87) && defined(QSC_MCELIECE_S7N8192T128)
+		const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "dilithium-s5_mceliece-s7_rcs-256_sha3-256";
+#	else
+#		error the library parameter sets are mismatched!
+#	endif
+#elif defined(QSTP_CONFIG_DILITHIUM_KYBER)
+#	if defined(QSC_DILITHIUM_S1P44) && defined(QSC_KYBER_S1K2P512)
+		const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "dilithium-s1_kyber-s1_rcs-256_sha3-256";
+#	elif defined(QSC_DILITHIUM_S3P65) && defined(QSC_KYBER_S3K3P768)
+		const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "dilithium-s3_kyber-s3_rcs-256_sha3-256";
+#	elif defined(QSC_DILITHIUM_S5P87) && defined(QSC_KYBER_S5K4P1024)
+		const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "dilithium-s5_kyber-s5_rcs-256_sha3-256";
+#	elif defined(QSC_DILITHIUM_S5P87) && defined(QSC_KYBER_S6K5P1280)
+		const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "dilithium-s5_kyber-s6_rcs-256_sha3-256";
+#	else
+#		error the library parameter sets are mismatched!
+#	endif
+#endif
+
+const char QSTP_PARAMETER_STRINGS[QSTP_PROTOCOL_SET_DEPTH][QSTP_PROTOCOL_SET_SIZE] =
+{
+	"dilithium-s1_kyber-s1_rcs-256_sha3-256",
+	"dilithium-s3_kyber-s3_rcs-256_sha3-256",
+	"dilithium-s5_kyber-s5_rcs-256_sha3-256",
+	"dilithium-s5_kyber-s6_rcs-256_sha3-256",
+	"dilithium-s1_mceliece-s1_rcs-256_sha3-256",
+	"dilithium-s3_mceliece-s3_rcs-256_sha3-256",
+	"dilithium-s5_mceliece-s5_rcs-256_sha3-256",
+	"dilithium-s5_mceliece-s6_rcs-256_sha3-256",
+	"dilithium-s5_mceliece-s7_rcs-256_sha3-256",
+};
+
+const char QSTP_MESSAGE_STRINGS[QSTP_MESSAGE_STRING_DEPTH][QSTP_MESSAGE_STRING_WIDTH] =
+{
+	"No configuration was specified.",
+	"The socket accept failed.",
+	"The listener socket could not connect.",
+	"The listener socket could not bind to the address.",
+	"The listener socket could not be created.",
+	"The server connected to a host.",
+	"The socket receive function failed.",
+	"The server memory allocation request has failed.",
+	"The key exchange has experienced a failure.",
+	"The server has disconnected the client.",
+	"The server has disconnected the client due to an error.",
+	"The server has had a socket level error.",
+	"The server has reached the maximum number of connections.",
+	"The server listener socket has failed.",
+	"The server has run out of socket connections.",
+	"The message decryption has failed.",
+	"The connection failed or was interrupted.",
+	"The function received an invalid request.",
+	"The host received a symmetric ratchet request"
+};
+
+const char QSTP_ERROR_STRINGS[QSTP_ERROR_STRING_DEPTH][QSTP_ERROR_STRING_WIDTH] =
+{
+	"No error was detected",
+	"The socket accept function returned an error",
+	"The symmetric cipher had an authentication failure",
+	"The communications channel has failed",
+	"The device could not make a connection to the remote host",
+	"The transmission failed at the KEX connection phase",
+	"The asymmetric cipher failed to decapsulate the shared secret",
+	"The decryption authentication has failed",
+	"The transmission failed at the KEX establish phase",
+	"The transmission failed at the KEX exchange phase",
+	"The public key hash is invalid",
+	"The server has run out of socket connections",
+	"The expected input was invalid",
+	"The packet flag was unexpected",
+	"The QSTP public key has expired",
+	"The key identity is unrecognized",
+	"The ratchet operation has failed",
+	"The listener function failed to initialize",
+	"The server has run out of memory",
+	"The packet has valid time expired",
+	"The packet was received out of sequence",
+	"The random generator has failed",
+	"The receiver failed at the network layer",
+	"The signing function has failed",
+	"The transmitter failed at the network layer",
+	"The protocol string was not recognized",
+	"The expected data could not be verified",
+	"The remote host sent an error or disconnect message"
+};
+
 qstp_configuration_sets qstp_configuration_from_string(const char* config)
 {
 	QSTP_ASSERT(config != NULL);
