@@ -112,6 +112,17 @@ static const char QSTP_LOGGER_FILE[] = "qstp.log";
  */
 static const char QSTP_LOGGER_HEAD[] = "QSTP Version 1.1a";
 
+/**
+ * \brief Dispose of the logger.
+ *
+ * \details
+ * Flushes any pending state, destroys the mutex created during initialisation,
+ * and resets all internal logger state. This function must be called once when
+ * the logging subsystem is no longer required, typically at application shutdown.
+ * Calling any other logger function after dispose results in undefined behaviour.
+ */
+void qstp_logger_dispose(void);
+
 /*!
  * \brief Test if the log file exists.
  *
@@ -186,26 +197,5 @@ size_t qstp_logger_size(void);
  * \return Returns true if the message was successfully written to the log file; otherwise, false.
  */
 bool qstp_logger_write(const char* message);
-
-#if defined(QSTP_DEBUG_MODE)
-/*!
- * \brief Run a manual test of the logger functions.
- *
- * \details
- * This function performs a manual test of the QSTP logging subsystem. The test includes:
- *
- * - Checking if the log file exists.
- * - Initializing the logger with a test path.
- * - Writing test messages to the log.
- * - Reading and printing the log contents.
- * - Resetting the log and verifying that the log is cleared.
- *
- * This test ensures that all logging operations (initialization, writing, reading, resetting, and size retrieval)
- * function as expected.
- *
- * \return Returns true if all logger tests pass successfully.
- */
-bool qstp_logger_test(void);
-#endif
 
 #endif

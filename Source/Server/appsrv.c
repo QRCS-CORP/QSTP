@@ -389,13 +389,16 @@ static void server_send_echo(qstp_connection_state* cns, const char* message, si
 		mlen = qsc_stringutils_string_size(rstr);
 		qsc_stringutils_int_to_string((int)cns->target.connection, rstr + mlen, sizeof(rstr) - mlen);
 		qsc_stringutils_concat_strings(rstr, sizeof(rstr), ": ");
-		qsc_stringutils_concat_strings(rstr, sizeof(rstr), message);
+		mlen = qsc_stringutils_string_size(rstr);
+		qsc_memutils_copy(rstr + mlen, message, msglen);
 
 		mtx = qsc_async_mutex_lock_ex();
 		server_print_message(rstr);
 		qsc_async_mutex_unlock_ex(mtx);
 
-		mlen = qsc_stringutils_concat_strings(mstr, sizeof(mstr), message);
+		mlen = qsc_stringutils_string_size(mstr);
+		qsc_memutils_copy(mstr + mlen, message, msglen);
+		mlen = qsc_stringutils_string_size(mstr);
 		pkt.pmessage = pmsg;
 		qstp_encrypt_packet(cns, &pkt, (uint8_t*)mstr, mlen);
 		mlen = qstp_packet_to_stream(&pkt, (uint8_t*)mstr);

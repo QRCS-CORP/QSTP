@@ -482,6 +482,8 @@ qstp_errors qstp_server_start_ipv4(qsc_socket* source,
 		qstp_log_message(qstp_messages_invalid_request);
 	}
 
+	qstp_logger_dispose();
+
 	return qerr;
 }
 
@@ -540,6 +542,8 @@ qstp_errors qstp_server_start_ipv6(qsc_socket* source,
 		qerr = qstp_error_invalid_input;
 		qstp_log_message(qstp_messages_invalid_request);
 	}
+
+	qstp_logger_dispose();
 
 	return qerr;
 }

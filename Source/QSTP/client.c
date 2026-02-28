@@ -457,6 +457,8 @@ qstp_errors qstp_client_connect_ipv4(const qstp_root_certificate* root,
 		qerr = qstp_error_invalid_input;
 	}
 
+	qstp_logger_dispose();
+
 	if (kcs != NULL)
 	{
 		qsc_memutils_alloc_free(kcs);
@@ -593,6 +595,8 @@ qstp_errors qstp_client_connect_ipv6(const qstp_root_certificate* root,
 		qstp_log_message(qstp_messages_invalid_request);
 		qerr = qstp_error_invalid_input;
 	}
+
+	qstp_logger_dispose();
 
 	if (kcs != NULL)
 	{
