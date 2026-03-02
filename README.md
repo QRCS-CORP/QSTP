@@ -60,15 +60,16 @@ QSTP is built exclusively on algorithms from the NIST Post-Quantum Cryptography 
 | ML-KEM (Kyber) | 1 / 3 / 5 | NIST FIPS 203 |
 | Classic McEliece | 1 / 3 / 5 | NIST PQC Selected |
 
-Encapsulation keys are ephemeral — a fresh key pair is generated for every session and the private key is destroyed immediately after decapsulation.
+McEliece or Kyber are used as the key encapsulation method. Encapsulation keys are ephemeral; a fresh key pair is generated for every session and the private key is destroyed immediately after decapsulation.
 
 ### Digital Signatures
 
 | Algorithm | NIST Security Level | Standard |
 |---|---|---|
 | ML-DSA (Dilithium) | 2 / 3 / 5 | NIST FIPS 204 |
+| SLH-DSA (SPHINCS+) | 2 / 3 / 5 | NIST FIPS 205 |
 
-Dilithium is used to authenticate the server's ephemeral public encapsulation key during the handshake and to sign the root and server certificates offline.
+Dilithium or SPHINCS+ are used to authenticate the server's ephemeral public encapsulation key during the handshake and to sign the root and server certificates offline.
 
 ### Symmetric AEAD Cipher
 
@@ -117,7 +118,7 @@ Legend:
   S        = Server
   H        = SHA3-256
   KEM      = Key Encapsulation Mechanism
-  SIG      = Dilithium Signature
+  SIG      = Dilithium of SPHINCS+ Signature
   cSHAKE   = Customizable SHAKE-256 KDF
   sch      = Running transcript hash
   phdr     = Serialized packet header

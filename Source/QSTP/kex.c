@@ -615,109 +615,97 @@ qstp_errors qstp_kex_client_key_exchange(qstp_kex_client_state* kcs, qstp_connec
 
 	qstp_network_packet reqt = { 0 };
 	qstp_network_packet resp = { 0 };
-	uint8_t* rbuf;
-	uint8_t* sbuf;
+	uint8_t* brqt;
+	uint8_t* brsp;
+	const size_t lrqt = KEX_EXCHANGE_REQUEST_PACKET_SIZE;
+	const size_t lrsp = KEX_CONNECT_RESPONSE_PACKET_SIZE;
 	size_t rlen;
 	size_t slen;
 	qstp_errors qerr;
-	
+
+	qerr = qstp_error_invalid_input;
+
 	if (kcs != NULL && cns != NULL)
 	{
-		sbuf = qsc_memutils_malloc(KEX_CONNECT_REQUEST_PACKET_SIZE);
+		brqt = qsc_memutils_malloc(lrqt);
 
-		if (sbuf != NULL)
+		if (brqt != NULL)
 		{
 			/* create the connection request packet */
-			qsc_memutils_clear(sbuf, KEX_CONNECT_REQUEST_PACKET_SIZE);
-			reqt.pmessage = sbuf + QSTP_PACKET_HEADER_SIZE;
+			qsc_memutils_clear(brqt, lrqt);
+			reqt.pmessage = brqt + QSTP_PACKET_HEADER_SIZE;
 
 			qerr = kex_client_connect_request(kcs, cns, &reqt);
-			qstp_packet_header_serialize(&reqt, sbuf);
+			qstp_packet_header_serialize(&reqt, brqt);
 
 			if (qerr == qstp_error_none)
 			{
 				/* send the connection request */
-				slen = qsc_socket_send(&cns->target, sbuf, KEX_CONNECT_REQUEST_PACKET_SIZE, qsc_socket_send_flag_none);
+				slen = qsc_socket_send(&cns->target, brqt, KEX_CONNECT_REQUEST_PACKET_SIZE, qsc_socket_send_flag_none);
 
 				if (slen == KEX_CONNECT_REQUEST_PACKET_SIZE)
 				{
 					cns->txseq += 1;
-					rbuf = qsc_memutils_malloc(KEX_CONNECT_RESPONSE_PACKET_SIZE);
+					brsp = qsc_memutils_malloc(lrsp);
 
-					if (rbuf != NULL)
+					if (brsp != NULL)
 					{
+						qsc_memutils_clear(brsp, lrsp);
+
 						/* blocking receive waits for server */
-						rlen = qsc_socket_receive(&cns->target, rbuf, KEX_CONNECT_RESPONSE_PACKET_SIZE, qsc_socket_receive_flag_wait_all);
+						rlen = qsc_socket_receive(&cns->target, brsp, KEX_CONNECT_RESPONSE_PACKET_SIZE, qsc_socket_receive_flag_wait_all);
 
 						if (rlen == KEX_CONNECT_RESPONSE_PACKET_SIZE)
 						{
-							qstp_packet_header_deserialize(rbuf, &resp);
-							resp.pmessage = rbuf + QSTP_PACKET_HEADER_SIZE;
+							qstp_packet_header_deserialize(brsp, &resp);
+							resp.pmessage = brsp + QSTP_PACKET_HEADER_SIZE;
 
 							qerr = qstp_header_validate(cns, &resp, qstp_flag_connect_response, cns->rxseq, KEX_CONNECT_RESPONSE_MESSAGE_SIZE);
 
 							if (qerr == qstp_error_none)
 							{
-								sbuf = qsc_memutils_realloc(sbuf, KEX_EXCHANGE_REQUEST_PACKET_SIZE);
+								/* clear the request packet */
+								qsc_memutils_clear(brqt, lrqt);
 
-								if (sbuf != NULL)
-								{
-									/* clear the request packet */
-									qsc_memutils_secure_erase(sbuf, KEX_EXCHANGE_REQUEST_PACKET_SIZE);
-									reqt.pmessage = sbuf + QSTP_PACKET_HEADER_SIZE;
-
-									/* create the exstart request packet */
-									qerr = kex_client_exchange_request(kcs, cns, &resp, &reqt);
-									qstp_packet_header_serialize(&reqt, sbuf);
+								/* create the exstart request packet */
+								qerr = kex_client_exchange_request(kcs, cns, &resp, &reqt);
+								qstp_packet_header_serialize(&reqt, brqt);
 									
-									if (qerr == qstp_error_none)
+								if (qerr == qstp_error_none)
+								{
+									slen = qsc_socket_send(&cns->target, brqt, KEX_EXCHANGE_REQUEST_PACKET_SIZE, qsc_socket_send_flag_none);
+
+									if (slen == KEX_EXCHANGE_REQUEST_PACKET_SIZE)
 									{
-										slen = qsc_socket_send(&cns->target, sbuf, KEX_EXCHANGE_REQUEST_PACKET_SIZE, qsc_socket_send_flag_none);
+										cns->txseq += 1U;
+										qsc_memutils_clear(brsp, lrsp);
 
-										if (slen == KEX_EXCHANGE_REQUEST_PACKET_SIZE)
+										rlen = qsc_socket_receive(&cns->target, brsp, KEX_EXCHANGE_RESPONSE_PACKET_SIZE, qsc_socket_receive_flag_wait_all);
+
+										if (rlen == KEX_EXCHANGE_RESPONSE_PACKET_SIZE)
 										{
-											cns->txseq += 1U;
-											rbuf = qsc_memutils_realloc(rbuf, KEX_EXCHANGE_RESPONSE_PACKET_SIZE);
+											qstp_packet_header_deserialize(brsp, &resp);
+											qerr = qstp_header_validate(cns, &resp, qstp_flag_exchange_response, cns->rxseq, KEX_EXCHANGE_RESPONSE_MESSAGE_SIZE);
 
-											if (rbuf != NULL)
+											if (qerr == qstp_error_none)
 											{
-												resp.pmessage = rbuf + QSTP_PACKET_HEADER_SIZE;
-												rlen = qsc_socket_receive(&cns->target, rbuf, KEX_EXCHANGE_RESPONSE_PACKET_SIZE, qsc_socket_receive_flag_wait_all);
-
-												if (rlen == KEX_EXCHANGE_RESPONSE_PACKET_SIZE)
-												{
-													qstp_packet_header_deserialize(rbuf, &resp);
-													qerr = qstp_header_validate(cns, &resp, qstp_flag_exchange_response, cns->rxseq, KEX_EXCHANGE_RESPONSE_MESSAGE_SIZE);
-
-													if (qerr == qstp_error_none)
-													{
-														/* verify the exchange  */
-														qerr = kex_client_establish_verify(kcs, cns, &resp);
-													}
-													else
-													{
-														qerr = qstp_error_packet_unsequenced;
-													}
-												}
-												else
-												{
-													qerr = qstp_error_receive_failure;
-												}
+												/* verify the exchange  */
+												qerr = kex_client_establish_verify(kcs, cns, &resp);
 											}
 											else
 											{
-												qerr = qstp_error_memory_allocation;
+												qerr = qstp_error_packet_unsequenced;
 											}
 										}
 										else
 										{
-											qerr = qstp_error_transmit_failure;
+											qerr = qstp_error_receive_failure;
 										}
 									}
-								}
-								else
-								{
-									qerr = qstp_error_memory_allocation;
+									else
+									{
+										qerr = qstp_error_transmit_failure;
+									}
 								}
 							}
 							else
@@ -730,7 +718,8 @@ qstp_errors qstp_kex_client_key_exchange(qstp_kex_client_state* kcs, qstp_connec
 							qerr = qstp_error_receive_failure;
 						}
 
-						qsc_memutils_alloc_free(rbuf);
+						qsc_memutils_secure_erase(brsp, lrsp);
+						qsc_memutils_alloc_free(brsp);
 					}
 					else
 					{
@@ -743,7 +732,8 @@ qstp_errors qstp_kex_client_key_exchange(qstp_kex_client_state* kcs, qstp_connec
 				}
 			}
 
-			qsc_memutils_alloc_free(sbuf);
+			qsc_memutils_secure_erase(brqt, lrqt);
+			qsc_memutils_alloc_free(brqt);
 		}
 		else
 		{
@@ -763,10 +753,6 @@ qstp_errors qstp_kex_client_key_exchange(qstp_kex_client_state* kcs, qstp_connec
 			qstp_connection_state_dispose(cns);
 		}
 	}
-	else
-	{
-		qerr = qstp_error_invalid_input;
-	}
 	
 	return qerr;
 }
@@ -778,79 +764,76 @@ qstp_errors qstp_kex_server_key_exchange(qstp_kex_server_state* kss, qstp_connec
 
 	qstp_network_packet reqt = { 0 };
 	qstp_network_packet resp = { 0 };
-	uint8_t* rbuf;
-	uint8_t* sbuf;
+	uint8_t* brqt;
+	uint8_t* brsp;
+	const size_t lrqt = KEX_EXCHANGE_REQUEST_PACKET_SIZE;
+	const size_t lrsp = KEX_CONNECT_RESPONSE_PACKET_SIZE;
 	size_t rlen;
 	size_t slen;
 	qstp_errors qerr;
 
-	cns->exflag = qstp_flag_none;
+	qerr = qstp_error_invalid_input;
 
-	rbuf = qsc_memutils_malloc(KEX_CONNECT_REQUEST_PACKET_SIZE);
-
-	if (rbuf != NULL)
+	if (kss != NULL && cns != NULL)
 	{
-		qsc_memutils_clear(rbuf, KEX_CONNECT_REQUEST_PACKET_SIZE);
+		cns->exflag = qstp_flag_none;
+		brqt = qsc_memutils_malloc(lrqt);
 
-		/* blocking receive waits for client */
-		rlen = qsc_socket_receive(&cns->target, rbuf, KEX_CONNECT_REQUEST_PACKET_SIZE, qsc_socket_receive_flag_wait_all);
-
-		if (rlen == KEX_CONNECT_REQUEST_PACKET_SIZE)
+		if (brqt != NULL)
 		{
-			/* convert client request to packet */
-			qstp_packet_header_deserialize(rbuf, &reqt);
-			reqt.pmessage = rbuf + QSTP_PACKET_HEADER_SIZE;
+			qsc_memutils_clear(brqt, lrqt);
 
-			qerr = qstp_header_validate(cns, &reqt, qstp_flag_connect_request, cns->rxseq, KEX_CONNECT_REQUEST_MESSAGE_SIZE);
+			/* blocking receive waits for client */
+			rlen = qsc_socket_receive(&cns->target, brqt, KEX_CONNECT_REQUEST_PACKET_SIZE, qsc_socket_receive_flag_wait_all);
 
-			if (qerr == qstp_error_none)
+			if (rlen == KEX_CONNECT_REQUEST_PACKET_SIZE)
 			{
-				sbuf = qsc_memutils_malloc(KEX_CONNECT_RESPONSE_PACKET_SIZE);
+				/* convert client request to packet */
+				qstp_packet_header_deserialize(brqt, &reqt);
+				reqt.pmessage = brqt + QSTP_PACKET_HEADER_SIZE;
 
-				if (sbuf != NULL)
+				qerr = qstp_header_validate(cns, &reqt, qstp_flag_connect_request, cns->rxseq, KEX_CONNECT_REQUEST_MESSAGE_SIZE);
+
+				if (qerr == qstp_error_none)
 				{
-					qsc_memutils_clear(sbuf, KEX_CONNECT_RESPONSE_PACKET_SIZE);
-					resp.pmessage = sbuf + QSTP_PACKET_HEADER_SIZE;
+					brsp = qsc_memutils_malloc(lrsp);
 
-					/* create the connection request packet */
-					qerr = kex_server_connect_response(kss, cns, &reqt, &resp);
-
-					if (qerr == qstp_error_none)
+					if (brsp != NULL)
 					{
-						qstp_packet_header_serialize(&resp, sbuf);
-						slen = qsc_socket_send(&cns->target, sbuf, KEX_CONNECT_RESPONSE_PACKET_SIZE, qsc_socket_send_flag_none);
+						qsc_memutils_clear(brsp, lrsp);
+						resp.pmessage = brsp + QSTP_PACKET_HEADER_SIZE;
 
-						if (slen == KEX_CONNECT_RESPONSE_PACKET_SIZE)
+						/* create the connection request packet */
+						qerr = kex_server_connect_response(kss, cns, &reqt, &resp);
+
+						if (qerr == qstp_error_none)
 						{
-							cns->txseq += 1U;
-							rbuf = qsc_memutils_realloc(rbuf, KEX_EXCHANGE_REQUEST_PACKET_SIZE);
+							qstp_packet_header_serialize(&resp, brsp);
+							slen = qsc_socket_send(&cns->target, brsp, KEX_CONNECT_RESPONSE_PACKET_SIZE, qsc_socket_send_flag_none);
 
-							if (rbuf != NULL)
+							if (slen == KEX_CONNECT_RESPONSE_PACKET_SIZE)
 							{
-								reqt.pmessage = rbuf + QSTP_PACKET_HEADER_SIZE;
-								qsc_memutils_clear(rbuf, KEX_EXCHANGE_REQUEST_PACKET_SIZE);
+								cns->txseq += 1U;
+								qsc_memutils_clear(brqt, lrqt);
 
-								rlen = qsc_socket_receive(&cns->target, rbuf, KEX_EXCHANGE_REQUEST_PACKET_SIZE, qsc_socket_receive_flag_wait_all);
+								rlen = qsc_socket_receive(&cns->target, brqt, KEX_EXCHANGE_REQUEST_PACKET_SIZE, qsc_socket_receive_flag_wait_all);
 
 								if (rlen == KEX_EXCHANGE_REQUEST_PACKET_SIZE)
 								{
-									qstp_packet_header_deserialize(rbuf, &reqt);
-									reqt.pmessage = rbuf + QSTP_PACKET_HEADER_SIZE;
-
+									qstp_packet_header_deserialize(brqt, &reqt);
 									qerr = qstp_header_validate(cns, &reqt, qstp_flag_exchange_request, cns->rxseq, KEX_EXCHANGE_REQUEST_MESSAGE_SIZE);
 
 									if (qerr == qstp_error_none)
 									{
-										qsc_memutils_clear(sbuf, KEX_EXCHANGE_RESPONSE_PACKET_SIZE);
+										qsc_memutils_clear(brsp, lrsp);
 
 										/* create the exchange response packet */
 										qerr = kex_server_exchange_response(kss, cns, &reqt, &resp);
 
 										if (qerr == qstp_error_none)
 										{
-											qstp_packet_header_serialize(&resp, sbuf);
-
-											slen = qsc_socket_send(&cns->target, sbuf, KEX_EXCHANGE_RESPONSE_PACKET_SIZE, qsc_socket_send_flag_none);
+											qstp_packet_header_serialize(&resp, brsp);
+											slen = qsc_socket_send(&cns->target, brsp, KEX_EXCHANGE_RESPONSE_PACKET_SIZE, qsc_socket_send_flag_none);
 		
 											if (slen == KEX_EXCHANGE_RESPONSE_PACKET_SIZE)
 											{
@@ -870,50 +853,48 @@ qstp_errors qstp_kex_server_key_exchange(qstp_kex_server_state* kss, qstp_connec
 							}
 							else
 							{
-								qerr = qstp_error_memory_allocation;
+								qerr = qstp_error_transmit_failure;
 							}
 						}
-						else
-						{
-							qerr = qstp_error_transmit_failure;
-						}
-					}
 
-					qsc_memutils_alloc_free(sbuf);
+						qsc_memutils_secure_erase(brsp, lrsp);
+						qsc_memutils_alloc_free(brsp);
+					}
+					else
+					{
+						qerr = qstp_error_memory_allocation;
+					}
 				}
 				else
 				{
-					qerr = qstp_error_memory_allocation;
+					qerr = qstp_error_packet_unsequenced;
 				}
 			}
 			else
 			{
-				qerr = qstp_error_packet_unsequenced;
+				qerr = qstp_error_receive_failure;
 			}
+
+			qsc_memutils_secure_erase(brqt, lrqt);
+			qsc_memutils_alloc_free(brqt);
 		}
 		else
 		{
-			qerr = qstp_error_receive_failure;
+			qerr = qstp_error_memory_allocation;
 		}
 
-		qsc_memutils_alloc_free(rbuf);
-	}
-	else
-	{
-		qerr = qstp_error_memory_allocation;
-	}
+		kex_server_reset(kss);
 
-	kex_server_reset(kss);
-
-	if (qerr != qstp_error_none)
-	{
-		if (cns->target.connection_status == qsc_socket_state_connected)
+		if (qerr != qstp_error_none)
 		{
-			kex_send_network_error(&cns->target, qerr);
-			qsc_socket_shut_down(&cns->target, qsc_socket_shut_down_flag_both);
-		}
+			if (cns->target.connection_status == qsc_socket_state_connected)
+			{
+				kex_send_network_error(&cns->target, qerr);
+				qsc_socket_shut_down(&cns->target, qsc_socket_shut_down_flag_both);
+			}
 
-		qstp_connection_state_dispose(cns);
+			qstp_connection_state_dispose(cns);
+		}
 	}
 
 	return qerr;

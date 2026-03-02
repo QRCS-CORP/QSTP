@@ -75,13 +75,18 @@
  * - Kyber-S3, Dilithium-S3
  * - Kyber-S5, Dilithium-S5
  * - Kyber-S6, Dilithium-S5
- * - McEliece-S1, Dilithium-S1(f,s)
- * - McEliece-S3, Dilithium-S3(f,s)
- * - McEliece-S5, Dilithium-S5(f,s)
- * - McEliece-S6, Dilithium-S5(f,s)
+ * - McEliece-S1, Dilithium-S1
+ * - McEliece-S3, Dilithium-S3
+ * - McEliece-S5, Dilithium-S5
+ * - McEliece-S6, Dilithium-S5
+ * - McEliece-S1, Sphincs-S1
+ * - McEliece-S3, Sphincs-S3
+ * - McEliece-S5, Sphincs-S5
+ * - McEliece-S6, Sphincs-S5
+ * - McEliece-S7, Sphincs-S5
  *
  * \par Additional Notes:
- * When using the McEliece/Dilithium options in Visual Studio, it may be necessary to increase the maximum
+ * When using the McEliece/SPHINCS+ or McEliece/Dilithium options in Visual Studio, it may be necessary to increase the maximum
  * stack size (e.g., to 200KB) to accommodate the larger key sizes.
  *
  * The parameter sets used by QSTP are selected in the QSC library (via libraries/common.h) at their library defaults.
@@ -101,11 +106,21 @@
 //*/
 //#define QSTP_CONFIG_DILITHIUM_MCELIECE
 
+///*!
+//* \def QSTP_CONFIG_SPHINCS_MCELIECE
+//* \brief Sets the asymmetric cryptographic primitive-set to Sphincs+/McEliece, default is Dilithium/Kyber.
+//* Note: You may have to increase the stack reserve size on both projects, as McEliece and Sphincs+ use many resources.
+//*/
+//#define QSTP_CONFIG_SPHINCS_MCELIECE
+
 #if defined(QSTP_CONFIG_DILITHIUM_KYBER)
 #	include "dilithium.h"
 #	include "kyber.h"
 #elif defined(QSTP_CONFIG_DILITHIUM_MCELIECE)
 #	include "dilithium.h"
+#	include "mceliece.h"
+#elif defined(QSTP_CONFIG_SPHINCS_MCELIECE)
+#	include "sphincsplus.h"
 #	include "mceliece.h"
 #else
 #	error Invalid parameter set!
@@ -188,6 +203,11 @@ QSTP_EXPORT_API typedef enum qstp_configuration_sets
 	qstp_configuration_set_dilithium5_mceliece5_rcs256_shake256 = 0x07U,		/*!< The Dilithium-S5/McEliece-S5a/RCS-256/SHAKE-256 algorithm set */
 	qstp_configuration_set_dilithium5_mceliece6_rcs256_shake256 = 0x08U,		/*!< The Dilithium-S5/McEliece-S6/RCS-256/SHAKE-256 algorithm set */
 	qstp_configuration_set_dilithium5_mceliece7_rcs256_shake256 = 0x09U,		/*!< The Dilithium-S5/McEliece-S7/RCS-256/SHAKE-256 algorithm set */
+	qstp_configuration_set_sphincsplus1s_mceliece1_rcs256_shake256 = 0x0AU,		/*!< The SPHINCS+-S1S/McEliece-S1/RCS-256/SHAKE-256 algorithm set */
+	qstp_configuration_set_sphincsplus3s_mceliece3_rcs256_shake256 = 0x0BU,		/*!< The SPHINCS+-S3S/McEliece-S3/RCS-256/SHAKE-256 algorithm set */
+	qstp_configuration_set_sphincsplus5s_mceliece5_rcs256_shake256 = 0x0CU,		/*!< The SPHINCS+-S5S/McEliece-S5a/RCS-256/SHAKE-256 algorithm set */
+	qstp_configuration_set_sphincsplus5s_mceliece6_rcs256_shake256 = 0x0DU,		/*!< The SPHINCS+-S5S/McEliece-S5b/RCS-256/SHAKE-256 algorithm set */
+	qstp_configuration_set_sphincsplus5s_mceliece7_rcs256_shake256 = 0x0EU,		/*!< The SPHINCS+-S5S/McEliece-S5c/RCS-256/SHAKE-256 algorithm set */
 } qstp_configuration_sets;
 
 /*!
@@ -196,10 +216,13 @@ QSTP_EXPORT_API typedef enum qstp_configuration_sets
  */
 typedef enum qstp_signature_schemes
 {
-	qstp_signature_scheme_none = 0U,
-	qstp_signature_scheme_dilithium1 = 1U,
-	qstp_signature_scheme_dilithium3 = 2U,
-	qstp_signature_scheme_dilithium5 = 3U,
+	qstp_signature_scheme_none = 0U,				/*!< No signature suite was selected */
+	qstp_signature_scheme_dilithium1 = 1U,			/*!< The Dilithium signature suite S1P44 */
+	qstp_signature_scheme_dilithium3 = 2U,			/*!< The Dilithium signature suite S3P65 */
+	qstp_signature_scheme_dilithium5 = 3U,			/*!< The Dilithium signature suite S5P87 */
+	qstp_signature_scheme_sphincsplus1 = 4U,		/*!< The SPHINCS+ signature suite S1S128 */
+	qstp_signature_scheme_sphincsplus3 = 5U,		/*!< The SPHINCS+ signature suite S3S192 */
+	qstp_signature_scheme_sphincsplus5 = 6U,		/*!< The SPHINCS+ signature suite S5S256 */
 } qstp_signature_schemes;
 
 #if defined(QSTP_CONFIG_DILITHIUM_MCELIECE)
@@ -379,6 +402,95 @@ typedef enum qstp_signature_schemes
 #	endif
 /** \endcond DOXYGEN_NO_DOCUMENT */
 
+#elif defined(QSTP_CONFIG_SPHINCS_MCELIECE)
+
+	/*!
+	 * \def qstp_cipher_generate_keypair
+	 * \brief Generate an asymmetric cipher key-pair using McEliece.
+	 */
+#	define qstp_cipher_generate_keypair qsc_mceliece_generate_keypair
+	/*!
+	 * \def qstp_cipher_decapsulate
+	 * \brief Decapsulate a shared-secret with the McEliece asymmetric cipher.
+	 */
+#	define qstp_cipher_decapsulate qsc_mceliece_decapsulate
+	/*!
+	 * \def qstp_cipher_encapsulate
+	 * \brief Encapsulate a shared-secret with the McEliece asymmetric cipher.
+	 */
+#	define qstp_cipher_encapsulate qsc_mceliece_encapsulate
+	/*!
+	 * \def qstp_signature_generate_keypair
+	 * \brief Generate an asymmetric signature key-pair using Sphincs+.
+	 */
+#	define qstp_signature_generate_keypair qsc_sphincsplus_generate_keypair
+	/*!
+	 * \def qstp_signature_sign
+	 * \brief Sign a message using the Sphincs+ signature scheme.
+	 */
+#	define qstp_signature_sign qsc_sphincsplus_sign
+	/*!
+	 * \def qstp_signature_verify
+	 * \brief Verify a message using the Sphincs+ signature scheme.
+	 */
+#	define qstp_signature_verify qsc_sphincsplus_verify
+
+/*!
+* \def QSTP_ASYMMETRIC_CIPHER_TEXT_SIZE
+* \brief The byte size of the cipher-text array (McEliece)
+*/
+#	define QSTP_ASYMMETRIC_CIPHER_TEXT_SIZE (QSC_MCELIECE_CIPHERTEXT_SIZE)
+
+/*!
+* \def QSTP_ASYMMETRIC_PRIVATE_KEY_SIZE
+* \brief The byte size of the asymmetric cipher private-key array (McEliece)
+*/
+#	define QSTP_ASYMMETRIC_PRIVATE_KEY_SIZE (QSC_MCELIECE_PRIVATEKEY_SIZE)
+
+/*!
+* \def QSTP_ASYMMETRIC_PUBLIC_KEY_SIZE
+* \brief The byte size of the asymmetric cipher public-key array (McEliece)
+*/
+#	define QSTP_ASYMMETRIC_PUBLIC_KEY_SIZE (QSC_MCELIECE_PUBLICKEY_SIZE)
+
+/*!
+* \def QSTP_ASYMMETRIC_SIGNING_KEY_SIZE
+* \brief The byte size of the asymmetric signature signing-key array (Sphincs+)
+*/
+#	define QSTP_ASYMMETRIC_SIGNING_KEY_SIZE (QSC_SPHINCSPLUS_PRIVATEKEY_SIZE)
+
+/*!
+* \def QSTP_ASYMMETRIC_VERIFICATION_KEY_SIZE
+* \brief The byte size of the asymmetric signature verification-key array (Sphincs+)
+*/
+#	define QSTP_ASYMMETRIC_VERIFICATION_KEY_SIZE (QSC_SPHINCSPLUS_PUBLICKEY_SIZE)
+
+/*!
+* \def QSTP_ASYMMETRIC_SIGNATURE_SIZE
+* \brief The byte size of the asymmetric signature array (Sphincs+)
+*/
+#	define QSTP_ASYMMETRIC_SIGNATURE_SIZE (QSC_SPHINCSPLUS_SIGNATURE_SIZE)
+
+/** \cond DOXYGEN_NO_DOCUMENT */
+#	if defined(QSC_MCELIECE_S1N3488T64) && defined(QSC_SPHINCSPLUS_S1S128SHAKERS)
+		static const qstp_configuration_sets QSTP_CONFIGURATION_SET = qstp_configuration_set_sphincsplus1s_mceliece1_rcs256_shake256;
+		static const qstp_signature_schemes QSTP_ACTIVE_SIGNATURE_SCHEME = qstp_signature_scheme_sphincsplus1;
+#	elif defined(QSC_MCELIECE_S3N4608T96) && defined(QSC_SPHINCSPLUS_S3S192SHAKERS)
+		static const qstp_configuration_sets QSTP_CONFIGURATION_SET = qstp_configuration_set_sphincsplus3s_mceliece3_rcs256_shake256;
+		static const qstp_signature_schemes QSTP_ACTIVE_SIGNATURE_SCHEME = qstp_signature_scheme_sphincsplus3;
+#	elif defined(QSC_MCELIECE_S5N6688T128) && defined(QSC_SPHINCSPLUS_S5S256SHAKERS)
+		static const qstp_configuration_sets QSTP_CONFIGURATION_SET = qstp_configuration_set_sphincsplus5s_mceliece5_rcs256_shake256;
+		static const qstp_signature_schemes QSTP_ACTIVE_SIGNATURE_SCHEME = qstp_signature_scheme_sphincsplus5;
+#	elif defined(QSC_MCELIECE_S6N6960T119) && defined(QSC_SPHINCSPLUS_S5S256SHAKERS)
+		static const qstp_configuration_sets QSTP_CONFIGURATION_SET = qstp_configuration_set_sphincsplus5s_mceliece6_rcs256_shake256;
+		static const qstp_signature_schemes QSTP_ACTIVE_SIGNATURE_SCHEME = qstp_signature_scheme_sphincsplus5;
+#	elif defined(QSC_MCELIECE_S7N8192T128) && defined(QSC_SPHINCSPLUS_S5S256SHAKERS)
+		static const qstp_configuration_sets QSTP_CONFIGURATION_SET = qstp_configuration_set_sphincsplus5s_mceliece7_rcs256_shake256;
+		static const qstp_signature_schemes QSTP_ACTIVE_SIGNATURE_SCHEME = qstp_signature_scheme_sphincsplus5;
+#	else
+#		error Invalid parameter sets, check the QSC library settings 
+#	endif
+/** \endcond DOXYGEN_NO_DOCUMENT */
 #endif
 
 /*!
@@ -492,7 +604,7 @@ typedef enum qstp_signature_schemes
  * (3480 connection state + 1500 mtu + overhead), per connection on 256GB of DRAM.
  * Can be scaled to a greater number provided the hardware can support it.
  */
-#define QSTP_CONNECTIONS_MAX 50U
+#define QSTP_CONNECTIONS_MAX 100U
 
 /*!
  * \def QSTP_CONNECTION_MTU
@@ -695,7 +807,7 @@ typedef enum qstp_signature_schemes
 	QSTP_CERTIFICATE_VERSION_SIZE)
 
 /** \cond DOXYGEN_NO_DOCUMENT */
-#define QSTP_PROTOCOL_SET_DEPTH 9U
+#define QSTP_PROTOCOL_SET_DEPTH 14U
 
 /* protocol set strings */
 extern const char QSTP_PARAMETER_STRINGS[QSTP_PROTOCOL_SET_DEPTH][QSTP_PROTOCOL_SET_SIZE];

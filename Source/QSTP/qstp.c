@@ -37,6 +37,20 @@
 #	else
 #		error the library parameter sets are mismatched!
 #	endif
+#elif defined(QSTP_CONFIG_SPHINCS_MCELIECE)
+#	if defined(QSC_MCELIECE_S1N3488T64) && defined(QSC_SPHINCSPLUS_S1S128SHAKERS)
+const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "sphincs-s1_mceliece-s1_rcs-256_sha3-256";
+#	elif defined(QSC_MCELIECE_S3N4608T96) && defined(QSC_SPHINCSPLUS_S3S192SHAKERS)
+const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "sphincs-s3_mceliece-s3_rcs-256_sha3-256";
+#	elif defined(QSC_MCELIECE_S5N6688T128) && defined(QSC_SPHINCSPLUS_S5S256SHAKERS)
+const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "sphincs-s5_mceliece-s5_rcs-256_sha3-256";
+#	elif defined(QSC_MCELIECE_S6N6960T119) && defined(QSC_SPHINCSPLUS_S5S256SHAKERS)
+const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "sphincs-s5_mceliece-s6_rcs-256_sha3-256";
+#	elif defined(QSC_MCELIECE_S7N8192T128) && defined(QSC_SPHINCSPLUS_S5S256SHAKERS)
+const char QSTP_PROTOCOL_SET_STRING[QSTP_PROTOCOL_SET_SIZE] = "sphincs-s5_mceliece-s7_rcs-256_sha3-256";
+#	else
+#		error the library parameter sets are mismatched!
+#	endif
 #endif
 
 const char QSTP_PARAMETER_STRINGS[QSTP_PROTOCOL_SET_DEPTH][QSTP_PROTOCOL_SET_SIZE] =
@@ -50,6 +64,11 @@ const char QSTP_PARAMETER_STRINGS[QSTP_PROTOCOL_SET_DEPTH][QSTP_PROTOCOL_SET_SIZ
 	"dilithium-s5_mceliece-s5_rcs-256_sha3-256",
 	"dilithium-s5_mceliece-s6_rcs-256_sha3-256",
 	"dilithium-s5_mceliece-s7_rcs-256_sha3-256",
+	"sphincs-s1_mceliece-s1_rcs-256_sha3-256",
+	"sphincs-s3_mceliece-s3_rcs-256_sha3-256",
+	"sphincs-s5_mceliece-s5_rcs-256_sha3-256",
+	"sphincs-s5_mceliece-s6_rcs-256_sha3-256",
+	"sphincs-s5_mceliece-s7_rcs-256_sha3-256"
 };
 
 const char QSTP_MESSAGE_STRINGS[QSTP_MESSAGE_STRING_DEPTH][QSTP_MESSAGE_STRING_WIDTH] =
@@ -234,17 +253,20 @@ bool qstp_decrypt_error_message(qstp_errors* merr, qstp_connection_state* cns, c
 					/* anti-replay; verify the packet time */
 					if (qstp_packet_time_valid(&pkt) == true)
 					{
-						qstp_cipher_set_associated(&cns->rxcpr, message, QSTP_PACKET_HEADER_SIZE);
-						mlen = pkt.msglen - QSTP_MACTAG_SIZE;
-
-						if (mlen == 1U)
+						if (pkt.msglen > QSTP_MACTAG_SIZE)
 						{
-							/* authenticate then decrypt the data */
-							if (qstp_cipher_transform(&cns->rxcpr, dmsg, emsg, mlen) == true)
+							qstp_cipher_set_associated(&cns->rxcpr, message, QSTP_PACKET_HEADER_SIZE);
+							mlen = pkt.msglen - QSTP_MACTAG_SIZE;
+
+							if (mlen == 1U)
 							{
-								cns->rxseq += 1U;
-								err = (qstp_errors)dmsg[0U];
-								res = true;
+								/* authenticate then decrypt the data */
+								if (qstp_cipher_transform(&cns->rxcpr, dmsg, emsg, mlen) == true)
+								{
+									cns->rxseq += 1U;
+									err = (qstp_errors)dmsg[0U];
+									res = true;
+								}
 							}
 						}
 					}
@@ -296,14 +318,14 @@ qstp_errors qstp_decrypt_packet(qstp_connection_state* cns, uint8_t* message, si
 			{
 				if (qstp_packet_time_valid(packetin) == true)
 				{
-					/* serialize the header and add it to the ciphers associated data */
-					qstp_packet_header_serialize(packetin, hdr);
-
-					qstp_cipher_set_associated(&cns->rxcpr, hdr, QSTP_PACKET_HEADER_SIZE);
-					*msglen = packetin->msglen - QSTP_MACTAG_SIZE;
-
 					if (packetin->msglen > QSTP_MACTAG_SIZE)
 					{
+						/* serialize the header and add it to the ciphers associated data */
+						qstp_packet_header_serialize(packetin, hdr);
+
+						qstp_cipher_set_associated(&cns->rxcpr, hdr, QSTP_PACKET_HEADER_SIZE);
+						*msglen = packetin->msglen - QSTP_MACTAG_SIZE;
+
 						/* authenticate then decrypt the data */
 						if (qstp_cipher_transform(&cns->rxcpr, message, packetin->pmessage, *msglen) == true)
 						{
