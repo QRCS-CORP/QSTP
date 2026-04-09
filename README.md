@@ -34,7 +34,7 @@
 
 ## Overview
 
-QSTP establishes an encrypted tunnel between a client and server using a three-party, root-anchored trust model. A **Root Domain Security Server (RDS)** acts as the certificate authority, issuing signed certificates to servers and distributing its public verification certificate to all clients in the domain. Clients authenticate servers against the root certificate before any key material is exchanged, providing strong identity assurance prior to the handshake.
+QSTP establishes an encrypted tunnel between a client and server using a three-party, root-anchored trust model. A **Root Domain Security Server (RDS)** acts as the certificate authority, issuing signed certificates to servers and distributing its public verification certificate to all clients in the domain. Clients authenticate servers against the root certificate before any key material is exchanged, providing strong identity assurance prior to the handshake. 
 
 The protocol is complete and self-contained. It does not depend on external PKI infrastructure, certificate revocation services, or runtime algorithm negotiation. All cryptographic parameters are fixed at compile time for a given configuration, eliminating downgrade attacks and cipher-suite confusion by construction. 
 
