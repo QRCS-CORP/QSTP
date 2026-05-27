@@ -1,4 +1,4 @@
-# Quantum Secure Tunneling Protocol V1.4 (QSTP)
+# QSTP: Quantum Secure Tunneling Protocol
 
 ## Introduction
 
