@@ -16,7 +16,11 @@ static void logger_default_path(char* path, size_t pathlen)
 
 	if (path != NULL && pathlen != 0U)
 	{
+#if defined(QSC_SYSTEM_OS_WINDOWS)
+		qsc_folderutils_get_directory(qsc_folderutils_directories_user_app_data, path);
+#else
 		qsc_folderutils_get_directory(qsc_folderutils_directories_user_documents, path);
+#endif
 		qsc_folderutils_append_delimiter(path);
 		qsc_stringutils_concat_strings(path, pathlen, QSTP_LOGGER_PATH);
 		res = qsc_folderutils_directory_exists(path);

@@ -87,12 +87,13 @@ static bool symmetric_ratchet_response(qstp_connection_state* cns, const qstp_ne
 	res = false;
 	cns->rxseq += 1U;
 
-	if (packetin->sequence == cns->rxseq)
+	if (packetin->sequence == cns->rxseq &&
+		packetin->msglen == (uint32_t)(QSTP_RTOK_SIZE + QSTP_MACTAG_SIZE))
 	{
 		/* serialize the header and add it to the ciphers associated data */
 		qstp_packet_header_serialize(packetin, shdr);
 		qstp_cipher_set_associated(&cns->rxcpr, shdr, QSTP_PACKET_HEADER_SIZE);
-		mlen = packetin->msglen - (size_t)QSTP_MACTAG_SIZE;
+		mlen = (size_t)QSTP_RTOK_SIZE;
 
 		/* authenticate then decrypt the data */
 		if (qstp_cipher_transform(&cns->rxcpr, rkey, packetin->pmessage, mlen) == true)
@@ -146,6 +147,7 @@ static void client_receive_loop(void* prcv)
 	char cadd[QSC_SOCKET_ADDRESS_MAX_SIZE] = { 0 };
 	client_receiver_state* pprcv;
 	uint8_t* rbuf;
+	uint8_t* rtmp;
 	size_t mlen;
 	size_t plen;
 	size_t slen;
@@ -155,6 +157,7 @@ static void client_receive_loop(void* prcv)
 	qsc_memutils_copy(cadd, (const char*)pprcv->pcns->target.address, sizeof(cadd));
 
 	rbuf = (uint8_t*)qsc_memutils_malloc(QSTP_PACKET_HEADER_SIZE);
+	rtmp = NULL;
 
 	if (rbuf != NULL)
 	{
@@ -170,13 +173,15 @@ static void client_receive_loop(void* prcv)
 			{
 				qstp_packet_header_deserialize(rbuf, &pkt);
 
-				if (pkt.msglen > 0U && pkt.msglen <= QSTP_PACKET_MESSAGE_MAX)
+				if (pkt.msglen > QSTP_MACTAG_SIZE && pkt.msglen <= QSTP_PACKET_MESSAGE_MAX)
 				{
 					plen = pkt.msglen + QSTP_PACKET_HEADER_SIZE;
-					rbuf = (uint8_t*)qsc_memutils_realloc(rbuf, plen);
+					rtmp = (uint8_t*)qsc_memutils_realloc(rbuf, plen);
 
-					if (rbuf != NULL)
+					if (rtmp != NULL)
 					{
+						rbuf = rtmp;
+						rtmp = NULL;
 						qsc_memutils_clear(rbuf, plen);
 						mlen = qsc_socket_receive(&pprcv->pcns->target, rbuf, plen, qsc_socket_receive_flag_wait_all);
 
@@ -257,11 +262,17 @@ static void client_receive_loop(void* prcv)
 							break;
 						}
 					}
+					else
+					{
+						/* close the connection on memory allocation failure */
+						qstp_log_write(qstp_messages_allocate_fail, cadd);
+						break;
+					}
 				}
 				else
 				{
-					/* close the connection on memory allocation failure */
-					qstp_log_write(qstp_messages_allocate_fail, cadd);
+					/* close the connection on invalid message length */
+					qstp_log_write(qstp_messages_receive_fail, cadd);
 					break;
 				}
 			}

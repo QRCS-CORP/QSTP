@@ -18,6 +18,10 @@
 #define KEX_EXCHANGE_RESPONSE_MESSAGE_SIZE (QSTP_CERTIFICATE_HASH_SIZE)
 #define KEX_EXCHANGE_RESPONSE_PACKET_SIZE (QSTP_PACKET_HEADER_SIZE + KEX_EXCHANGE_RESPONSE_MESSAGE_SIZE)
 
+/** \cond */
+static const uint8_t QSTP_SESSION_KDF_NAME[] = { 'Q', 'S', 'T', 'P', '-', '1', '.', '4', '-', 'S', 'E', 'S', 'S', 'I', 'O', 'N' };
+/** \endcond */
+
 static void kex_send_network_error(const qsc_socket* sock, qstp_errors error)
 {
 	QSTP_ASSERT(sock != NULL);
@@ -282,7 +286,7 @@ static qstp_errors kex_client_exchange_request(qstp_kex_client_state* kcs, qstp_
 					qstp_header_create(packetout, qstp_flag_exchange_request, cns->txseq, KEX_EXCHANGE_REQUEST_MESSAGE_SIZE);
 
 					/* initialize cSHAKE k = H(sec, sch) */
-					qsc_cshake_initialize(&kstate, qsc_keccak_rate_256, ssec, QSTP_SECRET_SIZE, kcs->schash, QSTP_CERTIFICATE_HASH_SIZE, NULL, 0U);
+					qsc_cshake_initialize(&kstate, qsc_keccak_rate_256, ssec, QSTP_SECRET_SIZE, QSTP_SESSION_KDF_NAME, sizeof(QSTP_SESSION_KDF_NAME), kcs->schash, QSTP_CERTIFICATE_HASH_SIZE);
 					qsc_cshake_squeezeblocks(&kstate, qsc_keccak_rate_256, prnd, 1U);
 
 					/* symmetric ratchet: permute the state so we are not storing the current key */
@@ -545,7 +549,7 @@ static qstp_errors kex_server_exchange_response(qstp_kex_server_state* kss, qstp
 				kex_dispose_private_key(kss);
 
 				/* initialize cSHAKE k = H(ssec, sch) */
-				qsc_cshake_initialize(&kstate, qsc_keccak_rate_256, ssec, sizeof(ssec), kss->schash, QSTP_CERTIFICATE_HASH_SIZE, NULL, 0U);
+				qsc_cshake_initialize(&kstate, qsc_keccak_rate_256, ssec, sizeof(ssec), QSTP_SESSION_KDF_NAME, sizeof(QSTP_SESSION_KDF_NAME), kss->schash, QSTP_CERTIFICATE_HASH_SIZE);
 				qsc_cshake_squeezeblocks(&kstate, qsc_keccak_rate_256, prnd, 1U);
 				
 				/* permute the state so we are not storing the current key */

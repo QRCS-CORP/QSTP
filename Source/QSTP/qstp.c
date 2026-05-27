@@ -158,7 +158,7 @@ const char* qstp_configuration_to_string(qstp_configuration_sets cset)
 
 	cres = NULL;
 
-	if ((uint32_t)cset < (uint32_t)QSTP_PROTOCOL_SET_DEPTH && (uint32_t)cset >= 0U)
+	if ((uint32_t)cset < (uint32_t)QSTP_PROTOCOL_SET_DEPTH)
 	{
 		cres = QSTP_PARAMETER_STRINGS[(size_t)cset];
 	}
@@ -406,7 +406,7 @@ const char* qstp_error_to_string(qstp_errors error)
 
 	dsc = NULL;
 
-	if ((uint32_t)error < (uint32_t)QSTP_ERROR_STRING_DEPTH && (uint32_t)error >= 0U)
+	if ((uint32_t)error < (uint32_t)QSTP_ERROR_STRING_DEPTH)
 	{
 		dsc = QSTP_ERROR_STRINGS[(size_t)error];
 	}
@@ -441,7 +441,7 @@ qstp_errors qstp_header_validate(qstp_connection_state* cns, const qstp_network_
 	{
 		if (packetin->flag == qstp_flag_error_condition)
 		{
-			merr = (qstp_errors)packetin->pmessage[0U];
+			merr = qstp_error_connection_failure;
 		}
 		else
 		{
@@ -573,7 +573,7 @@ const char* qstp_get_error_description(qstp_messages message)
 
 	dsc = NULL;
 
-	if ((uint32_t)message < (uint32_t)QSTP_MESSAGE_STRING_DEPTH && (uint32_t)message >= 0U)
+	if ((uint32_t)message < (uint32_t)QSTP_MESSAGE_STRING_DEPTH)
 	{
 		dsc = QSTP_MESSAGE_STRINGS[(size_t)message];
 

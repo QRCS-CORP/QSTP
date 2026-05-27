@@ -153,13 +153,7 @@
 #	define qstp_cipher_set_associated qsc_rcs_set_associated
 #	define qstp_cipher_transform qsc_rcs_transform
 #else
-#	include "aes.h"
-#	define qstp_cipher_state qsc_aes_gcm256_state
-#	define qstp_cipher_dispose qsc_aes_gcm256_dispose
-#	define qstp_cipher_initialize qsc_aes_gcm256_initialize
-#	define qstp_cipher_keyparams qsc_aes_keyparams
-#	define qstp_cipher_set_associated qsc_aes_gcm256_set_associated
-#	define qstp_cipher_transform qsc_aes_gcm256_transform
+#	error The QSTP AES-GCM transport profile is disabled pending a per-record GCM nonce and state reset implementation. Define QSTP_USE_RCS_ENCRYPTION for the supported transport profile.
 #endif
 /** \endcond DOXYGEN_NO_DOCUMENT */
 
