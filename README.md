@@ -27,8 +27,6 @@
 | [Summary Document](https://qrcs-corp.github.io/QSTP/pdf/qstp_summary.pdf) | Protocol overview and design rationale |
 | [Protocol Specification](https://qrcs-corp.github.io/QSTP/pdf/qstp_specification.pdf) | Complete formal protocol definition |
 | [Formal Analysis](https://qrcs-corp.github.io/QSTP/pdf/qstp_formal.pdf) | Security proofs and formal verification |
-| [Implementation Analysis](https://qrcs-corp.github.io/QSTP/pdf/qstp_analysis.pdf) | Implementation security considerations |
-| [Integration Guide](https://qrcs-corp.github.io/QSTP/pdf/qstp_integration.pdf) | Deployment and integration instructions |
 
 ---
 
